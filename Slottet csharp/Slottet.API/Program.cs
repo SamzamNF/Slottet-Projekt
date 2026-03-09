@@ -1,6 +1,15 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the DI container.
+
+// Appsettings configuration
+
+// EF DbContext
+
+// Implementations from Infrastructure based on their interface in Application layer
+
+// Application services (Business logic)
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

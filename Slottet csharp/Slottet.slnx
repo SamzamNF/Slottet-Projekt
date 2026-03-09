@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="Slottet.API/Slottet.API.csproj" />
+  <Project Path="Slottet.Application/Slottet.Application.csproj" />
+  <Project Path="Slottet.Domain/Slottet.Domain.csproj" />
+  <Project Path="Slottet.Infrastructure/Slottet.Infrastructure.csproj" />
 </Solution>

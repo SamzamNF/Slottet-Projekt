@@ -10,4 +10,9 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Slottet.Application\Slottet.Application.csproj" />
+    <ProjectReference Include="..\Slottet.Infrastructure\Slottet.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>
