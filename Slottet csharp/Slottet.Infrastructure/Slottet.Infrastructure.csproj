@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Slottet.Application\Slottet.Application.csproj" />
+    <ProjectReference Include="..\Slottet.Domain\Slottet.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

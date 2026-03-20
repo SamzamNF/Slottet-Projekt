@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Slottet.Application\Slottet.Application.csproj" />
     <ProjectReference Include="..\Slottet.Infrastructure\Slottet.Infrastructure.csproj" />
+    <ProjectReference Include="..\Slottet.Shared\Slottet.Shared.csproj" />
   </ItemGroup>
 
 </Project>
