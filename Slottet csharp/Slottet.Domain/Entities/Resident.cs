@@ -7,7 +7,6 @@ namespace Slottet.Domain.Entities
     public class Resident
     {
         public int Id { get; set; }
-
-        public List<PostIt> PostIts { get; set; }
+        public string? Initials { get; set; }
     }
 }

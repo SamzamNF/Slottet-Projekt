@@ -7,8 +7,9 @@ namespace Slottet.Domain.Entities
     public class Risk
     {
         public int Id { get; set; }
-        public string RiskAssessment { get; set; }
+        public string? RiskAssessment { get; set; }
 
-        public PostIt PostIts { get; set; }
+        // Skal ikke bruges
+        //public PostIt PostIts { get; set; }
     }
 }

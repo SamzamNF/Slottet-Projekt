@@ -7,8 +7,9 @@ namespace Slottet.Domain.Entities
     public class Department
     {
         public int Id { get; set; }
-        public string DepartmentName { get; set; }
+        public string? DepartmentName { get; set; }
 
-        public List<Staff> Staff { get; set; } = new List<Staff>();
+        // Skal ikke bruges
+        //public List<Staff> Staff { get; set; } = new List<Staff>();
     }
 }
