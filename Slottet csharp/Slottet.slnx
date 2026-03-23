@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="Slottet Frontend/Slottet Frontend.csproj" Id="bc80e6c8-3082-47c8-b7fe-a4908e914e35" />
   <Project Path="Slottet.API/Slottet.API.csproj" />
   <Project Path="Slottet.Application/Slottet.Application.csproj" />
   <Project Path="Slottet.Domain/Slottet.Domain.csproj" />
