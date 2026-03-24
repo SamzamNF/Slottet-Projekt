@@ -16,11 +16,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 // EF DbContext
 
 /*builder.Services.AddDbContext<EFContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); slet kommentar her når klar*/
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); ------------slet kommentar her når klar*/
 
 // Implementations from Infrastructure based on their interface in Application layer
 
 // Application services (Business logic)
+
+
+// Cors with frontend URL
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SlottetFrontEnd", policy =>
+    {
+        policy.WithOrigins("https://localhost:7189")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// Og efter builder.Build():
 
 
 builder.Services.AddControllers();
@@ -38,6 +53,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+
+app.UseCors("SlottetFrontEnd");
 
 app.UseHttpsRedirection();
 
