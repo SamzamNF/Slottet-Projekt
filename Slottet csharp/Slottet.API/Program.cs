@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Slottet.Infrastructure.Persistence;
+using Microsoft.Identity.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,10 +9,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Appsettings configuration
 
+// Api appsettings configuration
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+
 // EF DbContext
 
-builder.Services.AddDbContext<EFContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); 
+/*builder.Services.AddDbContext<EFContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); slet kommentar her når klar*/
 
 // Implementations from Infrastructure based on their interface in Application layer
 
@@ -18,6 +24,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 
 
 builder.Services.AddControllers();
+builder.Services.AddAuthorization();
 
 
 
@@ -34,6 +41,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

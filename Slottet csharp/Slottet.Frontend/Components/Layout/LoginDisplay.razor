@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+
+<AuthorizeView>
+    <Authorized>
+        <span>Velkommen tilbage, @(context.User.FindFirst("name")?.Value ?? context.User.Identity?.Name)!</span>
+        <a href="MicrosoftIdentity/Account/SignOut">Log ud</a>
+    </Authorized>
+    <NotAuthorized>
+        <a href="MicrosoftIdentity/Account/SignIn">Log ind</a>
+    </NotAuthorized>
+</AuthorizeView>

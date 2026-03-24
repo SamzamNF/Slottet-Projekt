@@ -1,0 +1,26 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="typeof(Program).Assembly">
+        <Found Context="routeData">
+            @* AuthorizeRouteView tjekker [Authorize] attributter på pages *@
+            <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+                <NotAuthorized>
+                    <div class="p-4">
+                        <p role="alert">Du har ikke adgang til denne side. Log venligst ind.</p>
+                        <a href="MicrosoftIdentity/Account/SignIn">Log ind her</a>
+                    </div>
+                </NotAuthorized>
+                <Authorizing>
+                    <p>Verificerer adgang...</p>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="typeof(Layout.MainLayout)">
+                <p role="alert">Siden blev ikke fundet.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
