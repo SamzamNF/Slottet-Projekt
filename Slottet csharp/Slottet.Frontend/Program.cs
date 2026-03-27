@@ -5,7 +5,7 @@ using Slottet.Frontend.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Microsoft Entra Authentication (Erstatter alt det gamle Identity lort)
+// Microsoft Entra Authentication
 builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
     .AddMicrosoftIdentityWebApp(builder.Configuration.GetSection("AzureAd"))
     .EnableTokenAcquisitionToCallDownstreamApi(new string[] { "api://bd20e841-d13e-49bc-98be-6e4c60872fd2/access_as_user" })
@@ -14,14 +14,19 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 builder.Services.AddControllersWithViews().AddMicrosoftIdentityUI();
 builder.Services.AddCascadingAuthenticationState();
 
-//Blazor Services
+// Blazor Services
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // API Connection (HTTP Client)
-builder.Services.AddHttpClient("MyAPI", client => client.BaseAddress = new Uri("https://localhost:7189"));
+var apiUrl = builder.Configuration["ApiSettings:BaseUrl"]
+    ?? throw new InvalidOperationException("Missing configuration: ApiSettings:BaseUrl");
+
+builder.Services.AddHttpClient("MyAPI", client => client.BaseAddress = new Uri(apiUrl));
 builder.Services.AddScoped<ApiService>();
 
+
+// Build the app
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
