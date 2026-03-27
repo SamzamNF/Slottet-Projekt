@@ -11,6 +11,7 @@ namespace Slottet.Domain.Entities
         public string? Payment { get; set; }
         public string? DayOfAction { get; set; }
         public string? Status { get; set; }
+        public string? Mood { get; set; }
 
         public int StaffId { get; set; }
         public int MedicineId { get; set; }
