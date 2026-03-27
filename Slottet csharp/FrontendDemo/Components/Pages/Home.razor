@@ -1,0 +1,258 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>Østruplund Overlapsskema</PageTitle>
+
+<nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+    <div class="container-fluid">
+        <span class="navbar-brand h1 mb-0">Østruplund Dashboard</span>
+        <div class="d-flex align-items-center text-white">
+            <span class="me-3">Logget ind som: <strong>Personale A</strong></span>
+            <button class="btn btn-outline-light btn-sm">Log ud</button>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center bg-light mb-4 rounded p-3 shadow-sm">
+        <button class="btn btn-primary" @onclick="PreviousDay">
+            <i class="bi bi-arrow-left"></i> Forrige dag
+        </button>
+        <h3 class="mb-0">@currentDate.ToString("dd. MMMM yyyy")</h3>
+        <button class="btn btn-primary" @onclick="NextDay" disabled="@(currentDate >= DateTime.Today)">
+            Næste dag <i class="bi bi-arrow-right"></i>
+        </button>
+    </div>
+
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link @(activeDepartment == "Slottet" ? "active fw-bold" : "text-dark")"
+               style="cursor: pointer" @onclick='() => ChangeDepartment("Slottet")'>
+                Slottet <span class="badge bg-secondary">@Residents.Count(r => r.Department == "Slottet")</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(activeDepartment == "Skoven" ? "active fw-bold" : "text-dark")"
+               style="cursor: pointer" @onclick='() => ChangeDepartment("Skoven")'>
+                Skoven <span class="badge bg-secondary">@Residents.Count(r => r.Department == "Skoven")</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="row g-4">
+        @foreach (var resident in ActiveResidents)
+        {
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                <div class="card h-100 resident-card shadow-sm" style="cursor: pointer" @onclick="() => OpenResidentModal(resident)">
+                    <div class="card-header fw-bold text-center text-white @GetRiskBgColor(resident.RiskLevel)">
+                        @resident.Initials
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-2">
+                            <strong>Personale:</strong>
+                            @string.Join(", ", resident.Caretakers)
+                        </div>
+                        <div class="mb-2">
+                            <strong>Humør:</strong> @resident.Mood
+                        </div>
+                        <div class="mb-2">
+                            <strong>Medicin / PN:</strong>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var med in resident.Medications)
+                                {
+                                    <li class="small">✔️ @med.Time - @med.Description</li>
+                                }
+                            </ul>
+                        </div>
+                        <hr />
+                        <p class="card-text text-truncate small text-muted">@resident.Note</p>
+                    </div>
+                    <div class="card-footer text-muted small d-flex justify-content-between align-items-center">
+                        <span>Sidst ændret: @resident.LastEditedTime.ToString("HH:mm") af @resident.LastEditedBy</span>
+                        <a href="#" @onclick:preventDefault class="text-decoration-none">Vis log</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@if (selectedResident != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header @GetRiskBgColor(selectedResident.RiskLevel) text-white">
+                    <h5 class="modal-title">Rediger Borger: @selectedResident.Initials</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Risikovurdering</label>
+                            <select class="form-select" @bind="selectedResident.RiskLevel">
+                                <option value="Green">Fredelig (Grøn)</option>
+                                <option value="Yellow">Utilregnelig (Gul)</option>
+                                <option value="Red">Farlig (Rød)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Humør</label>
+                            <select class="form-select" @bind="selectedResident.Mood">
+                                <option value="Glad">Glad</option>
+                                <option value="Neutral">Neutral</option>
+                                <option value="Ked af det">Ked af det</option>
+                                <option value="Sur/Udadreagerende">Sur/Udadreagerende</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Fritekst (Aktiviteter, info, m.m.)</label>
+                        <textarea class="form-control" rows="4" @bind="selectedResident.Note"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Medicin og PN tiltag</label>
+                        <ul class="list-group mb-2">
+                            @foreach (var med in selectedResident.Medications)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@med.Time - @med.Description</span>
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </li>
+                            }
+                        </ul>
+                        <button class="btn btn-sm btn-outline-primary">+ Tilføj medicin/PN</button>
+                    </div>
+                </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <span class="text-muted small">Log: Senest redigeret @selectedResident.LastEditedTime.ToString("HH:mm")</span>
+                    <div>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuller</button>
+                        <button type="button" class="btn btn-success" @onclick="SaveChanges">Gem ændringer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .resident-card:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s ease-in-out;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+</style>
+
+@code {
+    private DateTime currentDate = DateTime.Today;
+    private string activeDepartment = "Slottet";
+    private Resident? selectedResident;
+
+    // Domain models
+    public class Resident
+    {
+        public string Id { get; set; } = Guid.NewGuid().ToString();
+        public string Initials { get; set; } = "";
+        public string Department { get; set; } = "";
+        public string RiskLevel { get; set; } = "Green";
+        public List<string> Caretakers { get; set; } = new();
+        public string Mood { get; set; } = "Neutral";
+        public string Note { get; set; } = "";
+        public List<MedicationTask> Medications { get; set; } = new();
+        public DateTime LastEditedTime { get; set; }
+        public string LastEditedBy { get; set; } = "";
+    }
+
+    public class MedicationTask
+    {
+        public string Time { get; set; } = "";
+        public string Description { get; set; } = "";
+    }
+
+    private List<Resident> Residents = new();
+    private IEnumerable<Resident> ActiveResidents => Residents.Where(r => r.Department == activeDepartment);
+
+    protected override void OnInitialized()
+    {
+        GenerateDummyData();
+    }
+
+    private void PreviousDay() => currentDate = currentDate.AddDays(-1);
+
+    private void NextDay()
+    {
+        if (currentDate < DateTime.Today) currentDate = currentDate.AddDays(1);
+    }
+
+    private void ChangeDepartment(string dept) => activeDepartment = dept;
+
+    private void OpenResidentModal(Resident resident)
+    {
+        selectedResident = resident; // Open modal with reference to clicked resident
+    }
+
+    private void CloseModal() => selectedResident = null;
+
+    private void SaveChanges()
+    {
+        if (selectedResident != null)
+        {
+            selectedResident.LastEditedTime = DateTime.Now;
+            selectedResident.LastEditedBy = "Personale A"; // Mock update
+        }
+        CloseModal();
+    }
+
+    private string GetRiskBgColor(string riskLevel) => riskLevel switch
+    {
+        "Red" => "bg-danger",
+        "Yellow" => "bg-warning",
+        "Green" => "bg-success",
+        _ => "bg-secondary"
+    };
+
+    // Auto-generate 9 residents for Slottet and 12 for Skoven
+    private void GenerateDummyData()
+    {
+        var random = new Random();
+        string[] moods = { "Glad", "Neutral", "Ked af det", "Sur/Udadreagerende" };
+        string[] risks = { "Green", "Green", "Green", "Yellow", "Yellow", "Red" }; // Weighted towards Green
+        string[] caretakerNames = { "Jens H.", "Maria K.", "Søren P.", "Line N." };
+
+        // Slottet (9)
+        for (int i = 1; i <= 9; i++)
+        {
+            Residents.Add(CreateRandomResident($"B{i}", "Slottet", random, moods, risks, caretakerNames));
+        }
+
+        // Skoven (12)
+        for (int i = 10; i <= 21; i++)
+        {
+            Residents.Add(CreateRandomResident($"B{i}", "Skoven", random, moods, risks, caretakerNames));
+        }
+    }
+
+    private Resident CreateRandomResident(string initials, string dept, Random rnd, string[] moods, string[] risks, string[] caretakers)
+    {
+        int caretakerCount = rnd.Next(1, 3);
+        var assignedCaretakers = caretakers.OrderBy(x => rnd.Next()).Take(caretakerCount).ToList();
+
+        return new Resident
+        {
+            Initials = initials,
+            Department = dept,
+            RiskLevel = risks[rnd.Next(risks.Length)],
+            Mood = moods[rnd.Next(moods.Length)],
+            Caretakers = assignedCaretakers,
+            Note = "Gik en tur i parken formiddag. Skal have hævet lommepenge til weekenden.",
+            LastEditedTime = DateTime.Today.AddHours(rnd.Next(7, 14)).AddMinutes(rnd.Next(0, 59)),
+            LastEditedBy = caretakers[rnd.Next(caretakers.Length)],
+            Medications = new List<MedicationTask>
+            {
+                new() { Time = "08:00", Description = "Morgenmedicin" },
+                new() { Time = "12:00", Description = "Påføring af creme" }
+            }
+        };
+    }
+}
