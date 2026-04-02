@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Slottet.Infrastructure.Persistence;
 using Microsoft.Identity.Web;
+using Slottet.Application.Interfaces;
+using Slottet.Infrastructure.Repositories;
+using Slottet.Application.BusinessLogic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,16 +18,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // EF DbContext
 
-/*builder.Services.AddDbContext<EFContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); ------------slet kommentar her når klar*/
+builder.Services.AddDbContext<EFContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Implementations from Infrastructure based on their interface in Application layer
+builder.Services.AddScoped<IStaffRepository, EfStaffRepository>();
 
-// Application services (Business logic)
+// Application services (Business logic/Services)
+builder.Services.AddScoped<StaffService>();
 
 
 // Cors with frontend URL
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("SlottetFrontEnd", policy =>
@@ -35,7 +39,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Og efter builder.Build():
+
+// Middleware and controllers
 
 
 builder.Services.AddControllers();
