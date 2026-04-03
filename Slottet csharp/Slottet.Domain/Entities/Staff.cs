@@ -4,12 +4,13 @@ namespace Slottet.Domain.Entities;
 
 public class Staff
 {
-    public int Initials { get; set; } // Primary key
+    public int Id { get; set; } // Primary key
+    public string? Initials { get; set; }
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
-    public string Email { get; set; } = string.Empty; // If�lge de nye svar
+    public string Email { get; set; } = string.Empty;
     public int DepartmentId { get; set; }
-    public int? RoleId { get; set; }
+    public int RoleId { get; set; }
 
     
 }

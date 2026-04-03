@@ -26,9 +26,9 @@ public class StaffController : ControllerBase
                 Initials = staffDto.Initials,
                 FirstName = staffDto.FirstName,
                 LastName = staffDto.LastName,
-                Email = staffDto.Email,
-                DepartmentId = staffDto.DepartmentId,
-                RoleId = staffDto.RoleId
+                Email = staffDto.Email ?? string.Empty,
+                RoleId = staffDto.RoleId,
+                DepartmentId = staffDto.DepartmentId
             };
 
             var addedStaff = await _staffService.Add(staff);
@@ -40,7 +40,7 @@ public class StaffController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest($"Uvenetet fejl: {ex.Message}");
+            return BadRequest($"Uventet fejl: {ex.Message}");
         }
     }
 }

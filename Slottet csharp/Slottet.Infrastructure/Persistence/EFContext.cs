@@ -10,6 +10,6 @@ public class EFContext : DbContext
     {
     }
 
-    public DbSet<Staff> Staffs { get; set; }
+    public DbSet<Staff> Staffs { get; set; } = null!;
 
 }

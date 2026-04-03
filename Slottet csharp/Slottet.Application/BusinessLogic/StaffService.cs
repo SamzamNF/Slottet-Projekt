@@ -22,7 +22,9 @@ public class StaffService
 
         return new StaffDto
         {
-            Initials = addedStaff.Initials,
+            
+            Id = addedStaff.Id,
+            Initials = addedStaff.Initials ?? string.Empty,
             FirstName = addedStaff.FirstName,
             LastName = addedStaff.LastName,
             Email = addedStaff.Email,
