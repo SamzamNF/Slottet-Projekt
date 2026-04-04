@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Slottet.Application.BusinessLogic;
-using Slottet.Domain.Entities;
 using Slottet.Shared.DTO;
 
 [ApiController]
@@ -21,17 +20,7 @@ public class StaffController : ControllerBase
     {
         try
         {
-            var staff = new Staff
-            {
-                Initials = staffDto.Initials,
-                FirstName = staffDto.FirstName,
-                LastName = staffDto.LastName,
-                Email = staffDto.Email ?? string.Empty,
-                RoleId = staffDto.RoleId,
-                DepartmentId = staffDto.DepartmentId
-            };
-
-            var addedStaff = await _staffService.Add(staff);
+            var addedStaff = await _staffService.Add(staffDto);
             return Ok(addedStaff);
         }
         catch (ArgumentException ex)

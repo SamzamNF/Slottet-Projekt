@@ -14,8 +14,17 @@ public class StaffService
         _staffRepo = staffRepo;
     }
 
-    public async Task<StaffDto> Add(Staff staff)
+    public async Task<StaffDto> Add(StaffDto staffDto)
     {
+            var staff = Staff.Create(
+                 staffDto.Initials ?? string.Empty,
+                 staffDto.FirstName ?? string.Empty,
+                 staffDto.LastName ?? string.Empty,
+                 staffDto.Email ?? string.Empty,
+                 staffDto.DepartmentId,
+                 staffDto.RoleId
+            );
+              
         var addedStaff = await _staffRepo.Add(staff);
 
         // missing a GetRole and GetDepartment to match rolename/departmentname in StaffDto
