@@ -17,16 +17,7 @@ public class EfStaffRepository : IStaffRepository
 
     public async Task<Staff> Add(Staff staff)
     {
-        try
-        {
-            _context.Staffs.Add(staff);
-            await _context.SaveChangesAsync();
-            return staff; 
-        }
-        // Catching Db exception and translating to general exception, which is thrown to API-layer, where its handled and turned into a HTTP response
-        catch (DbUpdateException ex)
-        {
-            throw new Exception("Kunne ikke gemme personalet i databasen.", ex);
-        }
+        await _context.Staffs.AddAsync(staff);
+        return staff; 
     }
 }
