@@ -1,6 +1,9 @@
 ﻿using Slottet.Domain.Entities;
 
-public interface IPostItRepository
+namespace Slottet.Application.Interfaces
 {
-    Task UpdatePostIt(PostIt postIt);
+    public interface IPostItRepository
+    {
+        Task UpdatePostIt(PostIt postIt);
+    }  
 }
