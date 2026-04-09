@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Slottet.Shared.DTO
 {
-    internal class PostItDTO
+    public class PostItDTO
     {
         public DateTime Date { get; set; }
         public string Payment { get; set; } = string.Empty;
