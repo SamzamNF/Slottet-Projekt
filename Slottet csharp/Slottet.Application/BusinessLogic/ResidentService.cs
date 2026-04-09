@@ -10,11 +10,13 @@ namespace Slottet.Application.BusinessLogic;
 public class ResidentService
 {
     private readonly IResidentRepository _residentRepo;
+    private readonly IUnitOfWork _unitOfWork;
 
     // The residentRepo interface is injected via Dependency Injection
-    public ResidentService(IResidentRepository residentRepo)
+    public ResidentService(IResidentRepository residentRepo, IUnitOfWork unitOfWork)
     {
         _residentRepo = residentRepo;
+        _unitOfWork = unitOfWork;
     }
 
     // Validates data, maps the DTO to a Domain entity, and saves it.
@@ -22,17 +24,14 @@ public class ResidentService
     public async Task<bool> ExecuteAsync(ResidentDto dto)
     {
         // 1. Business Validation: Ensure initials are not empty or just whitespaces
-        if (string.IsNullOrWhiteSpace(dto.Initial))
-        {
-            return false;
-        }
+        if(string.IsNullOrWhiteSpace(dto.Initial)) return false;
 
         // 2. Mapping: Convert the incoming DTO into a valid Domain entity
         var resident = Resident.Create(dto.Initial);
 
         // 3. Persistence: Add the entity to memory and save changes to the SQL database
         await _residentRepo.AddAsync(resident);
-        var rowsAffected = await _residentRepo.SaveChangesAsync();
+        var rowsAffected = await _unitOfWork.SaveChangesAsync();
 
         // 4. Verification: Return true if at least one row was added to the database
         return rowsAffected > 0;
