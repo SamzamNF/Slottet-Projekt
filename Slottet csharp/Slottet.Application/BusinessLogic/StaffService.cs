@@ -8,10 +8,12 @@ namespace Slottet.Application.BusinessLogic;
 public class StaffService
 {
     private readonly IStaffRepository _staffRepo;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public StaffService(IStaffRepository staffRepo)
+    public StaffService(IStaffRepository staffRepo, IUnitOfWork unitOfWork)
     {
         _staffRepo = staffRepo;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<StaffDto> Add(StaffDto staffDto)
@@ -26,6 +28,10 @@ public class StaffService
             );
               
         var addedStaff = await _staffRepo.Add(staff);
+        
+        int result = await _unitOfWork.SaveChangesAsync();
+        if (result <= 0)
+            throw new InvalidOperationException("Kunne ikke gemme den oprettede medarbejder i databasen.");
 
         // missing a GetRole and GetDepartment to match rolename/departmentname in StaffDto
 
