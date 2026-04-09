@@ -19,5 +19,41 @@ namespace Slottet.Domain.Entities
         public int MedicineId { get; set; }
         public int ResidentId { get; set; }
         public int RiskId { get; set; }
+
+        private PostIt() { }
+
+        // Service
+        public static PostIt Create(
+            DateTime date,
+            string payment,
+            string shoppingDay,
+            string mood,
+            string status,
+            string events,
+            string relativesContact
+        )
+        {
+            if (date == default)
+                throw new ArgumentException("Dato er påkrævet");
+            if (string.IsNullOrWhiteSpace(payment))
+                throw new ArgumentException("Betaling er påkrævet");
+            if (string.IsNullOrWhiteSpace(shoppingDay))
+                throw new ArgumentException("Indkøbsdag er påkrævet");
+            if (string.IsNullOrWhiteSpace(mood))
+                throw new ArgumentException("Humør er påkrævet");
+            if (string.IsNullOrWhiteSpace(status))
+                throw new ArgumentException("Status er påkrævet");
+
+            return new PostIt
+            {
+                Date = date,
+                Payment = payment,
+                ShoppingDay = shoppingDay,
+                Mood = mood,
+                Status = status,
+                Events = events,
+                RelativesContact = relativesContact
+            };
+        }
     }
 }
