@@ -22,16 +22,23 @@ public class ResidentController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Add(ResidentDto dto)
     {
-        // Pass the request to the Application layer for processing
-        var isSuccess = await _residentService.ExecuteAsync(dto);
-
-        // If validation failed in the service layer, return HTTP 400 Bad Request
-        if (!isSuccess)
+        try
         {
-            return BadRequest("Fejl - initialer mangler");
-        }
+            // Call service. If it fails: line is interrupted, code jumps directly to 'catch'.
+            var addedResident = await _residentService.ExecuteAsync(dto);
 
-        // If successful, return HTTP 201 Created
-        return Created(string.Empty, dto);
+            // Returns 201 Created with newly created Resident object (now including ID)
+            return Created(string.Empty, addedResident);
+        }
+        catch (ArgumentException ex)
+        {
+            // Catches user errors (fx domain validations)
+            return BadRequest($"Ugyldigt input: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            // Catches all other unexpected errors
+            return BadRequest($"Uventet fejl: {ex.Message}");
+        }
     }
 }

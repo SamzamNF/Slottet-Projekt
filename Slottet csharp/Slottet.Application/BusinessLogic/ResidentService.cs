@@ -20,20 +20,20 @@ public class ResidentService
     }
 
     // Validates data, maps the DTO to a Domain entity, and saves it.
-    // Returns True if successful, False if validation failed.
-    public async Task<bool> ExecuteAsync(ResidentDto dto)
+    // Returns ResidentDto
+    public async Task<ResidentDto> ExecuteAsync(ResidentDto dto)
     {
-        // 1. Business Validation: Ensure initials are not empty or just whitespaces
-        if(string.IsNullOrWhiteSpace(dto.Initial)) return false;
-
-        // 2. Mapping: Convert the incoming DTO into a valid Domain entity
+        // Call factory method on Resident entity to create a new instance based on the data in the DTO.
         var resident = Resident.Create(dto.Initial);
 
-        // 3. Persistence: Add the entity to memory and save changes to the SQL database
-        await _residentRepo.AddAsync(resident);
-        var rowsAffected = await _unitOfWork.SaveChangesAsync();
+        // Await the repository method to add the new resident to the database. This does not yet save it, just prepares it.
+        await _repository.AddAsync(resident);
+        await _unitOfWork.SaveChangesAsync();
 
-        // 4. Verification: Return true if at least one row was added to the database
-        return rowsAffected > 0;
+        // Update DTO with Id returned from database
+        dto.Id = resident.Id;
+
+        // Return DTO, now with updated Id
+        return dto;
     }
 }
