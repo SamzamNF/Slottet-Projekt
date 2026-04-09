@@ -27,6 +27,10 @@ public class StaffController : ControllerBase
         {
             return BadRequest($"Ugyldigt input: {ex.Message}");
         }
+        catch (InvalidOperationException ex)
+        {
+            return StatusCode(500, $"Fejl ved oprettelse: {ex.Message}");
+        }
         catch (Exception ex)
         {
             return BadRequest($"Uventet fejl: {ex.Message}");

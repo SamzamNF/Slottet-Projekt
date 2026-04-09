@@ -22,6 +22,7 @@ builder.Services.AddDbContext<EFContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Implementations from Infrastructure based on their interface in Application layer
+builder.Services.AddScoped<IUnitOfWork, EFContext>();
 builder.Services.AddScoped<IStaffRepository, EfStaffRepository>();
 
 // Application services (Business logic/Services)
