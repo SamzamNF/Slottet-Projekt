@@ -11,5 +11,7 @@ public class EFContext : DbContext
     }
 
     public DbSet<Staff> Staffs { get; set; } = null!;
-
+    public DbSet<Medicine> Medicines { get; set; } = null!;
+    public DbSet<PostIt> PostIts { get; set; } = null!;
+    public DbSet<Resident> Residents { get; set; } = null!;
 }
