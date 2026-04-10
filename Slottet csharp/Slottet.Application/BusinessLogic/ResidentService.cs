@@ -26,8 +26,10 @@ public class ResidentService
         // Call factory method on Resident entity to create a new instance based on the data in the DTO.
         var resident = Resident.Create(dto.Initial);
 
-        // Await the repository method to add the new resident to the database. This does not yet save it, just prepares it.
+        // Await the repository method to add the new resident to the database context.
         await _repository.AddAsync(resident);
+
+        // Call SaveChangesAsync on the UnitOfWork to persist the new resident to the database.
         await _unitOfWork.SaveChangesAsync();
 
         // Update DTO with Id returned from database
