@@ -27,28 +27,48 @@ public class StaffService
                  staffDto.RoleId
             );
               
-        var addedStaff = await _staffRepo.Add(staff);
-        
+        await _staffRepo.Add(staff);        
+
+        // Checks if the staff was added to the database and throws an exception if not
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
             throw new InvalidOperationException("Kunne ikke gemme den oprettede medarbejder i databasen.");
 
-        // missing a GetRole and GetDepartment to match rolename/departmentname in StaffDto
+        // Fetches the staff to get the generated ID by the DB and related entities
+        Staff? created = await _staffRepo.GetById(staff.Id);
+        if (created == null)
+            throw new InvalidOperationException("Staff kunne ikke findes efter oprettelsen");
 
-        return new StaffDto
-        {
-            
-            Id = addedStaff.Id,
-            Initials = addedStaff.Initials ?? string.Empty,
-            FirstName = addedStaff.FirstName,
-            LastName = addedStaff.LastName,
-            Email = addedStaff.Email,
-            DepartmentId = addedStaff.DepartmentId,
-            RoleId = addedStaff.RoleId,
-
-            Department = "DepartmentNamePlaceholder",
-            RoleName = "RoleNamePlaceholder"
-        };
+        // Maps the created staff to a DTO and returns it API
+        return MapToDto(created);
     }
 
+    public async Task<StaffDto> GetById(int id)
+    {
+        Staff? staff = await _staffRepo.GetById(id);
+
+        if (staff == null)
+            throw new InvalidOperationException($"Staff med {id} blev ikke fundet");
+        
+        // Maps the staff to a DTO and returns it API
+        return MapToDto(staff);
+    }
+
+    // Helper method to prevent code duplication when fetching staff by ID
+    private StaffDto MapToDto(Staff staff)
+    {
+        return new StaffDto
+        {
+            Id = staff.Id,
+            Initials = staff.Initials ?? string.Empty,
+            FirstName = staff.FirstName,
+            LastName = staff.LastName,
+            Email = staff.Email,
+            DepartmentId = staff.DepartmentId,
+            RoleId = staff.RoleId,
+
+            Department = staff.Department?.DepartmentName ?? "",
+            RoleName = staff.Role?.RoleName ?? ""
+        };
+    }
 }

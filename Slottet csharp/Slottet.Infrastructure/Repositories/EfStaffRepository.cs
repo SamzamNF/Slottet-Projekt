@@ -15,9 +15,16 @@ public class EfStaffRepository : IStaffRepository
         _context = context;
     }
 
-    public async Task<Staff> Add(Staff staff)
+    public async Task Add(Staff staff)
     {
         await _context.Staffs.AddAsync(staff);
-        return staff; 
+    }
+
+    public async Task<Staff?> GetById(int id)
+    {
+        return await _context.Staffs
+            .Include(s => s.Department)
+            .Include(s => s.Role)
+            .FirstOrDefaultAsync(s => s.Id == id);
     }
 }

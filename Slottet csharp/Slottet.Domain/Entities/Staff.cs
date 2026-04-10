@@ -12,6 +12,10 @@ public class Staff
     public int DepartmentId { get; private set; }
     public int RoleId { get; private set; }
 
+    // EF Mapping properties
+    public Role? Role {get; private set;}
+    public Department? Department {get; private set;}
+
 
     // Private constructor to enforce the use of the Create method for validation
     private Staff () { }

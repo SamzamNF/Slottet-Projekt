@@ -36,4 +36,25 @@ public class StaffController : ControllerBase
             return BadRequest($"Uventet fejl: {ex.Message}");
         }
     }
+
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        try
+        {
+            var staff = await _staffService.GetById(id);
+            if (id <= 0)
+                return BadRequest("Du skal angive et gyldigt ID større end 0.");
+            return Ok(staff);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound($"Fejl ved hentning: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Uventet fejl: {ex.Message}");
+        }
+    }
 }
