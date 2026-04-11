@@ -18,7 +18,7 @@ public class StaffService
 
     public async Task<StaffDto> Add(StaffDto staffDto)
     {
-            var staff = Staff.Create(
+            Staff staff = Staff.Create(
                  staffDto.Initials ?? string.Empty,
                  staffDto.FirstName ?? string.Empty,
                  staffDto.LastName ?? string.Empty,
@@ -63,6 +63,30 @@ public class StaffService
 
         // Takes each staff in the list and sends it to the MapToDto method, and returns it
         return staffList.Select(MapToDto).ToList();
+    }
+
+    public async Task Update(StaffDto staffDto)
+    {
+        Staff? staffToUpdate = await _staffRepo.GetById(staffDto.Id);
+        if (staffToUpdate == null)
+            throw new InvalidOperationException($"Staff med ID {staffDto.Id} blev ikke fundet");
+
+        // Updates the old staff object with the new values with the Domain-layer's validation
+        staffToUpdate.UpdateStaffDetails(
+            staffDto.Initials ?? string.Empty,
+            staffDto.FirstName ?? string.Empty,
+            staffDto.LastName ?? string.Empty,
+            staffDto.Email ?? string.Empty,
+            staffDto.DepartmentId,
+            staffDto.RoleId
+            );        
+
+        _staffRepo.Update(staffToUpdate);
+        
+        int result = await _unitOfWork.SaveChangesAsync();
+        if (result <= 0)
+            throw new InvalidOperationException("Kunne ikke opdatere medarbejderen i databasen.");
+
     }
 
     // Helper method to prevent code duplication

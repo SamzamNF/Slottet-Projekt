@@ -46,7 +46,7 @@ public class ApiService
     }
     
     // POST (Overload with a generic return value)
-    // Returns "Tresponse" to frontend, and adds "Trequest" to the API (db)
+    // Returns "Tresponse DTO" to frontend, and sends "Trequest DTO" to the API (db)
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
     {
         await SetAccessToken();

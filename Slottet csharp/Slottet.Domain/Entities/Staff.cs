@@ -32,9 +32,9 @@ public class Staff
     )
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("FirstName er påkrævet");
+            throw new ArgumentException("Fornavn er påkrævet");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("LastName er påkrævet");
+            throw new ArgumentException("Efternavn er påkrævet");
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email er påkrævet");
         if (string.IsNullOrWhiteSpace(initials))
@@ -53,6 +53,38 @@ public class Staff
             DepartmentId = departmentId,
             RoleId = roleId
         };
+    }
+
+    // Method to update a staff object with validation
+    public void UpdateStaffDetails(
+        string initials,
+        string firstName,
+        string lastName,
+        string email,
+        int departmentId,
+        int roleId
+    )
+    {
+        if (string.IsNullOrWhiteSpace(firstName))
+            throw new ArgumentException("Fornavn er påkrævet");
+        if (string.IsNullOrWhiteSpace(lastName))
+            throw new ArgumentException("Efternavn er påkrævet");
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email er påkrævet");
+        if (string.IsNullOrWhiteSpace(initials))
+            throw new ArgumentException("Initialer er påkrævet");
+        if (departmentId <= 0)
+            throw new ArgumentException("Department skal være valgt");
+        if (roleId <= 0)
+            throw new ArgumentException("Rolle skal være valgt");
+
+        Initials = initials;
+        FirstName = firstName;
+        LastName = lastName;
+        Email = email;
+        DepartmentId = departmentId;
+        RoleId = roleId;
+
     }
         
 

@@ -35,4 +35,15 @@ public class EfStaffRepository : IStaffRepository
             .Include(s => s.Role)
             .ToListAsync();
     }
+
+    public void Update(Staff staff)
+    {
+        _context.Staffs.Update(staff);
+    }
+
+    public void Delete(Staff staff)
+    {
+        _context.Staffs.Remove(staff);
+    }
+
 }
