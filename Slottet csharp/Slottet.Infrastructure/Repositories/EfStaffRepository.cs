@@ -27,4 +27,12 @@ public class EfStaffRepository : IStaffRepository
             .Include(s => s.Role)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
+
+    public async Task<List<Staff>> GetAll()
+    {
+        return await _context.Staffs
+            .Include(s => s.Department)
+            .Include(s => s.Role)
+            .ToListAsync();
+    }
 }

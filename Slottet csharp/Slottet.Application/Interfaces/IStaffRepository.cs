@@ -7,4 +7,5 @@ public interface IStaffRepository
 {
     Task Add(Staff staff);
     Task<Staff?> GetById(int id);
+    Task<List<Staff>> GetAll();
 }

@@ -54,7 +54,18 @@ public class StaffService
         return MapToDto(staff);
     }
 
-    // Helper method to prevent code duplication when fetching staff by ID
+    public async Task<List<StaffDto>> GetAll()
+    {
+        List<Staff> staffList = await _staffRepo.GetAll();
+
+        if (staffList == null || staffList.Count == 0)
+            throw new InvalidOperationException("Ingen medarbejdere blev fundet");
+
+        // Takes each staff in the list and sends it to the MapToDto method, and returns it
+        return staffList.Select(MapToDto).ToList();
+    }
+
+    // Helper method to prevent code duplication
     private StaffDto MapToDto(Staff staff)
     {
         return new StaffDto
