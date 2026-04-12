@@ -38,7 +38,7 @@ public class StaffController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> GetById(int id)
     {
         try
