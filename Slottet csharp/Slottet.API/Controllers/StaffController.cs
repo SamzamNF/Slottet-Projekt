@@ -60,7 +60,7 @@ public class StaffController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> GetAll()
     {
         try
