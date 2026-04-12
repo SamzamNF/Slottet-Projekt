@@ -89,6 +89,19 @@ public class StaffService
 
     }
 
+    public async Task Delete(int id)
+    {
+        Staff? staffToDelete = await _staffRepo.GetById(id);
+        if (staffToDelete == null)
+            throw new InvalidOperationException($"Staff med ID {id} blev ikke fundet og kunne ikke slettes");
+            
+        _staffRepo.Delete(staffToDelete);
+
+        int result = await _unitOfWork.SaveChangesAsync();
+        if (result <= 0)
+            throw new InvalidOperationException("Kunne ikke slette medarbejderen i databasen.");
+    }
+
     // Helper method to prevent code duplication
     private StaffDto MapToDto(Staff staff)
     {

@@ -102,4 +102,26 @@ public class StaffController : ControllerBase
             return StatusCode(500, $"Uventet fejl: {ex.Message}");
         }
     }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            if (id <= 0)
+                return BadRequest("Du skal angive et gyldigt ID større end 0.");
+
+            await _staffService.Delete(id);
+            return Ok();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound($"Fejl ved sletning: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Uventet fejl: {ex.Message}");
+        }
+    }
 }
