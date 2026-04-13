@@ -28,17 +28,17 @@ public class Staff
     )
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("FirstName er pÃ¥krÃ¦vet");
+            throw new ArgumentException("FirstName er påkrævet");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("LastName er pÃ¥krÃ¦vet");
+            throw new ArgumentException("LastName er påkrævet");
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email er pÃ¥krÃ¦vet");
+            throw new ArgumentException("Email er påkrævet");
         if (string.IsNullOrWhiteSpace(initials))
-            throw new ArgumentException("Initialer er pÃ¥krÃ¦vet");
+            throw new ArgumentException("Initialer er påkrævet");
         if (departmentId <= 0)
-            throw new ArgumentException("Department skal vÃ¦re valgt");
+            throw new ArgumentException("Department skal være valgt");
         if (roleId <= 0)
-            throw new ArgumentException("Rolle skal vÃ¦re valgt");
+            throw new ArgumentException("Rolle skal være valgt");
 
         return new Staff
         {
