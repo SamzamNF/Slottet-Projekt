@@ -23,6 +23,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectio
 
 // Implementations from Infrastructure based on their interface in Application layer
 builder.Services.AddScoped<IUnitOfWork, EFContext>();
+
 builder.Services.AddScoped<IStaffRepository, EfStaffRepository>();
 builder.Services.AddScoped<IPostItRepository, EfPostItRepository>();
 builder.Services.AddScoped<IResidentRepository, EfResidentRepository>();
