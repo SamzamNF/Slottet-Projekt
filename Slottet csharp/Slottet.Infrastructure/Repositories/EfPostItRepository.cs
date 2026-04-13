@@ -20,7 +20,6 @@ public class EfPostItRepository  : IPostItRepository
     public async Task<PostIt> UpdatePostIt(PostIt postIt)
     {
         _context.PostIts.Update(postIt);
-        await _context.SaveChangesAsync();
         return postIt;
     }
 }
