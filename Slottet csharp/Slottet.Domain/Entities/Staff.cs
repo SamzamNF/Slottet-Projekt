@@ -32,9 +32,9 @@ public class Staff
     )
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("Fornavn er påkrævet");
+            throw new ArgumentException("Fornavn er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("Efternavn er påkrævet");
+            throw new ArgumentException("Efternavn er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email er påkrævet");
         if (string.IsNullOrWhiteSpace(initials))
@@ -66,17 +66,17 @@ public class Staff
     )
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("Fornavn er påkrævet");
+            throw new ArgumentException("Fornavn er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("Efternavn er påkrævet");
+            throw new ArgumentException("Efternavn er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email er påkrævet");
+            throw new ArgumentException("Email er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(initials))
-            throw new ArgumentException("Initialer er påkrævet");
+            throw new ArgumentException("Initialer er pÃ¥krÃ¦vet");
         if (departmentId <= 0)
-            throw new ArgumentException("Department skal være valgt");
+            throw new ArgumentException("Department skal vÃ¦re valgt");
         if (roleId <= 0)
-            throw new ArgumentException("Rolle skal være valgt");
+            throw new ArgumentException("Rolle skal vÃ¦re valgt");
 
         Initials = initials;
         FirstName = firstName;
