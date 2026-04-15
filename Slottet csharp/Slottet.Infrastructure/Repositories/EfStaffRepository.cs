@@ -20,6 +20,7 @@ public class EfStaffRepository : IStaffRepository
         await _context.Staffs.AddAsync(staff);
     }
 
+    // Gets a Staff member by their ID, including their associated Department and Role data
     public async Task<Staff?> GetById(int id)
     {
         return await _context.Staffs
@@ -28,6 +29,7 @@ public class EfStaffRepository : IStaffRepository
             .FirstOrDefaultAsync(s => s.Id == id);
     }
 
+    // Gets all Staff members, including their associated Department and Role data
     public async Task<List<Staff>> GetAll()
     {
         return await _context.Staffs

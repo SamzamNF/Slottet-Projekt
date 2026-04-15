@@ -12,6 +12,7 @@ public class EFContext : DbContext, IUnitOfWork
     }
 
     public DbSet<Staff> Staffs { get; set; } = null!;
+    public DbSet<Role> Roles { get; set; } = null!;
 
 
     // Implementing IUnitOfWork, which saves changes as a transaction to the database
