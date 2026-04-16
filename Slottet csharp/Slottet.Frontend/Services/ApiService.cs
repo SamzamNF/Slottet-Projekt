@@ -37,12 +37,21 @@ public class ApiService
         return await HandleResponse<List<T>>(response);
     }
 
-    // POST
+    // POST (Without expecting a return value)
     public async Task PostAsync<T>(string endpoint, T data)
     {
         await SetAccessToken();
         var response = await _httpClient.PostAsJsonAsync(endpoint, data);
         await HandleResponse<object>(response);
+    }
+    
+    // POST (Overload with a generic return value)
+    // Returns "Tresponse DTO" to frontend, and sends "Trequest DTO" to the API (db)
+    public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
+    {
+        await SetAccessToken();
+        var response = await _httpClient.PostAsJsonAsync(endpoint, data);
+        return await HandleResponse<TResponse>(response);
     }
 
     // PUT
@@ -61,24 +70,34 @@ public class ApiService
         await HandleResponse<object>(response);
     }
 
-    // Central håndtering af adgang og fejl
+    // Error handling for all API calls which checks status codes and returns error messages to the frontend
     private async Task<T?> HandleResponse<T>(HttpResponseMessage response)
     {
         if (response.StatusCode == HttpStatusCode.Forbidden)
         {
-            // Brugeren er logget ind, men har ikke den rigtige rolle (Admin/Personale)
+            // User doesnt have the required roles (Admin/Personale)
             throw new UnauthorizedAccessException("Du har ikke de nødvendige rettigheder til denne handling.");
         }
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            // Brugeren er slet ikke logget ind eller token er udløbet
+            // User not logged in or token expired
             throw new HttpRequestException("Log venligst ind igen.");
         }
 
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            // Catches errors from the API
+            var error = await response.Content.ReadAsStringAsync();
 
-        if (response.StatusCode == HttpStatusCode.NoContent) return default;
+            // Sends the error message to the Frontend
+            throw new Exception(string.IsNullOrWhiteSpace(error) ? $"Fejl: {response.StatusCode}" : error);
+        }
+        
+        //response.EnsureSuccessStatusCode();
+
+        if (response.StatusCode == HttpStatusCode.NoContent) 
+            return default;
 
         return await response.Content.ReadFromJsonAsync<T>();
     }
