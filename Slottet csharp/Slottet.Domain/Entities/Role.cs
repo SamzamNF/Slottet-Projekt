@@ -20,7 +20,7 @@ public class Role
         };
     }
 
-    public void UpdateRoleName(string roleName)
+    public void Update(string roleName)
     {
         if (string.IsNullOrWhiteSpace(roleName))
             throw new ArgumentException("Rolle navn er påkrævet");
