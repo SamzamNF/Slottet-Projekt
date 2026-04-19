@@ -3,29 +3,27 @@ using Microsoft.AspNetCore.Mvc;
 using Slottet.Application.BusinessLogic;
 using Slottet.Shared.DTO;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 
 namespace Slottet.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RoleController : ControllerBase
+    public class DepartmentController : ControllerBase
     {
-        private readonly RoleService _roleService;
-        public RoleController(RoleService roleService)
+        private readonly DepartmentService _departmentService;
+        public DepartmentController(DepartmentService departmentService)
         {
-            _roleService = roleService;
+            _departmentService = departmentService;
         }
 
         [HttpPost]
-        [Authorize (Roles = "Admin")]
-        public async Task<IActionResult> Add(RoleDTO roleDto)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Add(DepartmentDTO departmentDto)
         {
             try
             {
-                RoleDTO addedRole = await _roleService.Add(roleDto);
-                return Ok(addedRole);
+                DepartmentDTO addedDepartment = await _departmentService.Add(departmentDto);
+                return Ok(addedDepartment);
             }
             catch (ArgumentException ex)
             {
@@ -54,8 +52,8 @@ namespace Slottet.API.Controllers
                 if (id <= 0)
                     return BadRequest("Du skal angive et gyldigt ID større end 0.");
 
-                RoleDTO role = await _roleService.GetById(id);
-                return Ok(role);
+                DepartmentDTO department = await _departmentService.GetById(id);
+                return Ok(department);
             }
             catch (KeyNotFoundException ex)
             {
@@ -73,8 +71,8 @@ namespace Slottet.API.Controllers
         {
             try
             {
-                List<RoleDTO> roles = await _roleService.GetAllRoles();
-                return Ok(roles);
+                List<DepartmentDTO> departments = await _departmentService.GetAllDepartments();
+                return Ok(departments);
             }
             catch (KeyNotFoundException ex)
             {
@@ -88,14 +86,14 @@ namespace Slottet.API.Controllers
 
         [HttpPut]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Update(RoleDTO roleDto)
+        public async Task<IActionResult> Update(DepartmentDTO departmentDto)
         {
             try
             {
-                await _roleService.Update(roleDto);
-                return NoContent();
+                await _departmentService.Update(departmentDto);
+                return Ok();
             }
-             catch (ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 return BadRequest($"Ugyldigt input: {ex.Message}");
             }
@@ -120,22 +118,21 @@ namespace Slottet.API.Controllers
             {
                 if (id <= 0)
                     return BadRequest("Du skal angive et gyldigt ID større end 0.");
-                await _roleService.Delete(id);
-                return NoContent();
+
+                await _departmentService.Delete(id);
+                return Ok();
             }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound($"Fejl ved sletning: {ex.Message}");
-            }
-            catch (InvalidOperationException ex)
-            {
-                return NotFound($"Fejl ved sletning: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Uventet fejl: {ex.Message}");
-            }
+             catch (InvalidOperationException ex)
+             {
+                 return NotFound($"Fejl ved sletning: {ex.Message}");
+             }
+             catch (KeyNotFoundException ex)
+             {
+                 return NotFound($"Fejl ved sletning: {ex.Message}");
+             }
+             catch (Exception ex)             {
+                 return StatusCode(500, $"Uventet fejl: {ex.Message}");
+             }
         }
     }
-   
 }

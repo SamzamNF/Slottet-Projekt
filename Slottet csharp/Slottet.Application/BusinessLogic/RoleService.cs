@@ -33,7 +33,7 @@ public class RoleService
     {
         Role role = await _roleRepository.GetById(id);
         if (role == null)
-            throw new InvalidOperationException($"Rolle med ID {id} blev ikke fundet");
+            throw new KeyNotFoundException($"Rolle med ID {id} blev ikke fundet");
 
         // Maps the role to a DTO and returns it API
         return MapToDto(role);
@@ -53,7 +53,7 @@ public class RoleService
         // Fetches the role to get the generated ID by the DB
         Role created = await _roleRepository.GetById(role.Id);
         if (created == null)
-            throw new InvalidOperationException("Rolle kunne ikke findes efter oprettelsen");
+            throw new KeyNotFoundException("Rolle kunne ikke findes efter oprettelsen");
         
         // Maps the created role to a DTO and returns it API
         return MapToDto(created);        
@@ -63,7 +63,7 @@ public class RoleService
     {
         Role? role = await _roleRepository.GetById(roleDto.Id);
         if (role == null)
-            throw new InvalidOperationException($"Rolle med ID {roleDto.Id} blev ikke fundet");
+            throw new KeyNotFoundException($"Rolle med ID {roleDto.Id} blev ikke fundet");
         
         // Updates the old role object with the new values from the DTO
         role.Update(roleDto.Name);
@@ -81,7 +81,7 @@ public class RoleService
         Role? role = await _roleRepository.GetById(id);
 
         if (role == null)
-            throw new InvalidOperationException($"Rolle med ID {id} blev ikke fundet");
+            throw new KeyNotFoundException($"Rolle med ID {id} blev ikke fundet");
 
         // Deletes the role from the database
         _roleRepository.Delete(role);
