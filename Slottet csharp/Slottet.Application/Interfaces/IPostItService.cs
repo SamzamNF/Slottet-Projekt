@@ -1,9 +1,8 @@
 ﻿using Slottet.Domain.Entities;
 
-namespace Slottet.Application.Interfaces
+namespace Slottet.Application.Interfaces;
+
+public interface IPostItService
 {
-    public interface IPostItService
-    {
-        Task UpdateInfo(PostIt postIt);
-    }
+    Task UpdateInfo(PostIt postIt);
 }
