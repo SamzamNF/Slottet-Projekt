@@ -113,7 +113,7 @@ public class StaffController : ControllerBase
                 return BadRequest("Du skal angive et gyldigt ID større end 0.");
 
             await _staffService.Delete(id);
-            return Ok();
+            return NoContent();
         }
         catch (InvalidOperationException ex)
         {

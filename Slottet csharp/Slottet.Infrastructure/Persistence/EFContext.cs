@@ -17,6 +17,7 @@ public class EFContext : DbContext, IUnitOfWork
     public DbSet<Medicine> Medicines { get; set; } = null!;
     public DbSet<PostIt> PostIts { get; set; } = null!;
     public DbSet<Resident> Residents { get; set; } = null!;
+    public DbSet<Department> Departments { get; set; } = null!;
 
     // Implementing IUnitOfWork, which saves changes as a transaction to the database
     public async Task<int> SaveChangesAsync()
