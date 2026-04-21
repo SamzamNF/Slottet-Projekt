@@ -12,6 +12,10 @@ public class Staff
     public int DepartmentId { get; private set; }
     public int RoleId { get; private set; }
 
+    // EF Mapping properties
+    public Role? Role {get; private set;}
+    public Department? Department {get; private set;}
+
 
     // Private constructor to enforce the use of the Create method for validation
     private Staff () { }
@@ -28,17 +32,17 @@ public class Staff
     )
     {
         if (string.IsNullOrWhiteSpace(firstName))
-            throw new ArgumentException("FirstName er p�kr�vet");
+            throw new ArgumentException("Fornavn er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(lastName))
-            throw new ArgumentException("LastName er p�kr�vet");
+            throw new ArgumentException("Efternavn er pÃ¥krÃ¦vet");
         if (string.IsNullOrWhiteSpace(email))
-            throw new ArgumentException("Email er p�kr�vet");
+            throw new ArgumentException("Email er påkrævet");
         if (string.IsNullOrWhiteSpace(initials))
-            throw new ArgumentException("Initialer er p�kr�vet");
+            throw new ArgumentException("Initialer er påkrævet");
         if (departmentId <= 0)
-            throw new ArgumentException("Department skal v�re valgt");
+            throw new ArgumentException("Department skal være valgt");
         if (roleId <= 0)
-            throw new ArgumentException("Rolle skal v�re valgt");
+            throw new ArgumentException("Rolle skal være valgt");
 
         return new Staff
         {
@@ -49,6 +53,38 @@ public class Staff
             DepartmentId = departmentId,
             RoleId = roleId
         };
+    }
+
+    // Method to update a staff object with validation
+    public void UpdateStaffDetails(
+        string initials,
+        string firstName,
+        string lastName,
+        string email,
+        int departmentId,
+        int roleId
+    )
+    {
+        if (string.IsNullOrWhiteSpace(firstName))
+            throw new ArgumentException("Fornavn er pÃ¥krÃ¦vet");
+        if (string.IsNullOrWhiteSpace(lastName))
+            throw new ArgumentException("Efternavn er pÃ¥krÃ¦vet");
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email er pÃ¥krÃ¦vet");
+        if (string.IsNullOrWhiteSpace(initials))
+            throw new ArgumentException("Initialer er pÃ¥krÃ¦vet");
+        if (departmentId <= 0)
+            throw new ArgumentException("Department skal vÃ¦re valgt");
+        if (roleId <= 0)
+            throw new ArgumentException("Rolle skal vÃ¦re valgt");
+
+        Initials = initials;
+        FirstName = firstName;
+        LastName = lastName;
+        Email = email;
+        DepartmentId = departmentId;
+        RoleId = roleId;
+
     }
         
 
