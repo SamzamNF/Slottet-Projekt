@@ -41,7 +41,7 @@ public class RoleService
 
     public async Task<RoleDTO> Add(RoleDTO roleDto)
     {
-        Role role = Role.Create(roleDto.Name);
+        Role role = Role.Create(roleDto.RoleName);
 
         await _roleRepository.Add(role);
 
@@ -66,7 +66,7 @@ public class RoleService
             throw new KeyNotFoundException($"Rolle med ID {roleDto.Id} blev ikke fundet");
         
         // Updates the old role object with the new values from the DTO
-        role.Update(roleDto.Name);
+        role.Update(roleDto.RoleName);
 
         _roleRepository.Update(role);
 
@@ -97,7 +97,7 @@ public class RoleService
         return new RoleDTO
         {
             Id = role.Id,
-            Name = role.RoleName
+            RoleName = role.RoleName
         };
     }
 

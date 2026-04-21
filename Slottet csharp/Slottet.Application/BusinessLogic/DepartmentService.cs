@@ -40,7 +40,7 @@ public class DepartmentService
 
     public async Task<DepartmentDTO> Add(DepartmentDTO departmentDto)
     {
-        Department department = Department.Create(departmentDto.Name);
+        Department department = Department.Create(departmentDto.DepartmentName);
 
         await _departmentRepository.Add(department);
 
@@ -64,7 +64,7 @@ public class DepartmentService
             throw new KeyNotFoundException($"Afdeling med ID {departmentDto.Id} blev ikke fundet");
 
         // Updates the department with the new values from the DTO
-        department.Update(departmentDto.Name);
+        department.Update(departmentDto.DepartmentName);
 
         _departmentRepository.Update(department);
 
@@ -94,7 +94,7 @@ public class DepartmentService
         return new DepartmentDTO
         {
             Id = department.Id,
-            Name = department.DepartmentName ?? string.Empty
+            DepartmentName = department.DepartmentName ?? string.Empty
         };
     }
 }

@@ -23,7 +23,7 @@ public class Role
     public void Update(string roleName)
     {
         if (string.IsNullOrWhiteSpace(roleName))
-            throw new ArgumentException("Rolle navn er påkrævet");
+            throw new ArgumentException("Rollenavn er påkrævet.");
 
         RoleName = roleName;
     }

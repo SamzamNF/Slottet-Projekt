@@ -13,7 +13,7 @@ namespace Slottet.Domain.Entities
         public static Department Create(string departmentName)
         {
             if (string.IsNullOrWhiteSpace(departmentName))
-                throw new ArgumentException("Department name cannot be empty.");
+                throw new ArgumentException("Afdelingsnavn er påkrævet.");
 
             return new Department
             {
@@ -24,7 +24,7 @@ namespace Slottet.Domain.Entities
         public void Update(string departmentName)
         {
             if (string.IsNullOrWhiteSpace(departmentName))
-                throw new ArgumentException("Department name cannot be empty.");
+                throw new ArgumentException("Afdelingsnavn er påkrævet.");
 
             DepartmentName = departmentName;
         }
