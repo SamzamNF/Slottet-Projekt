@@ -38,4 +38,30 @@ public class ResidentService
         // Return DTO, now with updated Id
         return dto;
     }
+
+    // Update resident information
+    public async Task<ResidentDto> UpdateAsync(int id, ResidentDto dto)
+    {
+        var resident = await _residentRepo.GetByIdAsync(id);
+        if (resident == null)
+            throw new KeyNotFoundException("Beboeren blev ikke fundet.");
+
+        resident.Update(dto.Initial);
+        await _unitOfWork.SaveChangesAsync();
+
+        dto.Id = resident.Id;
+        dto.IsArchived = resident.IsArchived;
+        return dto;
+    }
+
+    // Delete (Archive) resident by ID
+    public async Task ArchiveAsync(int id)
+    {
+        var resident = await _residentRepo.GetByIdAsync(id);
+        if (resident == null)
+            throw new KeyNotFoundException("Beboeren blev ikke fundet.");
+
+        resident.Archive();
+        await _unitOfWork.SaveChangesAsync();
+    }
 }

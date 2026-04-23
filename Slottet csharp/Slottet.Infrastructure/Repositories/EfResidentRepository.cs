@@ -1,4 +1,5 @@
-﻿using Slottet.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Slottet.Application.Interfaces;
 using Slottet.Domain.Entities;
 using Slottet.Infrastructure.Persistence;
 
@@ -12,10 +13,28 @@ public class EfResidentRepository : IResidentRepository
     {
         _context = context;
     }
-
     public async Task AddAsync(Resident resident)
     {
         // Tells EF Core to start tracking this new entity
         await _context.Residents.AddAsync(resident);
+    }
+    public async Task<Resident?> GetByIdAsync(int id)
+    {
+        // Fetch single resident by ID
+        return await _context.Residents.FirstOrDefaultAsync(r => r.Id == id);
+    }
+
+    public async Task<IEnumerable<Resident>> GetArchivedOlderThanAsync(DateTime thresholdDate, CancellationToken cancellationToken)
+    {
+        // Fetch residents that are archived and have an ArchivedAt date older than the threshold
+        return await _context.Residents
+            .Where(r => r.IsArchived && r.ArchivedAt != null && r.ArchivedAt < thresholdDate)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task RemoveRangeAsync(IEnumerable<Resident> residents, CancellationToken cancellationToken)
+    {
+        _context.Residents.RemoveRange(residents);
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }
