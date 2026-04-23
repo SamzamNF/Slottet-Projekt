@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Slottet.Domain.Entities
+namespace Slottet.Domain.Entities;
+
+public class Department
 {
-    public class Department
-    {
-        public int Id { get; set; }
-        public string? DepartmentName { get; set; }
+    public int Id { get; set; }
+    public string? DepartmentName { get; set; }
 
         
         public static Department Create(string departmentName)
