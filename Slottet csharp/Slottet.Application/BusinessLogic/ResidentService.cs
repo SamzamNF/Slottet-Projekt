@@ -27,7 +27,7 @@ public class ResidentService
         var resident = Resident.Create(dto.Initial);
 
         // Await the repository method to add the new resident to the database context.
-        await _repository.AddAsync(resident);
+        await _residentRepo.AddAsync(resident);
 
         // Call SaveChangesAsync on the UnitOfWork to persist the new resident to the database.
         await _unitOfWork.SaveChangesAsync();
