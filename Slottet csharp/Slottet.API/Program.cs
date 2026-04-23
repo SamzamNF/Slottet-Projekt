@@ -1,11 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Web;
-using Slottet.Application.BackgroundServices;
-using Slottet.Application.BusinessLogic;
-using Slottet.Application.Interfaces;
 using Slottet.Infrastructure.Persistence;
+using Microsoft.Identity.Web;
+using Slottet.Application.Interfaces;
 using Slottet.Infrastructure.Repositories;
+using Slottet.Application.BusinessLogic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,8 +37,8 @@ builder.Services.AddScoped<ResidentService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<DepartmentService>();
 
-// Register the background hosted service
-builder.Services.AddHostedService<ResidentRetentionService>();
+// Register cleanup background worker
+builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
 
 // Cors with frontend URL
 builder.Services.AddCors(options =>
