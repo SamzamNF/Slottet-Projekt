@@ -14,6 +14,7 @@ public class ResidentRetentionService : BackgroundService
         _unitOfWork = unitOfWork;
     }
 
+    // Runs in background and checks for archived residents that are older than 6 months, and permanently deletes them from the database.
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)

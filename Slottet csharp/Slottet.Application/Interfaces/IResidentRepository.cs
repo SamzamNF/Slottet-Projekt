@@ -13,9 +13,9 @@ public interface IResidentRepository
     // Retrieve a resident by ID
     Task<Resident?> GetByIdAsync(int id);
 
-    // Add this method to fix CS1061
+    // Fetch residents that are archived and have ArchivedAt date older than specified threshold date.
     Task<IEnumerable<Resident>> GetArchivedOlderThanAsync(DateTime thresholdDate, CancellationToken cancellationToken);
 
-    // Add this method to fix usage in ResidentRetentionService
+    // Permanently remove a collection of residents from database
     Task RemoveRangeAsync(IEnumerable<Resident> residents, CancellationToken cancellationToken);
 }

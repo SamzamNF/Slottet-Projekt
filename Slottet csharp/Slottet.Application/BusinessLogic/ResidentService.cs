@@ -12,24 +12,24 @@ public class ResidentService
     private readonly IResidentRepository _residentRepo;
     private readonly IUnitOfWork _unitOfWork;
 
-    // The residentRepo interface is injected via Dependency Injection
+    // residentRepo interface, injected via Dependency Injection
     public ResidentService(IResidentRepository residentRepo, IUnitOfWork unitOfWork)
     {
         _residentRepo = residentRepo;
         _unitOfWork = unitOfWork;
     }
 
-    // Validates data, maps the DTO to a Domain entity, and saves it.
-    // Returns ResidentDto
+    // Validate data, map DTO to a Domain entity, save it
+    // Return ResidentDto
     public async Task<ResidentDto> ExecuteAsync(ResidentDto dto)
     {
-        // Call factory method on Resident entity to create a new instance based on the data in the DTO.
+        // Call factory method on Resident entity to create a new instance based on the data in the DTO
         var resident = Resident.Create(dto.Initial);
 
-        // Await the repository method to add the new resident to the database context.
+        // Await repository method to add new resident to database context
         await _residentRepo.AddAsync(resident);
 
-        // Call SaveChangesAsync on the UnitOfWork to persist the new resident to the database.
+        // Call SaveChangesAsync on UnitOfWork to persist new resident to database
         await _unitOfWork.SaveChangesAsync();
 
         // Update DTO with Id returned from database

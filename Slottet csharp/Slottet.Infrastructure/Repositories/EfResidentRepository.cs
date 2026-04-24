@@ -24,6 +24,7 @@ public class EfResidentRepository : IResidentRepository
         return await _context.Residents.FirstOrDefaultAsync(r => r.Id == id);
     }
 
+    // Fetch residents that are archived and have ArchivedAt date older than specified threshold date.
     public async Task<IEnumerable<Resident>> GetArchivedOlderThanAsync(DateTime thresholdDate, CancellationToken cancellationToken)
     {
         // Fetch residents that are archived and have an ArchivedAt date older than the threshold
@@ -32,6 +33,7 @@ public class EfResidentRepository : IResidentRepository
             .ToListAsync(cancellationToken);
     }
 
+    // Permanently remove a collection of residents from the database
     public async Task RemoveRangeAsync(IEnumerable<Resident> residents, CancellationToken cancellationToken)
     {
         _context.Residents.RemoveRange(residents);
