@@ -37,7 +37,7 @@ public class PostItService
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
-            throw new InvalidOperationException("Kunne ikke gemme de indtastede oplysninger. Prøv igen.");
+            throw new InvalidOperationException("De indtastede oplysninger kunne ikke gemmes. Prøv igen.");
 
         // Return new DTO based on updated domain object
         return new PostItDTO
