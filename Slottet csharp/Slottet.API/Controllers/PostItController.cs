@@ -34,4 +34,35 @@ public class PostItController : ControllerBase
             return BadRequest($"Uventet fejl: {ex.Message}");
         }
     }
+
+    [HttpGet("history")]
+    [Authorize(Roles = "Admin,Staff")]
+    // [FromQuery] tells the controller to look for the 'date' parameter in the URL query string
+    public async Task<IActionResult> GetHistory([FromQuery] DateTime date)
+    {
+        try
+        {
+            var history = await _postItService.GetHistory(date);
+            return Ok(history);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Uventet fejl: {ex.Message}");
+        }
+    }
+
+    [HttpGet("all-history")]
+    [Authorize(Roles = "Admin,Staff")]
+    public async Task<IActionResult> GetAllHistory()
+    {
+        try
+        {
+            var history = await _postItService.GetAllHistory();
+            return Ok(history);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Uventet fejl: {ex.Message}");
+        }
+    }
 }
