@@ -7,7 +7,7 @@ namespace Slottet.Application.BusinessLogic;
 
 public class ResponsibilityAreaService
 {
-    private readonly IResponsibilityAreaRepository _repository;
+    private readonly IResponsibilityAreaRepository _responsibilityAreaRepo;
     private readonly IUnitOfWork _unitOfWork;
 
     public ResponsibilityAreaService(IResponsibilityAreaRepository repository, IUnitOfWork unitOfWork)
