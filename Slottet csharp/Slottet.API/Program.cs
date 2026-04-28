@@ -39,6 +39,8 @@ builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<ResponsibilityAreaService>();
 
+// Register cleanup background worker
+builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
 
 // Cors with frontend URL
 builder.Services.AddCors(options =>
