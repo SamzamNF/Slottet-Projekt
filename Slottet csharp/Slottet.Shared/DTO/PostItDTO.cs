@@ -6,6 +6,7 @@ namespace Slottet.Shared.DTO;
 
 public class PostItDTO
 {
+    public int Id { get; set; }
     public DateTime Date { get; set; }
     public string Payment { get; set; } = string.Empty;
     public string ShoppingDay { get; set; } = string.Empty;

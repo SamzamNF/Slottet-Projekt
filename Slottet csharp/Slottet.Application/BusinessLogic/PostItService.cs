@@ -38,6 +38,7 @@ public class PostItService
         // Return new DTO based on updated domain object
         return new PostItDTO
         {
+            Id = updatedPostIt.Id,
             Date = updatedPostIt.Date,
             Payment = updatedPostIt.Payment,
             ShoppingDay = updatedPostIt.ShoppingDay,
@@ -71,6 +72,7 @@ public class PostItService
     {
         return new PostItDTO
         {
+            Id = postIt.Id,
             Date = postIt.Date,
             Payment = postIt.Payment,
             ShoppingDay = postIt.ShoppingDay,
