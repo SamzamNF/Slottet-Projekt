@@ -27,12 +27,20 @@ builder.Services.AddScoped<IUnitOfWork, EFContext>();
 builder.Services.AddScoped<IStaffRepository, EfStaffRepository>();
 builder.Services.AddScoped<IPostItRepository, EfPostItRepository>();
 builder.Services.AddScoped<IResidentRepository, EfResidentRepository>();
+builder.Services.AddScoped<IRoleRepository, EfRoleRepository>();
+builder.Services.AddScoped<IDepartmentRepository, EfDepartmentRepository>();
+builder.Services.AddScoped<IResponsibilityAreaRepository, EfResponsibilityAreaRepository>();
 
 // Application services (Business logic/Services)
 builder.Services.AddScoped<StaffService>();
 builder.Services.AddScoped<PostItService>();
 builder.Services.AddScoped<ResidentService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<DepartmentService>();
+builder.Services.AddScoped<ResponsibilityAreaService>();
 
+// Register cleanup background worker
+builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
 
 // Cors with frontend URL
 builder.Services.AddCors(options =>

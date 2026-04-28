@@ -12,24 +12,24 @@ public class ResidentService
     private readonly IResidentRepository _residentRepo;
     private readonly IUnitOfWork _unitOfWork;
 
-    // The residentRepo interface is injected via Dependency Injection
+    // residentRepo interface, injected via Dependency Injection
     public ResidentService(IResidentRepository residentRepo, IUnitOfWork unitOfWork)
     {
         _residentRepo = residentRepo;
         _unitOfWork = unitOfWork;
     }
 
-    // Validates data, maps the DTO to a Domain entity, and saves it.
-    // Returns ResidentDto
+    // Validate data, map DTO to a Domain entity, save it
+    // Return ResidentDto
     public async Task<ResidentDto> ExecuteAsync(ResidentDto dto)
     {
-        // Call factory method on Resident entity to create a new instance based on the data in the DTO.
+        // Call factory method on Resident entity to create a new instance based on the data in the DTO
         var resident = Resident.Create(dto.Initial);
 
-        // Await the repository method to add the new resident to the database context.
-        await _repository.AddAsync(resident);
+        // Await repository method to add new resident to database context
+        await _residentRepo.AddAsync(resident);
 
-        // Call SaveChangesAsync on the UnitOfWork to persist the new resident to the database.
+        // Call SaveChangesAsync on UnitOfWork to persist new resident to database
         await _unitOfWork.SaveChangesAsync();
 
         // Update DTO with Id returned from database
@@ -37,5 +37,31 @@ public class ResidentService
 
         // Return DTO, now with updated Id
         return dto;
+    }
+
+    // Update resident information
+    public async Task<ResidentDto> UpdateAsync(int id, ResidentDto dto)
+    {
+        var resident = await _residentRepo.GetByIdAsync(id);
+        if (resident == null)
+            throw new KeyNotFoundException("Beboeren blev ikke fundet.");
+
+        resident.Update(dto.Initial);
+        await _unitOfWork.SaveChangesAsync();
+
+        dto.Id = resident.Id;
+        dto.IsArchived = resident.IsArchived;
+        return dto;
+    }
+
+    // Delete (Archive) resident by ID
+    public async Task ArchiveAsync(int id)
+    {
+        var resident = await _residentRepo.GetByIdAsync(id);
+        if (resident == null)
+            throw new KeyNotFoundException("Beboeren blev ikke fundet.");
+
+        resident.Archive();
+        await _unitOfWork.SaveChangesAsync();
     }
 }

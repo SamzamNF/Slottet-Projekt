@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/SQL/">
+    <File Path="deploy.sql" />
+  </Folder>
   <Project Path="Slottet.API/Slottet.API.csproj" />
   <Project Path="Slottet.Application/Slottet.Application.csproj" />
   <Project Path="Slottet.Domain/Slottet.Domain.csproj" />

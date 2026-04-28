@@ -7,9 +7,8 @@ namespace Slottet.Infrastructure.Persistence;
 
 public class EFContext : DbContext, IUnitOfWork
 {
-    public EFContext(DbContextOptions<EFContext> options) : base(options)
-    {
-    }
+    public EFContext(DbContextOptions<EFContext> options) : base(options) {}
+    
     // Exposes the entities to the Entity Framework engine
     // null! is used to suppress nullable warnings since EF will populate these properties at runtime
     public DbSet<Staff> Staffs { get; set; } = null!;
@@ -17,11 +16,25 @@ public class EFContext : DbContext, IUnitOfWork
     public DbSet<Medicine> Medicines { get; set; } = null!;
     public DbSet<PostIt> PostIts { get; set; } = null!;
     public DbSet<Resident> Residents { get; set; } = null!;
+    public DbSet<Department> Departments { get; set; } = null!;
+    public DbSet<ResponsibilityArea> ResponsibilityAreas { get; set; } = null!;
 
     // Implementing IUnitOfWork, which saves changes as a transaction to the database
     public async Task<int> SaveChangesAsync()
     {
         return await base.SaveChangesAsync();
+    }
+
+    // Configures the model and database schema
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Performance optimization: Index for filtered queries
+        modelBuilder.Entity<Resident>().HasIndex(r => r.IsArchived);
+
+        // Global query filter: Exclude archived residents from all queries
+        modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
+
+        base.OnModelCreating(modelBuilder);
     }
 
 }

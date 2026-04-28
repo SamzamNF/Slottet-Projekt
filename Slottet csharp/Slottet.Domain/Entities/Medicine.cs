@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Slottet.Domain.Entities
+namespace Slottet.Domain.Entities;
+
+public class Medicine
 {
-    public class Medicine
-    {
-        public int Id { get; set; }
-        public string Description { get; set; } = string.Empty;
-        public DateTime TimeStamp { get; set; }
-    }
+    public int Id { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public DateTime TimeStamp { get; set; }
 }

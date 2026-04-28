@@ -41,4 +41,44 @@ public class ResidentController : ControllerBase
             return BadRequest($"Uventet fejl: {ex.Message}");
         }
     }
+
+    // Edpoint to update an existing resident
+    // URL: PUT api/resident/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ResidentDto dto)
+    {
+        try
+        {
+            var updated = await _residentService.UpdateAsync(id, dto);
+            return Ok(updated);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl: {ex.Message}");
+        }
+    }
+
+    // Endpoint to archive (soft delete) a resident
+    // URL: DELETE api/resident/{id}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Archive(int id)
+    {
+        try
+        {
+            await _residentService.ArchiveAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Fejl: {ex.Message}");
+        }
+    }
 }
