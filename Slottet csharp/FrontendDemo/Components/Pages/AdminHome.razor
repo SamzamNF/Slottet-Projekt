@@ -1,18 +1,24 @@
-﻿@page "/"
+﻿@page "/admin"
 @rendermode InteractiveServer
 
-<PageTitle>Østruplund Overlapsskema</PageTitle>
+<PageTitle>Østruplund Overlapsskema - Admin</PageTitle>
 
 <div class="d-flex flex-column min-vh-100">
-    <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+    <nav class="navbar navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
             <span class="navbar-brand h1 mb-0">Østruplund Overlapsskema</span>
             <div class="d-flex align-items-center text-white">
-                <span class="me-3">Logget ind som: <strong>Personale A</strong></span>
+                <span class="me-3">Logget ind som: <strong>Administrator</strong></span>
                 <button class="btn btn-outline-light btn-sm">Log ud</button>
             </div>
         </div>
     </nav>
+
+    <div class="bg-secondary d-flex justify-content-center mb-4 gap-3 p-2 text-white shadow-sm">
+        <span class="fw-bold align-self-center me-2"><i class="bi bi-shield-lock-fill me-1"></i> Admin Panel:</span>
+        <button class="btn btn-sm btn-light" @onclick="NotImplementedAlert"><i class="bi bi-people-fill me-1"></i> Håndtér Personale</button>
+        <button class="btn btn-sm btn-light" @onclick="NotImplementedAlert"><i class="bi bi-person-gear me-1"></i> Håndtér Systembrugere</button>
+    </div>
 
     <div class="container-fluid flex-grow-1 px-4 pb-5">
 
@@ -51,7 +57,10 @@
                         <div class="@GetRiskBgColor(resident.RiskLevel)" style="height: 20px; width: 100%;"></div>
 
                         <div class="card-body">
-                            <h4 class="card-title fw-bold mb-3">@resident.Initials</h4>
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h4 class="card-title fw-bold mb-0">@resident.Initials</h4>
+                                <i class="bi bi-pencil-square text-muted"></i>
+                            </div>
 
                             <div class="mb-2">
                                 <strong>Personale:</strong>
@@ -84,6 +93,15 @@
                     </div>
                 </div>
             }
+
+            <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                <div class="card h-100 ghost-card shadow-sm" @onclick="OpenCreateResidentModal">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-secondary">
+                        <i class="bi bi-plus-circle display-4 mb-3"></i>
+                        <h5 class="fw-bold mb-0">Opret ny beboer</h5>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -91,9 +109,12 @@
         <div class="container-fluid px-4">
             <div class="row g-4">
                 <div class="col-md-6">
-                    <h5 class="fw-bold border-bottom border-secondary mb-3 pb-2">
-                        <i class="bi bi-person-badge me-2"></i>Ansvarsområder
-                    </h5>
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary mb-3 pb-2">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-person-badge me-2"></i>Ansvarsområder
+                        </h5>
+                        <button class="btn btn-outline-light btn-sm" @onclick="NotImplementedAlert"><i class="bi bi-gear-fill me-1"></i> Rediger</button>
+                    </div>
                     <ul class="list-unstyled mb-0">
                         @foreach (var task in Responsibilities)
                         {
@@ -105,9 +126,12 @@
                     </ul>
                 </div>
                 <div class="col-md-6">
-                    <h5 class="fw-bold border-bottom border-secondary mb-3 pb-2">
-                        <i class="bi bi-telephone-fill me-2"></i>Telefonliste
-                    </h5>
+                    <div class="d-flex justify-content-between align-items-center border-bottom border-secondary mb-3 pb-2">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-telephone-fill me-2"></i>Telefonliste
+                        </h5>
+                        <button class="btn btn-outline-light btn-sm" @onclick="NotImplementedAlert"><i class="bi bi-gear-fill me-1"></i> Rediger</button>
+                    </div>
                     <ul class="list-unstyled mb-0">
                         @foreach (var phone in PhoneNumbers)
                         {
@@ -129,12 +153,23 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header @GetRiskBgColor(selectedResident.RiskLevel) border-0 text-white">
-                    <h5 class="modal-title">Rediger Borger: @selectedResident.Initials</h5>
+                    <h5 class="modal-title">@(isCreatingNew ? "Opret Ny Beboer" : $"Rediger Borger: {selectedResident.Initials}")</h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Initialer</label>
+                            <input type="text" class="form-control" @bind="selectedResident.Initials" disabled="@(!isCreatingNew)" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Afdeling</label>
+                            <select class="form-select" @bind="selectedResident.Department" disabled="@(!isCreatingNew)">
+                                <option value="Slottet">Slottet</option>
+                                <option value="Skoven">Skoven</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
                             <label class="form-label fw-bold">Risikovurdering</label>
                             <select class="form-select" @bind="selectedResident.RiskLevel">
                                 <option value="Green">Fredelig (Grøn)</option>
@@ -142,15 +177,15 @@
                                 <option value="Red">Farlig (Rød)</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">Humør</label>
-                            <select class="form-select" @bind="selectedResident.Mood">
-                                <option value="Glad">Glad</option>
-                                <option value="Neutral">Neutral</option>
-                                <option value="Ked af det">Ked af det</option>
-                                <option value="Sur/Udadreagerende">Sur/Udadreagerende</option>
-                            </select>
-                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Humør</label>
+                        <select class="form-select" @bind="selectedResident.Mood">
+                            <option value="Glad">Glad</option>
+                            <option value="Neutral">Neutral</option>
+                            <option value="Ked af det">Ked af det</option>
+                            <option value="Sur/Udadreagerende">Sur/Udadreagerende</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Fritekst (Aktiviteter, info, m.m.)</label>
@@ -171,10 +206,20 @@
                     </div>
                 </div>
                 <div class="modal-footer d-flex justify-content-between border-top-0 bg-light">
-                    <span class="text-muted small">Log: Senest redigeret @selectedResident.LastEditedTime.ToString("HH:mm")</span>
+                    @if (!isCreatingNew)
+                    {
+                        <button type="button" class="btn btn-outline-danger" @onclick="ArchiveResident">
+                            <i class="bi bi-archive-fill me-1"></i> Arkivér / Slet
+                        </button>
+                    }
+                    else
+                    {
+                        <div></div>
+                    }
+
                     <div>
                         <button type="button" class="btn-secondary btn" @onclick="CloseModal">Annuller</button>
-                        <button type="button" class="btn-success btn" @onclick="SaveChanges">Gem ændringer</button>
+                        <button type="button" class="btn-success btn" @onclick="SaveChanges">@(isCreatingNew ? "Opret Beboer" : "Gem ændringer")</button>
                     </div>
                 </div>
             </div>
@@ -190,6 +235,21 @@
         .resident-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+    .ghost-card {
+        border: 2px dashed #adb5bd !important;
+        background-color: transparent;
+        transition: all 0.2s ease-in-out;
+        cursor: pointer;
+        min-height: 250px;
+    }
+
+        .ghost-card:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+            border-color: #6c757d !important;
+            color: #495057 !important;
+            transform: translateY(-4px);
         }
 
     .line-clamp-2 {
@@ -225,6 +285,7 @@
     private DateTime currentDate = DateTime.Today;
     private string activeDepartment = "Slottet";
     private Resident? selectedResident;
+    private bool isCreatingNew = false;
 
     // Models
     public class Resident
@@ -282,19 +343,56 @@
 
     private void OpenResidentModal(Resident resident)
     {
+        isCreatingNew = false;
         selectedResident = resident;
     }
 
-    private void CloseModal() => selectedResident = null;
+    private void OpenCreateResidentModal()
+    {
+        isCreatingNew = true;
+        selectedResident = new Resident
+        {
+            Department = activeDepartment,
+            LastEditedTime = DateTime.Now,
+            LastEditedBy = "Administrator"
+        };
+    }
+
+    private void CloseModal()
+    {
+        selectedResident = null;
+        isCreatingNew = false;
+    }
 
     private void SaveChanges()
     {
         if (selectedResident != null)
         {
-            selectedResident.LastEditedTime = DateTime.Now;
-            selectedResident.LastEditedBy = "Personale A";
+            if (isCreatingNew)
+            {
+                Residents.Add(selectedResident);
+            }
+            else
+            {
+                selectedResident.LastEditedTime = DateTime.Now;
+                selectedResident.LastEditedBy = "Administrator";
+            }
         }
         CloseModal();
+    }
+
+    private void ArchiveResident()
+    {
+        if (selectedResident != null)
+        {
+            Residents.Remove(selectedResident);
+        }
+        CloseModal();
+    }
+
+    private void NotImplementedAlert()
+    {
+        Console.WriteLine("Navigating to Admin CRUD module...");
     }
 
     private string GetRiskBgColor(string riskLevel) => riskLevel switch
@@ -330,7 +428,7 @@
 
         string noteText = rnd.Next(0, 2) == 0
             ? "Gik en tur i parken formiddag. Skal have hævet lommepenge til weekenden."
-            : "Meget urolig til morgen. Har afvist at spise morgenmad og har haft behov for skærmning. Vi har forsøgt at tilbyde et bad, men det ønskede borgeren ikke. Fortsat observation nødvendig op ad dagen, da der kan være risiko for konflikt.";
+            : "Meget urolig til morgen. Har afvist at spise morgenmad og har haft behov for skærmning. Vi har forsøgt at tilbyde et bad, men det ønskede borgeren ikke.";
 
         return new Resident
         {
@@ -350,7 +448,6 @@
         };
     }
 
-    // Populate footer lists
     private void GenerateFooterData()
     {
         Responsibilities = new List<ResponsibilityArea>
