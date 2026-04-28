@@ -17,7 +17,7 @@ public class PostItController : ControllerBase
     }
 
     [HttpPut]
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> UpdatePostIt(PostItDTO postItDTO)
     {
         try
@@ -36,7 +36,7 @@ public class PostItController : ControllerBase
     }
 
     [HttpGet("history")]
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Personale")]
     // [FromQuery] tells the controller to look for the 'date' parameter in the URL query string
     public async Task<IActionResult> GetHistory([FromQuery] DateTime date)
     {
@@ -52,7 +52,7 @@ public class PostItController : ControllerBase
     }
 
     [HttpGet("all-history")]
-    [Authorize(Roles = "Admin,Staff")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> GetAllHistory()
     {
         try
