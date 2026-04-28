@@ -22,5 +22,10 @@ public class EfPostItRepository  : IPostItRepository
         _context.PostIts.Update(postIt);
         return postIt;
     }
+
+    public async Task<List<PostIt>> GetAllAsync()
+    {
+        return await _context.PostIts.ToListAsync();
+    }
 }
 

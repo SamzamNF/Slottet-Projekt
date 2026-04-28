@@ -51,5 +51,26 @@ namespace Slottet.Application.BusinessLogic
                 RelativesContact = updatedPostIt.RelativesContact
             };
         }
+
+        public async Task<List<PostItDTO>> GetAllPostIts()
+        {
+            var list = await _postItRepo.GetAllAsync();
+            var dtoList = new List<PostItDTO>();
+            foreach (var p in list)
+            {
+                dtoList.Add(new PostItDTO
+                {
+                    Date = p.Date,
+                    Payment = p.Payment,
+                    ShoppingDay = p.ShoppingDay,
+                    Mood = p.Mood,
+                    Status = p.Status,
+                    Events = p.Events,
+                    RelativesContact = p.RelativesContact
+                });
+            }
+
+            return dtoList;
+        }
     }
 }

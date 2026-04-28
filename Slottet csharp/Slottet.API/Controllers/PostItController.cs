@@ -16,6 +16,21 @@ public class PostItController : ControllerBase
         _postItService = postItService;
     }
 
+    [HttpGet]
+    [Authorize(Roles = "Admin,Staff")]
+    public async Task<IActionResult> GetAll()
+    {
+        try
+        {
+            var list = await _postItService.GetAllPostIts();
+            return Ok(list);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Uventet fejl: {ex.Message}");
+        }
+    }
+
     [HttpPut]
     [Authorize(Roles = "Admin,Staff")]
     public async Task<IActionResult> UpdatePostIt(PostItDTO postItDTO)
