@@ -12,13 +12,13 @@ public class ResponsibilityAreaService
 
     public ResponsibilityAreaService(IResponsibilityAreaRepository repository, IUnitOfWork unitOfWork)
     {
-        _repository = repository;
+        _responsibilityAreaRepo = repository;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<List<ResponsibilityAreaDTO>> GetAll()
     {
-        List<ResponsibilityArea> responsibilityAreas = await _repository.GetAll();
+        List<ResponsibilityArea> responsibilityAreas = await _responsibilityAreaRepo.GetAll();
         if (responsibilityAreas == null || responsibilityAreas.Count == 0)
         {
             throw new KeyNotFoundException("Ingen ansvarsområder fundet");
@@ -30,7 +30,7 @@ public class ResponsibilityAreaService
 
     public async Task<ResponsibilityAreaDTO> GetById(int id)
     {
-        ResponsibilityArea? responsibilityArea = await _repository.GetById(id);
+        ResponsibilityArea? responsibilityArea = await _responsibilityAreaRepo.GetById(id);
         
         if (responsibilityArea == null)
             throw new KeyNotFoundException($"Ansvarsområde med ID {id} blev ikke fundet");
@@ -48,7 +48,7 @@ public class ResponsibilityAreaService
             responsibilityAreaDto.PhoneId
         );
 
-        await _repository.Add(responsibilityArea);
+        await _responsibilityAreaRepo.Add(responsibilityArea);
 
         // Checks if the responsibility area was added to the database and throws an exception if not
         int result = await _unitOfWork.SaveChangesAsync();
@@ -56,7 +56,7 @@ public class ResponsibilityAreaService
             throw new InvalidOperationException("Kunne ikke gemme det oprettede ansvarsområde i databasen.");
 
         // Gets the responsibility area to get the generated ID from the DB, and returns it to the API as a DTO
-        ResponsibilityArea? created = await _repository.GetById(responsibilityArea.Id);
+        ResponsibilityArea? created = await _responsibilityAreaRepo.GetById(responsibilityArea.Id);
         if (created == null)
             throw new KeyNotFoundException("Ansvarsområde kunne ikke findes efter oprettelsen");
 
@@ -66,7 +66,7 @@ public class ResponsibilityAreaService
 
     public async Task Update(ResponsibilityAreaDTO responsibilityAreaDTO)
     {
-        ResponsibilityArea? responsibilityArea = await _repository.GetById(responsibilityAreaDTO.Id);
+        ResponsibilityArea? responsibilityArea = await _responsibilityAreaRepo.GetById(responsibilityAreaDTO.Id);
         if (responsibilityArea == null)
             throw new KeyNotFoundException($"Ansvarsområde med ID {responsibilityAreaDTO.Id} blev ikke fundet");
         
@@ -78,7 +78,7 @@ public class ResponsibilityAreaService
             responsibilityAreaDTO.PhoneId
         );
 
-        _repository.Update(responsibilityArea);
+        _responsibilityAreaRepo.Update(responsibilityArea);
 
         // Checks if the responsibility area was updated in the database and throws an exception if not
         int result = await _unitOfWork.SaveChangesAsync();
@@ -88,11 +88,11 @@ public class ResponsibilityAreaService
 
     public async Task Delete(int id)
     {
-        ResponsibilityArea? responsibilityArea = await _repository.GetById(id);
+        ResponsibilityArea? responsibilityArea = await _responsibilityAreaRepo.GetById(id);
         if (responsibilityArea == null)
             throw new KeyNotFoundException($"Ansvarsområde med ID {id} blev ikke fundet");
 
-        _repository.Delete(responsibilityArea);
+        _responsibilityAreaRepo.Delete(responsibilityArea);
 
         // Checks if the responsibility area was deleted from the database and throws an exception if not
         int result = await _unitOfWork.SaveChangesAsync();

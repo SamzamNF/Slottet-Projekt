@@ -1,0 +1,60 @@
+﻿<button class="btn @VariantClass 
+        @(IsLoading ? "loading" : "")"
+        @onclick="HandleClick"
+        disabled="@(Disabled || IsLoading)">
+
+@if (IsLoading)
+{
+    <span class="spinner-border spinner-border-sm me-2"></span>
+}
+
+@if (ChildContent != null)
+{
+    @ChildContent
+}
+else
+{
+    @VariableText
+}
+
+</button>
+
+@code {
+    // Text to show on the button
+    [Parameter] public string? VariableText { get; set; }
+
+    // Event for when the button is clicked
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    // If the button should be disabled
+    [Parameter] public bool Disabled { get; set; } = false;
+
+    // If the button should show a loading state (for example after waiting for an API response)
+    [Parameter] public bool IsLoading { get; set; } = false;
+
+    // The variant of the button (primary, danger etc)
+    [Parameter] public ButtonType Variant { get; set; } = ButtonType.Matcha;
+
+    // The content to show inside the button, for example an icon or a spinner
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    // The method to invoke the OnClick event
+    private async Task HandleClick()
+    {
+        if (!Disabled && !IsLoading)
+        {
+            await OnClick.InvokeAsync(null);
+        }
+    }
+
+    private string VariantClass => Variant switch
+    {
+        ButtonType.Matcha => "btn-brand-matcha",
+        ButtonType.Owl => "btn-brand-owl",
+        ButtonType.Beige => "btn-brand-beige",
+        ButtonType.Success => "btn-outline-success",
+        _ => "btn-brand-matcha"
+    };
+
+    
+}

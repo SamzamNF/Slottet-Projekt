@@ -6,6 +6,7 @@ namespace Slottet.Domain.Entities;
 
 public class Phone
 {
+    public int Id { get; set; } // Primary key
     public int PhoneNumber { get; set; } // Primary key
     //public string Initials { get; set; } // Ikke sikker
 
