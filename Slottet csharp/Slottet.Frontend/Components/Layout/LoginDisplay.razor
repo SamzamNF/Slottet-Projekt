@@ -6,15 +6,19 @@
     <Authorized>
         <div class="d-flex align-items-center gap-3">
             <!-- User profile information -->
-            <span class="text-secondary d-flex align-items-center gap-1">
+            <span class="text-brand-matcha d-flex align-items-center gap-1">
                 <span class="bi bi-person-circle" aria-hidden="true"></span>
                 <span>Hej, @(context.User.FindFirst("name")?.Value ?? context.User.Identity?.Name)!</span>
             </span>
 
             <!-- Show admin dashboard link, if the user is an admin -->
-            <NavLink class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="admin-dashboard">
-                <span class="bi bi-shield-lock" aria-hidden="true"></span> AdminDashboard
-            </NavLink>
+            <AuthorizeView Roles="Admin" Context="adminContext">
+                <Authorized>
+                    <NavLink class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="admin-dashboard">
+                        <span class="bi bi-shield-lock" aria-hidden="true"></span> AdminDashboard
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
 
             
             <!-- Log out button -->
