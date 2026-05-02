@@ -38,15 +38,15 @@
 
 /* Borders */
 .border-brand-matcha {
-    border: 1.5px solid rgba(var(--brand-matcha-rgb), 0.6) !important;
+    border: 1.5px solid rgba(var(--brand-matcha-rgb), 0.4) !important;
 }
 
 
 /* Primary button */
 .btn-brand-matcha {
     color: #222;
-    background-color: rgba(var(--brand-matcha-rgb), 0.6);
-    border-color: rgba(var(--brand-matcha-rgb), 0.6);
+    background-color: rgba(var(--brand-matcha-rgb), 0.4);
+    border-color: rgba(var(--brand-matcha-rgb), 0.4);
 }
 
 .btn-brand-matcha:hover {
@@ -118,11 +118,26 @@
 /* Global text and background colors */
 body {
     color: #222;
-    background-color: rgba(var(--brand-matcha-rgb), 0.4);
+    background-color: #F7F5F0;
 }
+
 /* Custom text color with theme colours */
 .text-brand-matcha {
     color: rgb(var(--brand-matcha-rgb));
+}
+
+.card-animated {
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+    cursor: pointer;
+}
+
+.card-animated:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important; 
+}
+
+.card-animated:active {
+    transform: translateY(-2px);
 }
 
 
