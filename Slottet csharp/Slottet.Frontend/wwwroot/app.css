@@ -17,7 +17,7 @@
     --brand-beige-text-emphasis: #333333;
 }
 
-/* Colour theme */
+/* Colour theme background */
 .bg-brand-matcha {
     background-color: rgba(var(--brand-matcha-rgb), 0.7);
 }
@@ -34,6 +34,11 @@
 
 .text-brand-beige {
     color: var(--brand-beige) !important;
+}
+
+/* Borders */
+.border-brand-matcha {
+    border: 1.5px solid rgba(var(--brand-matcha-rgb), 0.6) !important;
 }
 
 
@@ -55,8 +60,10 @@
     border-color: rgba(var(--brand-matcha-rgb), 0.9);
 }
 
-.btn-brand-matcha:focus {
-    box-shadow: 0 0 0 0.2rem rgba(var(--brand-matcha-rgb), 0.4);
+.btn-brand-matcha:focus, 
+.btn-brand-matcha:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-matcha-rgb), 0.2) !important;
 }
 
 /* Gray button */
@@ -77,8 +84,10 @@
     border-color: #ad9c8a;
 }
 
-.btn-brand-owl:focus {
-    box-shadow: 0 0 0 0.2rem rgba(var(--brand-owl-rgb), 0.4);
+.btn-brand-owl:focus, 
+.btn-brand-owl:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-owl-rgb), 0.2) !important;
 }
 
 
@@ -100,14 +109,20 @@
     border-color: #e6d4ba;
 }
 
-.btn-brand-beige:focus {
-    box-shadow: 0 0 0 0.2rem rgba(var(--brand-beige-rgb), 0.6);
+.btn-brand-beige:focus, 
+.btn-brand-beige:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-beige-rgb), 0.2) !important;
 }
 
 /* Global text and background colors */
 body {
     color: #222;
     background-color: rgba(var(--brand-matcha-rgb), 0.4);
+}
+/* Custom text color with theme colours */
+.text-brand-matcha {
+    color: rgb(var(--brand-matcha-rgb));
 }
 
 
