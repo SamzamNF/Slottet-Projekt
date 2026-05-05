@@ -1,7 +1,73 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+@* Testing buttons *@
+
+<Button VariableText="Gem" Variant="ButtonType.Matcha" OnClick="HandleSave" />
+
+<Button VariableText="Annuller" Variant="ButtonType.Beige" OnClick="HandleCancel" />
+
+<Button VariableText="Slet" Variant="ButtonType.Owl" OnClick="HandleDelete" />
+
+@* Testing card *@
+
+<div class="container">
+    <div class="row g-3 mt-4">
+        <Card
+            Title="Beboer"
+            Header="Stamdata & journal"
+            Text=@("Få overblik over stamdata, kontaktpersoner og individuelle plejeplaner.\n\nHer kan du også læse vigtige dagsnotater og henvendelser fra pårørende.")    
+            ButtonText="Se mere"
+            Link="counter"
+            Color="bg-brand-beige"
+            TextClass="text-dark"
+            ButtonVariant="ButtonType.Matcha" />
+
+        <Card
+            Title="Beboer"
+            Header="Stamdata & journal"
+            Text=@("Få overblik over stamdata, kontaktpersoner og individuelle plejeplaner.\n\nHer kan du også læse vigtige dagsnotater og henvendelser fra pårørende.")    
+            ButtonText="Se mere"
+            Link="counter"
+            Color="bg-brand-beige"
+            TextClass="text-dark"
+            ButtonVariant="ButtonType.Success" />
+
+        <Card
+            Title="Beboer"
+            Header="Stamdata & journal"
+            Text=@("Få overblik over stamdata, kontaktpersoner og individuelle plejeplaner.\n\nHer kan du også læse vigtige dagsnotater og henvendelser fra pårørende.")    
+            ButtonText="Se mere"
+            Link="counter"
+            Color="bg-brand-beige"
+            TextClass="text-dark"
+            ButtonVariant="ButtonType.Matcha" />
+    </div> 
+</div>
+
+
+
+@code {
+    private Task HandleSave()
+    {
+        Console.WriteLine("Gem klik");
+        return Task.CompletedTask;
+    }
+
+    private Task HandleCancel()
+    {
+        Console.WriteLine("Cancel klik");
+        return Task.CompletedTask;
+    }
+
+    private Task HandleDelete()
+    {
+        Console.WriteLine("Delete klik");
+        return Task.CompletedTask;
+    }
+}

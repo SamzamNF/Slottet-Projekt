@@ -6,147 +6,119 @@
 
 /* CSS variables for customizing the color scheme */
 :root {
-    --brand-matcha: #44985d; 
-    --brand-beige: #fdf4e7;
-    --brand-owl: #cfc5b8; 
+    --bs-primary: #44985d;
+    --bs-secondary: #fdf4e7;
+    --bs-danger: #645f5a;
 
-    --brand-matcha-rgb: 68, 152, 93;
-    --brand-beige-rgb: 253, 244, 231;
-    --brand-owl-rgb: 207, 197, 184;
+    --bs-primary-rgb: 68, 152, 93;
+    --bs-danger-rgb: 100, 95, 90;
+    --bs-secondary-rgb: 253, 244, 231;
 
-    --brand-beige-text-emphasis: #333333;
+    --bs-secondary-text-emphasis: #333;
+    --bs-secondary-bg: #fdf4e7;
 }
 
-/* Colour theme background */
-.bg-brand-matcha {
-    background-color: rgba(var(--brand-matcha-rgb), 0.7);
+/* Override Bootstrap's button variant variables directly */
+.btn-primary {
+    --bs-btn-bg: var(--bs-primary);
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-bg: #3e8754;
+    --bs-btn-hover-border-color: #3e8754;
+    --bs-btn-active-bg: var(--bs-primary);
+    --bs-btn-active-border-color: var(--bs-primary);
+    --bs-btn-disabled-bg: var(--bs-primary);
+    --bs-btn-disabled-border-color: var(--bs-primary);
+    --bs-btn-focus-shadow-rgb: var(--bs-primary-rgb);
 }
 
-.bg-brand-beige {
-    background-color: var(--brand-beige);
-    border: 1px solid rgba(68, 152, 93, 0.15);
+.btn-danger {
+    --bs-btn-bg: var(--bs-danger);
+    --bs-btn-border-color: var(--bs-danger);
+    --bs-btn-hover-bg: #57524e;
+    --bs-btn-hover-border-color: #57524e;
+    --bs-btn-active-bg: #4a4541;
+    --bs-btn-active-border-color: #4a4541;
+    --bs-btn-disabled-bg: var(--bs-danger);
+    --bs-btn-disabled-border-color: var(--bs-danger);
+    --bs-btn-focus-shadow-rgb: var(--bs-danger-rgb);
 }
 
-.bg-brand-owl {
-    background-color: var(--brand-owl);
-    border: 1px solid rgba(0, 0, 0, 0.05);
+.btn-secondary {
+    --bs-btn-color: var(--bs-secondary-text-emphasis);
+    --bs-btn-bg: var(--bs-secondary-bg);
+    --bs-btn-border-color: var(--bs-secondary-bg);
+    --bs-btn-hover-color: var(--bs-secondary-text-emphasis);
+    --bs-btn-hover-bg: #f3e6d2;
+    --bs-btn-hover-border-color: #f3e6d2;
+    --bs-btn-active-color: var(--bs-secondary-text-emphasis);
+    --bs-btn-active-bg: var(--bs-secondary-bg);
+    --bs-btn-active-border-color: var(--bs-secondary-bg);
+    --bs-btn-disabled-color: var(--bs-secondary-text-emphasis);
+    --bs-btn-disabled-bg: var(--bs-secondary-bg);
+    --bs-btn-disabled-border-color: var(--bs-secondary-bg);
+    --bs-btn-focus-shadow-rgb: var(--bs-secondary-rgb);
 }
-
-.text-brand-beige {
-    color: var(--brand-beige) !important;
-}
-
-/* Borders */
-.border-brand-matcha {
-    border: 1.5px solid rgba(var(--brand-matcha-rgb), 0.4) !important;
-}
-
 
 /* Primary button */
-.btn-brand-matcha {
-    color: #222;
-    background-color: rgba(var(--brand-matcha-rgb), 0.4);
-    border-color: rgba(var(--brand-matcha-rgb), 0.4);
+.btn.btn-primary{
+    color: #fff;
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.btn.btn-primary:hover {
+    background-color: #3e8754;
+    border-color: #3e8754;
 }
 
-.btn-brand-matcha:hover {
-    color: #222;
-    background-color: rgba(var(--brand-matcha-rgb), 0.8);
-    border-color: rgba(var(--brand-matcha-rgb), 0.8);
+.btn.btn-primary:active {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+.btn.btn-primary:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.4);
 }
 
-.btn-brand-matcha:active {
-    background-color: rgba(var(--brand-matcha-rgb), 0.9);
-    border-color: rgba(var(--brand-matcha-rgb), 0.9);
+/* Danger button */
+.btn.btn-danger{
+    color: #fff;
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+}
+.btn.btn-danger:hover {
+    background-color: #57524e;
+    border-color: #57524e;
 }
 
-.btn-brand-matcha:focus, 
-.btn-brand-matcha:focus-visible {
-    outline: none !important;
-    box-shadow: 0 0 0 0.25rem rgba(var(--brand-matcha-rgb), 0.2) !important;
+.btn.btn-danger:active {
+    background-color: #4a4541;
+    border-color: #4a4541;
 }
-
-/* Gray button */
-.btn-brand-owl {
-    color: #222;
-    background-color: var(--brand-owl);
-    border-color: var(--brand-owl);
-}
-
-.btn-brand-owl:hover {
-    color: #222;
-    background-color: #beaf9f;
-    border-color: #beaf9f;
-}
-
-.btn-brand-owl:active {
-    background-color: #ad9c8a;
-    border-color: #ad9c8a;
-}
-
-.btn-brand-owl:focus, 
-.btn-brand-owl:focus-visible {
-    outline: none !important;
-    box-shadow: 0 0 0 0.25rem rgba(var(--brand-owl-rgb), 0.2) !important;
+.btn.btn-danger:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-danger-rgb), 0.4);
 }
 
 
 /* Secondary button */
-.btn-brand-beige {
-    color: #222;
-    background-color: var(--brand-beige);
-    border-color: var(--brand-beige);
+.btn.btn-secondary {
+    color: var(--bs-secondary-text-emphasis);
+    background-color: var(--bs-secondary-bg);
+    border-color: var(--bs-secondary-bg);
 }
 
-.btn-brand-beige:hover {
-    color: #222;
-    background-color: #f3e5d0;
-    border-color: #f3e5d0;
+.btn.btn-secondary:hover {
+    background-color: #f3e6d2;
+    border-color: #f3e6d2;
 }
 
-.btn-brand-beige:active {
-    background-color: #e6d4ba;
-    border-color: #e6d4ba;
-}
-
-.btn-brand-beige:focus, 
-.btn-brand-beige:focus-visible {
-    outline: none !important;
-    box-shadow: 0 0 0 0.25rem rgba(var(--brand-beige-rgb), 0.2) !important;
+.btn.btn-secondary:focus {
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-secondary-rgb), 0.6);
 }
 
 /* Global text and background colors */
 body {
     color: #222;
-    background-color: #F7F5F0;
+    background-color: #ffffff;
 }
-
-/* Custom text color with theme colours */
-.text-brand-matcha {
-    color: rgb(var(--brand-matcha-rgb));
-}
-
-.card-animated {
-    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
-    cursor: pointer;
-}
-
-.card-animated:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important; 
-}
-
-.card-animated:active {
-    transform: translateY(-2px);
-}
-
-
-
-
-
-
-
-
 
 /* Under is default blazor styling  */ 
 

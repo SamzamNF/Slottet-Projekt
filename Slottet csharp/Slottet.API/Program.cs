@@ -30,6 +30,7 @@ builder.Services.AddScoped<IResidentRepository, EfResidentRepository>();
 builder.Services.AddScoped<IRoleRepository, EfRoleRepository>();
 builder.Services.AddScoped<IDepartmentRepository, EfDepartmentRepository>();
 builder.Services.AddScoped<IResponsibilityAreaRepository, EfResponsibilityAreaRepository>();
+builder.Services.AddScoped<IPhoneRepository, EfPhoneRepository>();
 
 // Application services (Business logic/Services)
 builder.Services.AddScoped<StaffService>();
@@ -38,9 +39,10 @@ builder.Services.AddScoped<ResidentService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<ResponsibilityAreaService>();
+builder.Services.AddScoped<PhoneService>();
 
 // Register cleanup background worker
-builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
+//builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
 
 // Cors with frontend URL
 builder.Services.AddCors(options =>
