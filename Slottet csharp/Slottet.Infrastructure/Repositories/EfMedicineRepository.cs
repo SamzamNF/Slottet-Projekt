@@ -36,13 +36,13 @@ public class EfMedicineRepository : IMedicineRepository
         await _context.Medicines.AddAsync(medicine);
     }
 
-    public Task UpdateAsync(Medicine medicine)
+    public Task Update(Medicine medicine)
     {
         _context.Medicines.Update(medicine);
         return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(Medicine medicine)
+    public Task Delete(Medicine medicine)
     {
         _context.Medicines.Remove(medicine);
         return Task.CompletedTask;

@@ -19,9 +19,9 @@ public class EfRiskRepository : IRiskRepository
         return await _context.Risks.FindAsync(id);
     }
 
-    public async Task UpdateAsync(Risk risk)
+    public Task Update(Risk risk)
     {
         _context.Risks.Update(risk);
-        await _context.SaveChangesAsync();
+        return Task.CompletedTask;
     }
 }

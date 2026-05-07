@@ -7,10 +7,12 @@ namespace Slottet.Application.BusinessLogic;
 public class RiskService
 {
     private readonly IRiskRepository _riskRepository;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public RiskService(IRiskRepository riskRepository)
+    public RiskService(IRiskRepository riskRepository, IUnitOfWork unitOfWork)
     {
         _riskRepository = riskRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<RiskDTO?> GetRiskAsync(int id)
@@ -35,6 +37,7 @@ public class RiskService
         existingRisk.RiskAssessment = riskDto.RiskAssessment;
 
         await _riskRepository.UpdateAsync(existingRisk);
+        await _unitOfWork.SaveChangesAsync();
         return true;
     }
 }
