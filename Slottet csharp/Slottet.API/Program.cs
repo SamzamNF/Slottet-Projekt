@@ -32,6 +32,7 @@ builder.Services.AddScoped<IDepartmentRepository, EfDepartmentRepository>();
 builder.Services.AddScoped<IResponsibilityAreaRepository, EfResponsibilityAreaRepository>();
 builder.Services.AddScoped<IPhoneRepository, EfPhoneRepository>();
 builder.Services.AddScoped<IRiskRepository, EfRiskRepository>();
+builder.Services.AddScoped<IMedicineRepository, EfMedicineRepository>();
 
 // Application services (Business logic/Services)
 builder.Services.AddScoped<StaffService>();
@@ -42,6 +43,7 @@ builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<ResponsibilityAreaService>();
 builder.Services.AddScoped<PhoneService>();
 builder.Services.AddScoped<RiskService>();
+builder.Services.AddScoped<MedicineService>();
 
 // Register cleanup background worker
 //builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
