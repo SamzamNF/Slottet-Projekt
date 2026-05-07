@@ -27,7 +27,7 @@ public class PostItService
             postItDTO.RelativesContact
         );
 
-        await _postItRepo.CreatePostIt(postIt);
+        await _postItRepo.Create(postIt);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
@@ -50,7 +50,7 @@ public class PostItService
 
         postIt.Id = postItDTO.Id;
 
-        var updatedPostIt = await _postItRepo.UpdatePostIt(postIt);
+        var updatedPostIt = await _postItRepo.Update(postIt);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
@@ -62,7 +62,7 @@ public class PostItService
     public async Task<List<PostItDTO>> GetHistory(DateTime date)
     {
         // Call repository
-        var dateHistory = await _postItRepo.GetPostItByDate(date);
+        var dateHistory = await _postItRepo.GetByDate(date);
 
         // Return list of DTOs based on list of domain objects
         return dateHistory.Select(postIt => MapToDTO(postIt)).ToList();
@@ -71,7 +71,7 @@ public class PostItService
     public async Task<List<PostItDTO>> GetAllHistory()
     {
         // Call repository
-        List<PostIt> postIts = await _postItRepo.GetAllPostIts();
+        List<PostIt> postIts = await _postItRepo.GetAll();
 
         // Return list of DTOs based on list of domain objects
         return postIts.Select(postIt => MapToDTO(postIt)).ToList();
@@ -79,7 +79,7 @@ public class PostItService
 
     public async Task Delete(PostItDTO postItDTO)
     {
-        await _postItRepo.DeletePostItById(postItDTO.Id);
+        await _postItRepo.DeleteById(postItDTO.Id);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)

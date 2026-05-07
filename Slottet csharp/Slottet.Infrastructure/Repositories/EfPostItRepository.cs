@@ -14,18 +14,18 @@ public class EfPostItRepository  : IPostItRepository
     {
         _context = context;
     }
-    public async Task CreatePostIt(PostIt postIt)
+    public async Task Create(PostIt postIt)
     {
         await _context.PostIts.AddAsync(postIt);
     }
 
 
-    public async Task<List<PostIt>> GetAllPostIts()
+    public async Task<List<PostIt>> GetAll()
     {
         return await _context.PostIts.ToListAsync();
     }
 
-    public async Task<List<PostIt>> GetPostItByDate(DateTime date)
+    public async Task<List<PostIt>> GetByDate(DateTime date)
     {
         // Get all post-Its from the database where the date matches the desired date. Use Date.Date to ignore the time component.
         return await _context.PostIts
@@ -33,13 +33,13 @@ public class EfPostItRepository  : IPostItRepository
             .ToListAsync();
     }
 
-    public async Task<PostIt> UpdatePostIt(PostIt postIt)
+    public async Task<PostIt> Update(PostIt postIt)
     {
         _context.PostIts.Update(postIt);
         return postIt;
     }
 
-    public async Task DeletePostItById(int id)
+    public async Task DeleteById(int id)
     {
         var postIt = await _context.PostIts.FindAsync(id);
         if (postIt != null)

@@ -48,16 +48,12 @@ public class PostItController : ControllerBase
     }
     [HttpPost]
     [Authorize(Roles = "Admin,Personale")]
-    public async Task<IActionResult> CreatePostIt([FromBody] PostItDTO postItDTO)
+    public async Task<IActionResult> Create([FromBody] PostItDTO postItDTO)
     {
         try
         {
             var created = await _postItService.Create(postItDTO);
             return Ok(created);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest($"Ugyldigt input: {ex.Message}");
         }
         catch (Exception ex)
         {
@@ -67,14 +63,13 @@ public class PostItController : ControllerBase
 
     [HttpPut]
     [Authorize(Roles = "Admin,Personale")]
-    public async Task<IActionResult> UpdatePostIt([FromBody] PostItDTO postItDTO)
+    public async Task<IActionResult> Update([FromBody] PostItDTO postItDTO)
     {
         try
         {
             var updatedPostIt = await _postItService.Update(postItDTO);
             return Ok(updatedPostIt);
         }
-        
         catch (Exception ex)
         {
             return BadRequest($"Uventet fejl: {ex.Message}");
@@ -84,12 +79,12 @@ public class PostItController : ControllerBase
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin,Personale")]
-    public async Task<IActionResult> DeletePostIt(int id)
+    public async Task<IActionResult> Delete(int id)
     {
         try
         {
             await _postItService.Delete(new PostItDTO { Id = id });
-            return Ok("PostIt slettet");
+            return Ok("Post-It slettet");
         }
         catch (KeyNotFoundException ex)
         {
