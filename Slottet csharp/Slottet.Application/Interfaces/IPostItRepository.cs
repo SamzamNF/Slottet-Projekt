@@ -4,7 +4,9 @@ namespace Slottet.Application.Interfaces;
 
 public interface IPostItRepository
 {
-    Task<PostIt> UpdatePostIt(PostIt postIt);
+    Task Create(PostIt postIt);
     Task<List<PostIt>> GetByDate(DateTime date);
     Task<List<PostIt>> GetAll();
+    Task<PostIt> Update(PostIt postIt);
+    Task DeleteById(int id);
 }

@@ -20,6 +20,9 @@ public class PostIt
     public int ResidentId { get; set; }
     public int RiskId { get; set; }
 
+    // Navigation properties
+    public Risk? Risk { get; set; }
+
     private PostIt() { }
 
     // Service
@@ -52,7 +55,9 @@ public class PostIt
             Mood = mood,
             Status = status,
             Events = events,
-            RelativesContact = relativesContact
+            RelativesContact = relativesContact,
+            // Attach new Risk entity with default value
+            Risk = new Risk()
         };
     }
 }

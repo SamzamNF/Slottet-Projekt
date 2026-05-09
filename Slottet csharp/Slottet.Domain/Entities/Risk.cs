@@ -7,8 +7,6 @@ namespace Slottet.Domain.Entities;
 public class Risk
 {
     public int Id { get; set; }
-    public string? RiskAssessment { get; set; }
-
-    // Skal ikke bruges
-    //public PostIt PostIts { get; set; }
+    // Set as Neutral until actual assessment is made
+    public string? RiskAssessment { get; set; } = RiskLevels.Neutral;
 }
