@@ -135,5 +135,6 @@ namespace Slottet.API.Controllers
             {
                 return StatusCode(500, $"Uventet fejl: {ex.Message}");
             }
+        }
     }
 }
