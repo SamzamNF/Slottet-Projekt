@@ -32,7 +32,7 @@ public class EfPhoneRepository : IPhoneRepository
 
     public async Task<Phone> GetById(int id)
     {
-        return await _context.Phones.FindAsync(id) ?? throw new KeyNotFoundException($"Phone with ID {id} not found.");
+        return await _context.Phones.FindAsync(id) ?? throw new KeyNotFoundException($"Telefon med ID: {id} blev ikke fundet.");
     }
 
     public void Update(Phone phone)
