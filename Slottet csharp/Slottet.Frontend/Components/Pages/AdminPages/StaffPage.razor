@@ -1,0 +1,103 @@
+﻿@page "/admin/staff"
+@using Slottet.Shared.DTO;
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Administrer personale</PageTitle>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brand-matcha m-0">Medarbejder Administration</h2>
+    </div>
+
+    @* Generic table with StaffDto mock data *@
+    <Table TItem="StaffDto" 
+                  Items="@StaffList" 
+                  AddButtonText="Opret Medarbejder"
+                  OnAdd="HandleAdd" 
+                  OnEdit="HandleEdit" 
+                  OnDelete="HandleDelete">
+        
+        <TableHeader>
+            <th>Initialer</th>
+            <th>Navn</th>
+            <th>Email</th>
+            <th>Afdeling</th>
+            <th>Rolle</th>
+        </TableHeader>
+
+        <RowTemplate Context="staff">
+            <td class="fw-bold text-brand-matcha">@staff.Initials</td>
+            <td>@staff.FirstName @staff.LastName</td>
+            <td>@staff.Email</td>
+            <td>
+                <span class="badge bg-brand-owl text-dark">@staff.Department</span>
+            </td>
+            <td>@staff.RoleName</td>
+        </RowTemplate>
+
+    </Table>
+</div>
+
+@code {
+
+private List<StaffDto> StaffList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+    // Fetch the list of staff members from the API when the component initializes (Mock data for now)
+        StaffList = new List<StaffDto>
+        {
+                new StaffDto 
+                { 
+                    Id = 1, 
+                    Initials = "MLJ", 
+                    FirstName = "Mads", 
+                    LastName = "Jensen", 
+                    Email = "mlj@slottet.dk", 
+                    Department = "IT-Afdelingen", 
+                    RoleName = "Administrator" 
+                },
+                new StaffDto 
+                { 
+                    Id = 2, 
+                    Initials = "SH", 
+                    FirstName = "Sofie", 
+                    LastName = "Holm", 
+                    Email = "sh@slottet.dk", 
+                    Department = "Reception", 
+                    RoleName = "Receptionist" 
+                },
+                new StaffDto 
+                { 
+                    Id = 3, 
+                    Initials = "LN", 
+                    FirstName = "Lars", 
+                    LastName = "Nielsen", 
+                    Email = "ln@slottet.dk", 
+                    Department = "Køkken", 
+                    RoleName = "Kok" 
+                }
+        };
+
+    }
+
+    private void HandleAdd(){
+        // Modal for adding new staff member
+        Console.WriteLine("Add new staff member");
+    }
+
+    private void HandleEdit(StaffDto staff){
+        // Modal for editing staff member
+        Console.WriteLine($"Edit staff member with id {staff.Id}");
+    }
+
+    private async Task HandleDelete(StaffDto staff){
+        // Confirmation modal for deleting staff member, and API call to delete staff member
+        Console.WriteLine($"Delete staff member with id {staff.Id}");
+    }
+
+
+}
