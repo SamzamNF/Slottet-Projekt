@@ -26,7 +26,7 @@ public class Medicine
             throw new ArgumentException("Beskrivelse er påkrævet");
 
         var now = DateTime.UtcNow;
-        // Check if the provided timeStamp is from today
+        // Check if timeStamp is from today
         bool isFromToday = timeStamp.Date == now.Date;
 
         return new Medicine
@@ -40,9 +40,10 @@ public class Medicine
         };
     }
 
-    public void Update(string newDescription)
+    public void Update(string newDescription, bool isAdmin = false)
     {
-        if (!CanBeEditedOrDeleted())
+        // Allow update if user is Admin OR if time limit is respected
+        if (!isAdmin && !CanBeEditedOrDeleted())
             throw new InvalidOperationException("Redigering/sletning er kun tilladt samme dag");
 
         if (string.IsNullOrWhiteSpace(newDescription))
@@ -51,7 +52,7 @@ public class Medicine
         Description = newDescription;
     }
 
-    // Edit/delete rule validation - only allow if the TimeStamp is from today
+    // Edit/delete rule validation - only allow if TimeStamp is from today
     public bool CanBeEditedOrDeleted()
     {
         var now = DateTime.UtcNow;

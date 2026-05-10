@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Slottet.Application.BusinessLogic;
 using Slottet.Shared.DTO;
@@ -18,7 +19,9 @@ public class MedicineController : ControllerBase
         _medicineService = medicineService;
     }
 
+    // Accessible by Admin + Personale
     [HttpGet("resident/{residentId}")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> GetByResident(int residentId)
     {
         var result = await _medicineService.GetByResidentAsync(residentId);
@@ -26,6 +29,7 @@ public class MedicineController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> Create([FromBody] MedicineDto dto)
     {
         try
@@ -39,18 +43,20 @@ public class MedicineController : ControllerBase
         }
     }
 
-    // Pass new description as a simple string value in body
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> Update(int id, [FromBody] string newDescription)
     {
         try
         {
-            await _medicineService.UpdateAsync(id, newDescription);
+            // Extract the role from user JWT token
+            bool isAdmin = User.IsInRole("Admin");
+
+            await _medicineService.UpdateAsync(id, newDescription, isAdmin);
             return NoContent();
         }
         catch (InvalidOperationException ex)
         {
-            // Catch IsFromToday exception
             return BadRequest(ex.Message);
         }
         catch (KeyNotFoundException)
@@ -60,11 +66,14 @@ public class MedicineController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Personale")]
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            await _medicineService.DeleteAsync(id);
+            bool isAdmin = User.IsInRole("Admin");
+
+            await _medicineService.DeleteAsync(id, isAdmin);
             return NoContent();
         }
         catch (InvalidOperationException ex)

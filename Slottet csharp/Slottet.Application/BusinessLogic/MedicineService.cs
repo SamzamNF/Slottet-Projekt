@@ -55,30 +55,31 @@ public class MedicineService
         return dto;
     }
 
-    public async Task UpdateAsync(int id, string newDescription)
+    public async Task UpdateAsync(int id, string newDescription, bool isAdmin)
     {
         var medicine = await _medicineRepo.GetByIdAsync(id);
-        
+
         if (medicine == null)
             throw new KeyNotFoundException("Medicin dokumentation blev ikke fundet");
 
-        // Validates the time limit for editing the medicine documentation, and throws an exception if the limit is exceeded
-        medicine.Update(newDescription);
+        // Pass  role check to domain entity
+        medicine.Update(newDescription, isAdmin);
 
-        await _medicineRepo.UpdateAsync(medicine);
+        await _medicineRepo.Update(medicine);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id, bool isAdmin)
     {
         var medicine = await _medicineRepo.GetByIdAsync(id);
         if (medicine == null)
             throw new KeyNotFoundException("Medicin dokumentation blev ikke fundet");
 
-        if (!medicine.CanBeEditedOrDeleted())
+        // Validate domain rule mixed with role check
+        if (!isAdmin && !medicine.CanBeEditedOrDeleted())
             throw new InvalidOperationException("Tidsgrænsen for at redigere/slette er overskredet");
 
-        await _medicineRepo.DeleteAsync(medicine);
+        await _medicineRepo.Delete(medicine);
         await _unitOfWork.SaveChangesAsync();
     }
 }

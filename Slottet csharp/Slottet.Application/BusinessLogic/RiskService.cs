@@ -36,7 +36,7 @@ public class RiskService
 
         existingRisk.RiskAssessment = riskDto.RiskAssessment;
 
-        await _riskRepository.UpdateAsync(existingRisk);
+        await _riskRepository.Update(existingRisk);
         await _unitOfWork.SaveChangesAsync();
         return true;
     }
