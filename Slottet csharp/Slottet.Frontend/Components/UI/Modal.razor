@@ -1,0 +1,34 @@
+﻿<div class="modal fade @(Show ? "show d-block" : "")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered @SizeClass">
+        <div class="modal-content border-0 shadow-lg">
+            
+            @* Header *@
+            <div class="modal-header bg-brand-matcha text-white">
+                <h5 class="modal-title">@Title</h5>
+                <button type="button" class="btn-close btn-close-white" @onclick="OnClose"></button>
+            </div>
+
+            @* Body - Dynamic number of input fields *@
+            <div class="modal-body bg-white">
+                @ChildContent
+            </div>
+
+            @* Footer with buttons *@
+            <div class="modal-footer border-0 bg-white">
+                <Button Variant="ButtonType.Matcha" OnClick="OnSave">@SaveButtonText</Button>
+                <Button Variant="ButtonType.Danger" OnClick="OnClose">Annuller</Button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Modal";
+    [Parameter] public string SaveButtonText { get; set; } = "Gem";
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public string SizeClass { get; set; } = ""; // f.eks. modal-lg
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
+}
