@@ -7,5 +7,6 @@ public enum ButtonType
     Matcha,
     Owl,
     Beige,
-    Success
+    Success,
+    Danger
 }

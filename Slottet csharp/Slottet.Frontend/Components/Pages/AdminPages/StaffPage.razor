@@ -1,0 +1,181 @@
+﻿@page "/admin/staff"
+@using Slottet.Shared.DTO;
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Administrer personale</PageTitle>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brand-matcha m-0">Medarbejder Administration</h2>
+    </div>
+
+    @* Generic table with StaffDto mock data 
+        EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
+    <Table TItem="StaffDto" 
+                  Items="@StaffList" 
+                  AddButtonText="Opret Medarbejder"
+                  OnAdd="HandleAdd" 
+                  OnEdit="HandleEdit" 
+                  OnDelete="HandleDelete">
+        
+        <TableHeader>
+            <th>Initialer</th>
+            <th>Navn</th>
+            <th>Email</th>
+            <th>Afdeling</th>
+            <th>Rolle</th>
+        </TableHeader>
+
+        <RowTemplate Context="staff">
+            <td class="fw-bold text-brand-matcha">@staff.Initials</td>
+            <td>@staff.FirstName @staff.LastName</td>
+            <td>@staff.Email</td>
+            <td>
+                <span class="badge bg-brand-owl text-dark">@staff.Department</span>
+            </td>
+            <td>@staff.RoleName</td>
+        </RowTemplate>
+
+    </Table>
+
+    @* Modal component for adding/editing/deleting staff members *@
+    <Modal Title="@modalTitle" 
+           Show="@showModal" 
+           OnClose="CloseModal" 
+           OnSave="SaveStaff"
+           SaveButtonText="Gem Medarbejder">
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-brand-matcha">Fornavn</label>
+                <input type="text" class="form-control" @bind="currentStaff.FirstName" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-brand-matcha">Efternavn</label>
+                <input type="text" class="form-control" @bind="currentStaff.LastName" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold text-brand-matcha">Initialer</label>
+                <input type="text" class="form-control" @bind="currentStaff.Initials" />
+            </div>
+            <div class="col-md-8">
+                <label class="form-label fw-bold text-brand-matcha">Email</label>
+                <input type="email" class="form-control" @bind="currentStaff.Email" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-brand-matcha">Afdeling</label>
+                <select class="form-select" @bind="currentStaff.Department">
+                    <option value="">Vælg afdeling...</option>
+                    <option value="Slottet">Slottet</option>
+                    <option value="Skoven">Skoven</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold text-brand-matcha">Rolle</label>
+                <select class="form-select" @bind="currentStaff.RoleName">
+                    <option value="">Vælg rolle...</option>
+                    <option value="Administrator">Administrator</option>
+                    <option value="Receptionist">Personale</option>
+                </select>
+            </div>
+        </div>
+    </Modal>
+</div>
+
+@code {
+
+private List<StaffDto> StaffList = new();
+
+    private bool showModal = false;
+    private string modalTitle = "";
+    private StaffDto currentStaff = new StaffDto();
+    
+    
+    // Initialize page with mock data, later fetch from API
+    protected override async Task OnInitializedAsync()
+    {
+    // Fetch the list of staff members from the API when the component initializes (Mock data for now)
+        StaffList = new List<StaffDto>
+        {
+                new StaffDto 
+                { 
+                    Id = 1, 
+                    Initials = "MLJ", 
+                    FirstName = "Mads", 
+                    LastName = "Jensen", 
+                    Email = "mlj@slottet.dk", 
+                    Department = "Slottet", 
+                    RoleName = "Administrator" 
+                },
+                new StaffDto 
+                { 
+                    Id = 2, 
+                    Initials = "SH", 
+                    FirstName = "Sofie", 
+                    LastName = "Holm", 
+                    Email = "sh@slottet.dk", 
+                    Department = "Slottet", 
+                    RoleName = "Administrator" 
+                },
+                new StaffDto 
+                { 
+                    Id = 3, 
+                    Initials = "LN", 
+                    FirstName = "Lars", 
+                    LastName = "Nielsen", 
+                    Email = "ln@slottet.dk", 
+                    Department = "Skoven", 
+                    RoleName = "Personale" 
+                }
+        };
+
+    }
+
+    // Modal for adding new staff member
+    private void HandleAdd()
+    {
+        currentStaff = new StaffDto(); // Clear current staff data
+        modalTitle = "Opret Medarbejder";
+        showModal = true;
+    }
+
+    // Modal for editing staff member
+    private void HandleEdit(StaffDto staff)
+    {
+        // Load selected staff data into modal
+        currentStaff = new StaffDto
+        {
+            Id = staff.Id,
+            Initials = staff.Initials,
+            FirstName = staff.FirstName,
+            LastName = staff.LastName,
+            Email = staff.Email,
+            Department = staff.Department,
+            RoleName = staff.RoleName
+        };
+
+        modalTitle = "Rediger Medarbejder";
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    private async Task HandleDelete(StaffDto staff){
+        // Confirmation modal for deleting staff member, and API call to delete staff member
+        Console.WriteLine($"Delete staff member with id {staff.Id}");
+    }
+
+    // API calls
+
+    private async Task SaveStaff(){
+        Console.WriteLine("Save staff member");
+    }
+
+
+}
