@@ -67,7 +67,7 @@
     <Modal Title="@modalTitle" 
            Show="@showModal" 
            OnClose="CloseModal" 
-           OnSave="SaveStaff"
+           OnAction="HandleModalConfirm"
            SaveButtonText="@modalButtonText"
            SaveButtonVariant="@saveButtonVariant"
            SizeClass="@modalSize">
@@ -201,7 +201,7 @@
 
     }
 
-    // Modal for adding new staff member
+    // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
     private void HandleAdd()
     {
         currentStaff = new StaffDto(); // Clear current staff data
@@ -213,7 +213,7 @@
         showModal = true;
     }
 
-    // Modal for editing staff member
+    // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
     private void HandleEdit(StaffDto staff)
     {
         // Load selected staff data into modal
@@ -245,6 +245,7 @@
         showModal = false;
     }
 
+    // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
     private async Task HandleDelete(StaffDto staff)
     {
         currentStaff = staff;
@@ -258,6 +259,18 @@
 
         
     }
+    // Method that changes whether the modals CTA button should delete or add/edit
+    private async Task HandleModalConfirm()
+    {
+        if (isDeleteMode)
+        {
+            await DeleteStaff();
+        }
+        else
+        {
+            await SaveStaff(); // Kald gem-logik
+        }
+        }
 
     // API calls
 
@@ -299,9 +312,22 @@
             Snackbar.Add($"Fejl ved gemning af medarbejder: {ex.Message}", Severity.Error);
         }
     }
-    private async Task DeleteStaff(int staffId)
+    private async Task DeleteStaff()
     {
-        Console.WriteLine($"Delete staff member with id {staffId}");
+        try
+        {
+            await ApiService.DeleteAsync($"api/staff/{currentStaff.Id}");
+
+            StaffList.RemoveAll(s => s.Id == currentStaff.Id);
+
+            Snackbar.Add($"{currentStaff.FirstName} {currentStaff.LastName} er slettet.", Severity.Success);
+            showModal = false;
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved sletning af medarbejder: {ex.Message}", Severity.Error);
+        }
     }
 
     // Filtered list for "StaffDto" based on input and string to store the selected filter value

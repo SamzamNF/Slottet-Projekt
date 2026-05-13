@@ -15,7 +15,7 @@
 
             @* Footer with buttons *@
             <div class="modal-footer border-0 bg-white">
-                <Button Variant="@SaveButtonVariant" OnClick="OnSave">@SaveButtonText</Button>
+                <Button Variant="@SaveButtonVariant" OnClick="OnAction">@SaveButtonText</Button>
                 <Button Variant="BrandButtonType.Danger" OnClick="OnClose">Annuller</Button>
             </div>
         </div>
@@ -32,5 +32,5 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
     
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public EventCallback OnSave { get; set; }
+    [Parameter] public EventCallback OnAction { get; set; }
 }
