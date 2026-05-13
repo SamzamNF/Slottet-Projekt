@@ -15,8 +15,8 @@
 
             @* Footer with buttons *@
             <div class="modal-footer border-0 bg-white">
-                <Button Variant="ButtonType.Matcha" OnClick="OnSave">@SaveButtonText</Button>
-                <Button Variant="ButtonType.Danger" OnClick="OnClose">Annuller</Button>
+                <Button Variant="@SaveButtonVariant" OnClick="OnSave">@SaveButtonText</Button>
+                <Button Variant="BrandButtonType.Danger" OnClick="OnClose">Annuller</Button>
             </div>
         </div>
     </div>
@@ -25,8 +25,10 @@
 @code {
     [Parameter] public string Title { get; set; } = "Modal";
     [Parameter] public string SaveButtonText { get; set; } = "Gem";
+    [Parameter] public BrandButtonType SaveButtonVariant { get; set; } = BrandButtonType.Matcha;
+
     [Parameter] public bool Show { get; set; }
-    [Parameter] public string SizeClass { get; set; } = ""; // f.eks. modal-lg
+    [Parameter] public string SizeClass { get; set; } = "";
     [Parameter] public RenderFragment? ChildContent { get; set; }
     
     [Parameter] public EventCallback OnClose { get; set; }

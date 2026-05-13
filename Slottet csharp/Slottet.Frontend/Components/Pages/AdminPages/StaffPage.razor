@@ -1,8 +1,13 @@
 ﻿@page "/admin/staff"
-@using Slottet.Shared.DTO;
 @rendermode InteractiveServer
-
+@using MudBlazor
+@using Slottet.Shared.DTO;
 @using Microsoft.AspNetCore.Authorization
+
+@inject ApiService ApiService
+@inject ISnackbar Snackbar
+
+
 @attribute [Authorize(Roles = "Admin")]
 
 <PageTitle>Administrer personale</PageTitle>
@@ -12,10 +17,27 @@
         <h2 class="text-brand-matcha m-0">Medarbejder Administration</h2>
     </div>
 
-    @* Generic table with StaffDto mock data 
+    @* Filtering buttons for each department, made from button component *@
+    <label class="form-label fw-bold text-brand-matcha mb-2">Filtrer efter afdeling:</label>
+    
+    <div class="d-flex gap-2 mb-3 px-1">
+        <Button Variant="@(_selectedDepartment == "Alle" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Alle")'
+                VariableText="Alle"/>
+        
+        <Button Variant="@(_selectedDepartment == "Slottet" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Slottet")'
+                VariableText="Slottet"/>
+
+        <Button Variant="@(_selectedDepartment == "Skoven" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Skoven")'
+                VariableText="Skoven"/>
+    </div>
+    
+    @*  Generic table with StaffDto mock data 
         EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
     <Table TItem="StaffDto" 
-                  Items="@StaffList" 
+                  Items="@FilteredStaff()" 
                   AddButtonText="Opret Medarbejder"
                   OnAdd="HandleAdd" 
                   OnEdit="HandleEdit" 
@@ -46,58 +68,103 @@
            Show="@showModal" 
            OnClose="CloseModal" 
            OnSave="SaveStaff"
-           SaveButtonText="Gem Medarbejder">
+           SaveButtonText="@modalButtonText"
+           SaveButtonVariant="@saveButtonVariant"
+           SizeClass="@modalSize">
         
-        <div class="row g-3">
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-brand-matcha">Fornavn</label>
-                <input type="text" class="form-control" @bind="currentStaff.FirstName" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-brand-matcha">Efternavn</label>
-                <input type="text" class="form-control" @bind="currentStaff.LastName" />
-            </div>
-            <div class="col-md-4">
-                <label class="form-label fw-bold text-brand-matcha">Initialer</label>
-                <input type="text" class="form-control" @bind="currentStaff.Initials" />
-            </div>
-            <div class="col-md-8">
-                <label class="form-label fw-bold text-brand-matcha">Email</label>
-                <input type="email" class="form-control" @bind="currentStaff.Email" />
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-brand-matcha">Afdeling</label>
-                <select class="form-select" @bind="currentStaff.Department">
-                    <option value="">Vælg afdeling...</option>
-                    <option value="Slottet">Slottet</option>
-                    <option value="Skoven">Skoven</option>
-                </select>
-            </div>
-            <div class="col-md-6">
-                <label class="form-label fw-bold text-brand-matcha">Rolle</label>
-                <select class="form-select" @bind="currentStaff.RoleName">
-                    <option value="">Vælg rolle...</option>
-                    <option value="Administrator">Administrator</option>
-                    <option value="Receptionist">Personale</option>
-                </select>
-            </div>
+        @* If IsDeleteMode is true, show delete confirmation *@
+        @if (isDeleteMode)
+        {
+            <div class="text-center p-3">
+                <i class="bi bi-exclamation-octagon text-danger display-4"></i>
+            <p class="mt-3">Er du sikker på, at du vil slette <b>@currentStaff.FirstName @currentStaff.LastName</b>?</p>
         </div>
+        }
+        @* If DeleteMode is false, show the form for adding/editing staff *@
+        else
+        {
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Fornavn</label>
+                    <input type="text" class="form-control" @bind="currentStaff.FirstName" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Efternavn</label>
+                    <input type="text" class="form-control" @bind="currentStaff.LastName" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-brand-matcha">Initialer</label>
+                    <input type="text" class="form-control" @bind="currentStaff.Initials" />
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label fw-bold text-brand-matcha">Email</label>
+                    <input type="email" class="form-control" @bind="currentStaff.Email" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Afdeling</label>
+                    <select class="form-select" @bind="currentStaff.Department">
+                        <option value="">Vælg afdeling...</option>
+                        @* Shows the Department NAMES, but stores the ID *@
+                        @foreach (DepartmentDTO dept in DepartmentOptions)
+                        {
+                            <option value="@dept.Id">@dept.DepartmentName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Rolle</label>
+                    <select class="form-select" @bind="currentStaff.RoleName">
+                        <option value="">Vælg rolle...</option>
+                        @* Shows the Role NAMES, but stores the ID *@
+                        @foreach (RoleDTO role in RoleOptions)
+                        {
+                            <option value="@role.Id">@role.RoleName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        }
+        
+        
     </Modal>
 </div>
 
 @code {
 
-private List<StaffDto> StaffList = new();
+    // List for Staff and Role Options & Department Options
+    private List<StaffDto> StaffList = new();
+    private List<RoleDTO> RoleOptions = new();
+    private List<DepartmentDTO> DepartmentOptions = new();
 
+    // String to hold selected department for filtering staff members
+    private string _selectedDepartment = "Alle";
+    
+    
+    // Modal variables and methods for handling add/edit/delete staff members
     private bool showModal = false;
     private string modalTitle = "";
     private StaffDto currentStaff = new StaffDto();
+    private string modalButtonText = "";
+    private bool isDeleteMode = false;
+    private string modalSize = "";
+    private BrandButtonType saveButtonVariant = BrandButtonType.Matcha;
     
     
     // Initialize page with mock data, later fetch from API
     protected override async Task OnInitializedAsync()
     {
-    // Fetch the list of staff members from the API when the component initializes (Mock data for now)
+        /*try
+        {
+            RoleOptions = await ApiService.GetListAsync<RoleDTO>("api/roles") ?? new();
+            DepartmentOptions = await ApiService.GetListAsync<DepartmentDTO>("api/departments") ?? new();
+            StaffList = await ApiService.GetListAsync<StaffDto>("api/staff") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved hentning af dataa: {ex.Message}");
+        }*/
+        
+        // Fetch the list of staff members from the API when the component initializes (Mock data for now)
         StaffList = new List<StaffDto>
         {
                 new StaffDto 
@@ -139,6 +206,10 @@ private List<StaffDto> StaffList = new();
     {
         currentStaff = new StaffDto(); // Clear current staff data
         modalTitle = "Opret Medarbejder";
+        modalButtonText = "Gem Medarbejder";
+        saveButtonVariant = BrandButtonType.Matcha;
+        isDeleteMode = false;
+        modalSize = "modal-lg";
         showModal = true;
     }
 
@@ -153,11 +224,19 @@ private List<StaffDto> StaffList = new();
             FirstName = staff.FirstName,
             LastName = staff.LastName,
             Email = staff.Email,
+            DepartmentId = staff.DepartmentId,
+            RoleId = staff.RoleId,
+
+            // Probably not needed and can be removed
             Department = staff.Department,
             RoleName = staff.RoleName
         };
 
         modalTitle = "Rediger Medarbejder";
+        modalButtonText = "Gem Medarbejder";
+        saveButtonVariant = BrandButtonType.Matcha;
+        modalSize = "modal-lg";
+        isDeleteMode = false;
         showModal = true;
     }
 
@@ -166,16 +245,73 @@ private List<StaffDto> StaffList = new();
         showModal = false;
     }
 
-    private async Task HandleDelete(StaffDto staff){
-        // Confirmation modal for deleting staff member, and API call to delete staff member
-        Console.WriteLine($"Delete staff member with id {staff.Id}");
+    private async Task HandleDelete(StaffDto staff)
+    {
+        currentStaff = staff;
+
+        modalTitle = "Bekræft Sletning";
+        modalButtonText = "Slet Medarbejder";
+        saveButtonVariant = BrandButtonType.Danger;
+        isDeleteMode = true;
+        modalSize = "modal-md";
+        showModal = true;
+
+        
     }
 
     // API calls
 
-    private async Task SaveStaff(){
-        Console.WriteLine("Save staff member");
+    // Method to create a new staff member, or update an existing staff member based on the ID of the currentStaff object, and then refresh the staff list from the API
+    private async Task SaveStaff()
+    {
+        try
+        {
+            // Creates a new staff member, if the ID is 0
+            if (currentStaff.Id == 0)
+            {
+                StaffDto? createdStaff = await ApiService.PostAsync<StaffDto, StaffDto>("api/staff", currentStaff);
+
+                if (createdStaff != null)
+                {
+                    StaffList.Add(createdStaff);
+                }
+                Snackbar.Add("Medarbejder oprettet succesfuldt.", Severity.Success);
+            }
+            // Updates an existing staff member, if the ID is not 0
+            else
+            {
+                await ApiService.PutAsync($"api/staff/{currentStaff.Id}", currentStaff);
+
+                var index = StaffList.FindIndex(s => s.Id == currentStaff.Id);
+                if (index != -1)
+                {
+                    StaffList[index] = currentStaff;
+                }
+
+                Snackbar.Add("Medarbejder opdateret succesfuldt.", Severity.Success);
+            }
+
+            showModal = false; // Close modal after saving
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved gemning af medarbejder: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task DeleteStaff(int staffId)
+    {
+        Console.WriteLine($"Delete staff member with id {staffId}");
     }
 
+    // Filtered list for "StaffDto" based on input and string to store the selected filter value
+        private List<StaffDto> FilteredStaff()
+    {
+        return _selectedDepartment == "Alle" ? StaffList : StaffList.Where(s => s.Department == _selectedDepartment).ToList();
+    }
+    private void SetFilter(string department)
+    {
+        _selectedDepartment = department;
+    }
 
 }

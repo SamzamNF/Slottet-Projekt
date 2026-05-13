@@ -218,7 +218,7 @@ body {
 .table.custom-crud-table tbody tr:hover td {
     background-color: rgba(var(--brand-matcha-rgb), 0.2) !important;
     transition: background-color 0.15s ease-in-out;
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
 
 

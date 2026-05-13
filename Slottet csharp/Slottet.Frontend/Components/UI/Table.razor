@@ -7,7 +7,7 @@
     <div class="mb-3">
         
         <!-- Add button, triggers the OnAdd event when clicked -->
-        <Button Variant="ButtonType.Matcha" 
+        <Button Variant="BrandButtonType.Matcha" 
                   OnClick="OnAdd">
             <ChildContent>
                 <i class="bi bi-plus-lg me-2"></i> @AddButtonText
@@ -21,7 +21,7 @@
                 <thead>
                     <tr>
                         @TableHeader
-                        <th class="text-center" style="width: 250px;">Actions</th>
+                        <th class="text-center" style="width: 250px;">Mugligheder</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,14 +37,14 @@
                                     @RowTemplate(item)
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
-                                            <Button Variant="ButtonType.Beige"                                                    
+                                            <Button Variant="BrandButtonType.Beige"                                                    
                                                     OnClick="@(() => OnEdit.InvokeAsync(item))">
                                                 <ChildContent>
                                                     <i class="bi bi-pencil-fill me-1"></i> Rediger
                                                 </ChildContent>
                                             </Button>
 
-                                            <Button Variant="ButtonType.Danger" 
+                                            <Button Variant="BrandButtonType.Danger" 
                                                     OnClick="@(() => OnDelete.InvokeAsync(item))">
                                                 <ChildContent>
                                                     <i class="bi bi-trash-fill me-1"></i> Slet

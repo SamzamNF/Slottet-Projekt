@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
 using Slottet.Frontend.Components;
+using MudBlazor;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,9 @@ var apiUrl = builder.Configuration["ApiSettings:BaseUrl"]
 
 builder.Services.AddHttpClient("MyAPI", client => client.BaseAddress = new Uri(apiUrl));
 builder.Services.AddScoped<ApiService>();
+
+// MudBlazor Services
+builder.Services.AddMudServices();
 
 
 // Build the app
