@@ -102,7 +102,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-brand-matcha">Afdeling</label>
-                    <select class="form-select" @bind="currentStaff.Department">
+                    <select class="form-select" @bind="currentStaff.DepartmentId">
                         <option value="">Vælg afdeling...</option>
                         @* Shows the Department NAMES, but stores the ID *@
                         @foreach (DepartmentDTO dept in DepartmentOptions)
@@ -113,7 +113,7 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-brand-matcha">Rolle</label>
-                    <select class="form-select" @bind="currentStaff.RoleName">
+                    <select class="form-select" @bind="currentStaff.RoleId">
                         <option value="">Vælg rolle...</option>
                         @* Shows the Role NAMES, but stores the ID *@
                         @foreach (RoleDTO role in RoleOptions)
@@ -153,51 +153,16 @@
     // Initialize page with mock data, later fetch from API
     protected override async Task OnInitializedAsync()
     {
-        /*try
+        try
         {
-            RoleOptions = await ApiService.GetListAsync<RoleDTO>("api/roles") ?? new();
-            DepartmentOptions = await ApiService.GetListAsync<DepartmentDTO>("api/departments") ?? new();
+            RoleOptions = await ApiService.GetListAsync<RoleDTO>("api/role") ?? new();
+            DepartmentOptions = await ApiService.GetListAsync<DepartmentDTO>("api/department") ?? new();
             StaffList = await ApiService.GetListAsync<StaffDto>("api/staff") ?? new();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Fejl ved hentning af dataa: {ex.Message}");
-        }*/
-        
-        // Fetch the list of staff members from the API when the component initializes (Mock data for now)
-        StaffList = new List<StaffDto>
-        {
-                new StaffDto 
-                { 
-                    Id = 1, 
-                    Initials = "MLJ", 
-                    FirstName = "Mads", 
-                    LastName = "Jensen", 
-                    Email = "mlj@slottet.dk", 
-                    Department = "Slottet", 
-                    RoleName = "Administrator" 
-                },
-                new StaffDto 
-                { 
-                    Id = 2, 
-                    Initials = "SH", 
-                    FirstName = "Sofie", 
-                    LastName = "Holm", 
-                    Email = "sh@slottet.dk", 
-                    Department = "Slottet", 
-                    RoleName = "Administrator" 
-                },
-                new StaffDto 
-                { 
-                    Id = 3, 
-                    Initials = "LN", 
-                    FirstName = "Lars", 
-                    LastName = "Nielsen", 
-                    Email = "ln@slottet.dk", 
-                    Department = "Skoven", 
-                    RoleName = "Personale" 
-                }
-        };
+        }      
 
     }
 
@@ -226,10 +191,6 @@
             Email = staff.Email,
             DepartmentId = staff.DepartmentId,
             RoleId = staff.RoleId,
-
-            // Probably not needed and can be removed
-            Department = staff.Department,
-            RoleName = staff.RoleName
         };
 
         modalTitle = "Rediger Medarbejder";
@@ -262,6 +223,7 @@
     // Method that changes whether the modals CTA button should delete or add/edit
     private async Task HandleModalConfirm()
     {
+        Console.WriteLine("HandleModalConfirm blev kaldt");
         if (isDeleteMode)
         {
             await DeleteStaff();
@@ -277,6 +239,7 @@
     // Method to create a new staff member, or update an existing staff member based on the ID of the currentStaff object, and then refresh the staff list from the API
     private async Task SaveStaff()
     {
+        Console.WriteLine("SaveStaff blev kaldt");
         try
         {
             // Creates a new staff member, if the ID is 0
@@ -288,20 +251,25 @@
                 {
                     StaffList.Add(createdStaff);
                 }
-                Snackbar.Add("Medarbejder oprettet succesfuldt.", Severity.Success);
+                Snackbar.Add($"Medarbejder {createdStaff?.FirstName} {createdStaff?.LastName} oprettet succesfuldt.", Severity.Success);
             }
             // Updates an existing staff member, if the ID is not 0
             else
             {
-                await ApiService.PutAsync($"api/staff/{currentStaff.Id}", currentStaff);
+                await ApiService.PutAsync($"api/staff", currentStaff);
 
-                var index = StaffList.FindIndex(s => s.Id == currentStaff.Id);
-                if (index != -1)
+                var updatedStaff = await ApiService.GetAsync<StaffDto>($"api/staff/{currentStaff.Id}");
+                
+                if (updatedStaff != null)
                 {
-                    StaffList[index] = currentStaff;
+                    int index = StaffList.FindIndex(s => s.Id == currentStaff.Id);
+                    if (index != -1)
+                    {
+                        StaffList[index] = updatedStaff;
+                    }
                 }
 
-                Snackbar.Add("Medarbejder opdateret succesfuldt.", Severity.Success);
+                Snackbar.Add($"Medarbejder {currentStaff.FirstName} {currentStaff.LastName} opdateret succesfuldt.", Severity.Success);
             }
 
             showModal = false; // Close modal after saving

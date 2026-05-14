@@ -33,8 +33,19 @@ var apiUrl = builder.Configuration["ApiSettings:BaseUrl"]
 builder.Services.AddHttpClient("MyAPI", client => client.BaseAddress = new Uri(apiUrl));
 builder.Services.AddScoped<ApiService>();
 
-// MudBlazor Services
-builder.Services.AddMudServices();
+// MudBlazor Services for UI components and Snackbar notifications
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomLeft;
+    
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = true;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 5000; // 5 sekunder
+    config.SnackbarConfiguration.HideTransitionDuration = 500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 500;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
 
 
 // Build the app

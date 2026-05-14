@@ -221,6 +221,17 @@ body {
     /*cursor: pointer;*/
 }
 
+/* MudBlazor */
+.mud-snackbar {
+    font-size: 1.5rem !important; 
+    min-width: 600px !important; 
+    padding: 20px !important;  
+}
+
+.mud-snackbar .mud-alert-icon-left {
+    font-size: 4rem !important;
+}
+
 
 
 
