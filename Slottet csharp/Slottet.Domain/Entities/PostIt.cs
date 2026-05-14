@@ -15,6 +15,7 @@ public class PostIt
     public string Events { get; set; } = string.Empty;
     public string RelativesContact { get; set; } = string.Empty;
 
+    // Foreign keys
     public int StaffId { get; set; }
     public int MedicineId { get; set; }
     public int ResidentId { get; set; }

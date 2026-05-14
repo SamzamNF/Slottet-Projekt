@@ -41,10 +41,10 @@ public class EFContext : DbContext, IUnitOfWork
 
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()
-            .HasOne<Risk>()
+            .HasOne(p => p.Risk)
             .WithOne()
-            .HasForeignKey<PostIt>(r => r.Id)
-            .OnDelete(DeleteBehavior.Cascade); // Risk is deleted with PostIt
+            .HasForeignKey<PostIt>(p => p.RiskId) // Use foreign key property
+            .OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths error in SQL Server
     }
 
 }
