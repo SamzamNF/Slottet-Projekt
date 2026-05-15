@@ -216,14 +216,11 @@
         saveButtonVariant = BrandButtonType.Danger;
         isDeleteMode = true;
         modalSize = "modal-md";
-        showModal = true;
-
-        
+        showModal = true;       
     }
     // Method that changes whether the modals CTA button should delete or add/edit
     private async Task HandleModalConfirm()
     {
-        Console.WriteLine("HandleModalConfirm blev kaldt");
         if (isDeleteMode)
         {
             await DeleteStaff();
@@ -232,14 +229,13 @@
         {
             await SaveStaff(); // Kald gem-logik
         }
-        }
+    }
 
     // API calls
 
     // Method to create a new staff member, or update an existing staff member based on the ID of the currentStaff object, and then refresh the staff list from the API
     private async Task SaveStaff()
     {
-        Console.WriteLine("SaveStaff blev kaldt");
         try
         {
             // Creates a new staff member, if the ID is 0
