@@ -1,4 +1,4 @@
-@page "/admin/role"
+@page "/admin/phone"
 @rendermode InteractiveServer
 @using MudBlazor
 @using Slottet.Shared.DTO;
@@ -10,20 +10,18 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Administrer roller</PageTitle>
+<PageTitle>Administrer telefoner</PageTitle>
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-brand-matcha m-0">Rolle Administration</h2>
+        <h2 class="text-brand-matcha m-0">Telefon Administration</h2>
     </div>
-
-    <label class="form-label fw-bold text-brand-matcha mb-2">Husk at tilføj rollen på Azure AD</label>
 
     
     @*  EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
-    <Table TItem="RoleDTO" 
-                  Items="RoleList" 
-                  AddButtonText="Opret Rolle"
+    <Table TItem="PhoneDTO" 
+                  Items="PhoneList" 
+                  AddButtonText="Opret Telefon"
                   OnAdd="HandleAdd" 
                   OnEdit="HandleEdit" 
                   OnDelete="HandleDelete"
@@ -31,19 +29,19 @@
         
         <TableHeader>
             <th style="width: 400px;">Id</th>
-            <th>Rollenavn</th>
+            <th>Telefonnummer</th>
         </TableHeader>
 
-        <RowTemplate Context="role">
+        <RowTemplate Context="phone">
             <td>
-                <span class="badge bg-brand-owl text-dark">@role.Id</span>
+                <span class="badge bg-brand-owl text-dark">@phone.Id</span>
             </td>
-            <td>@role.RoleName</td>
+            <td>@phone.PhoneNumber</td>
         </RowTemplate>
 
     </Table>
 
-    @* Modal component for adding/editing/deleting roles *@
+    @* Modal component for adding/editing/deleting phones *@
     <Modal Title="@modalTitle" 
            Show="@showModal" 
            OnClose="CloseModal" 
@@ -57,16 +55,16 @@
         {
             <div class="text-center p-3">
                 <i class="bi bi-exclamation-octagon text-danger display-4"></i>
-                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentRole.RoleName</b>?</p>
+                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentPhone.PhoneNumber</b>?</p>
             </div>
         }
-        @* If DeleteMode is false, show the form for adding/editing roles *@
+        @* If DeleteMode is false, show the form for adding/editing departments *@
         else
         {
             <div class="row g-3">
                 <div class="col-md-12">
-                    <label class="form-label fw-bold text-brand-matcha">Rollenavn</label>
-                    <input type="text" class="form-control" @bind="currentRole.RoleName" />
+                    <label class="form-label fw-bold text-brand-matcha">Telefonnummer</label>
+                    <input type="text" class="form-control" @bind="currentPhone.PhoneNumber" />
                 </div>
             </div>
         }
@@ -77,14 +75,14 @@
 
 @code {
 
-    // List for Roles
-    private List<RoleDTO> RoleList = new();
+    // List for Phones
+    private List<PhoneDTO> PhoneList = new();
 
     
-    // Modal variables and methods for handling add/edit/delete roles
+    // Modal variables and methods for handling add/edit/delete phones
     private bool showModal = false;
     private string modalTitle = "";
-    private RoleDTO currentRole = new RoleDTO();
+    private PhoneDTO currentPhone = new PhoneDTO();
     private string modalButtonText = "";
     private bool isDeleteMode = false;
     private string modalSize = "";
@@ -96,7 +94,7 @@
     {
         try
         {
-            RoleList = await ApiService.GetListAsync<RoleDTO>("api/role") ?? new();
+            PhoneList = await ApiService.GetListAsync<PhoneDTO>("api/phone") ?? new();
         }
         catch (Exception ex)
         {
@@ -109,9 +107,9 @@
     // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
     private void HandleAdd()
     {
-        currentRole = new RoleDTO(); // Clear current role data
-        modalTitle = "Opret Rolle";
-        modalButtonText = "Gem Rolle";
+        currentPhone = new PhoneDTO(); // Clear current phone data
+        modalTitle = "Opret Telefon";
+        modalButtonText = "Gem Telefon";
         saveButtonVariant = BrandButtonType.Matcha;
         isDeleteMode = false;
         modalSize = "modal-lg";
@@ -119,17 +117,17 @@
     }
 
     // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
-    private void HandleEdit(RoleDTO role)
+    private void HandleEdit(PhoneDTO phone)
     {
-        // Load selected role data into modal
-        currentRole = new RoleDTO
+        // Load selected phone data into modal
+        currentPhone = new PhoneDTO
         {
-            Id = role.Id,
-            RoleName = role.RoleName
+            Id = phone.Id,
+            PhoneNumber = phone.PhoneNumber
         };
 
-        modalTitle = "Rediger Rolle";
-        modalButtonText = "Gem Rolle";
+        modalTitle = "Rediger Telefon";
+        modalButtonText = "Gem Telefon";
         saveButtonVariant = BrandButtonType.Matcha;
         modalSize = "modal-lg";
         isDeleteMode = false;
@@ -142,12 +140,12 @@
     }
 
     // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
-    private async Task HandleDelete(RoleDTO role)
+    private async Task HandleDelete(PhoneDTO phone)
     {
-        currentRole = role; // Load selected role data into modal for reference in confirmation message
+        currentPhone = phone; // Load selected phone data into modal for reference in confirmation message
 
         modalTitle = "Bekræft Sletning";
-        modalButtonText = "Slet Rolle";
+        modalButtonText = "Slet Telefon";
         saveButtonVariant = BrandButtonType.Danger;
         isDeleteMode = true;
         modalSize = "modal-md";
@@ -160,49 +158,49 @@
     {
         if (isDeleteMode)
         {
-            await DeleteRole();
+            await DeletePhone();
         }
         else
         {
-            await SaveRole(); // Kald gem-logik
+            await SavePhone(); // Kald gem-logik
         }
     }
 
     // API calls
 
-    // Method to create a new role, or update an existing role based on the ID of the currentRole object, and then refresh the role list from the API
-    private async Task SaveRole()
+    // Method to create a new phone, or update an existing phone based on the ID of the currentPhone object, and then refresh the phone list from the API
+    private async Task SavePhone()
     {
         try
         {
-            // Creates a new role, if the ID is 0
-            if (currentRole.Id == 0)
+            // Creates a new phone, if the ID is 0
+            if (currentPhone.Id == 0)
             {
-                RoleDTO? createdRole = await ApiService.PostAsync<RoleDTO, RoleDTO>("api/role", currentRole);
+                PhoneDTO? createdPhone = await ApiService.PostAsync<PhoneDTO, PhoneDTO>("api/phone", currentPhone);
 
-                if (createdRole != null)
+                if (createdPhone != null)
                 {
-                    RoleList.Add(createdRole);
+                    PhoneList.Add(createdPhone);
                 }
-                Snackbar.Add($"Rolle {createdRole?.RoleName} oprettet succesfuldt.", Severity.Success);
+                Snackbar.Add($"Telefon {createdPhone?.PhoneNumber} oprettet succesfuldt.", Severity.Success);
             }
-            // Updates an existing role, if the ID is not 0
+            // Updates an existing phone, if the ID is not 0
             else
             {
-                await ApiService.PutAsync($"api/role", currentRole);
+                await ApiService.PutAsync($"api/phone", currentPhone);
 
-                var updatedRole = await ApiService.GetAsync<RoleDTO>($"api/role/{currentRole.Id}");
+                var updatedPhone = await ApiService.GetAsync<PhoneDTO>($"api/phone/{currentPhone.Id}");
 
-                if (updatedRole != null)
+                if (updatedPhone != null)
                 {
-                    int index = RoleList.FindIndex(r => r.Id == currentRole.Id);
+                    int index = PhoneList.FindIndex(p => p.Id == currentPhone.Id);
                     if (index != -1)
                     {
-                        RoleList[index] = updatedRole;
+                        PhoneList[index] = updatedPhone;
                     }
                 }
 
-                Snackbar.Add($"Rolle {currentRole.RoleName} opdateret succesfuldt.", Severity.Success);
+                Snackbar.Add($"Telefon {currentPhone.PhoneNumber} opdateret succesfuldt.", Severity.Success);
             }
 
             showModal = false; // Close modal after saving
@@ -210,24 +208,24 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Fejl ved gemning af rolle: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Fejl ved gemning af telefon: {ex.Message}", Severity.Error);
         }
     }
-    private async Task DeleteRole()
+    private async Task DeletePhone()
     {
         try
         {
-            await ApiService.DeleteAsync($"api/role/{currentRole.Id}");
+            await ApiService.DeleteAsync($"api/phone/{currentPhone.Id}");
 
-            RoleList.RemoveAll(r => r.Id == currentRole.Id);
+            PhoneList.RemoveAll(p => p.Id == currentPhone.Id);
 
-            Snackbar.Add($"{currentRole.RoleName} er slettet.", Severity.Success);
+            Snackbar.Add($"{currentPhone.PhoneNumber} er slettet.", Severity.Success);
             showModal = false;
             StateHasChanged(); // Refresh UI
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Fejl ved sletning af rolle: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Fejl ved sletning af telefon: {ex.Message}", Severity.Error);
         }
     }
 

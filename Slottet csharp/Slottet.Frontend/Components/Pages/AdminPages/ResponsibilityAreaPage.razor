@@ -1,0 +1,269 @@
+@page "/admin/responsibility-area"
+@rendermode InteractiveServer
+@using MudBlazor
+@using Slottet.Shared.DTO;
+@using Microsoft.AspNetCore.Authorization
+
+@inject ApiService ApiService
+@inject ISnackbar Snackbar
+
+
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Administrer ansvarsområder</PageTitle>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brand-matcha m-0">Ansvarsområde Administration</h2>
+    </div>
+
+    
+    @* EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
+    <Table TItem="ResponsibilityAreaDTO" 
+                  Items="ResponsibilityAreaList" 
+                  AddButtonText="Opret Ansvarsområde"
+                  OnAdd="HandleAdd" 
+                  OnEdit="HandleEdit" 
+                  OnDelete="HandleDelete"
+                  PageSize="10">
+        
+        <TableHeader>
+            <th>Beskrivelse</th>
+            <th>Dato</th>
+            <th>Medarbejder</th>
+            <th>Telefonnummer</th>
+        </TableHeader>
+
+        <RowTemplate Context="responsibilityArea">
+            <td class="fw-bold text-brand-matcha">@responsibilityArea.Description</td>
+                <td>@responsibilityArea.Date.ToString("dd-MM-yyyy")</td>
+                <td>@responsibilityArea.StaffInitials</td>
+                <td>@responsibilityArea.PhoneNumber</td>
+        </RowTemplate>
+
+    </Table>
+
+    @* Modal component for adding/editing/deleting *@
+    <Modal Title="@modalTitle" 
+           Show="@showModal" 
+           OnClose="CloseModal" 
+           OnAction="HandleModalConfirm"
+           SaveButtonText="@modalButtonText"
+           SaveButtonVariant="@saveButtonVariant"
+           SizeClass="@modalSize">
+        
+        @* If IsDeleteMode is true, show delete confirmation *@
+        @if (isDeleteMode)
+        {
+            <div class="text-center p-3">
+                <i class="bi bi-exclamation-octagon text-danger display-4"></i>
+                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentResponsibilityArea.Description fra @currentResponsibilityArea.Date</b>?</p>
+            </div>
+        }
+        @* If DeleteMode is false, show the form for adding/editing staff *@
+        else
+        {
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Beskrivelse</label>
+                    <input type="text" class="form-control" @bind="currentResponsibilityArea.Description" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Dato</label>
+                    <input type="date" class="form-control" @bind="currentResponsibilityArea.Date" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Medarbejder</label>
+                    <select class="form-select" @bind="currentResponsibilityArea.StaffId">
+                        <option value="">Vælg medarbejder...</option>
+                        @* Shows the Staff Names, but stores the ID *@
+                        @foreach (StaffDto staff in StaffList)
+                        {
+                            <option value="@staff.Id">@staff.Initials</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Telefon</label>
+                    <select class="form-select" @bind="currentResponsibilityArea.PhoneId">
+                        <option value="">Vælg telefon...</option>
+                        @* Shows the Phones, but stores the ID *@
+                        @foreach (PhoneDTO phone in PhoneList)
+                        {
+                            <option value="@phone.Id">@phone.PhoneNumber</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        }
+        
+        
+    </Modal>
+</div>
+
+@code {
+
+    // List for Staff, Phones and ResponsibilityAreas, and options for dropdowns in the modal
+    private List<StaffDto> StaffList = new();
+    private List<PhoneDTO> PhoneList = new List<PhoneDTO>();
+    private List<ResponsibilityAreaDTO> ResponsibilityAreaList = new();
+   
+    
+    // Modal variables and methods for handling add/edit/delete staff members
+    private bool showModal = false;
+    private string modalTitle = "";
+    private ResponsibilityAreaDTO currentResponsibilityArea = new ResponsibilityAreaDTO();
+    private string modalButtonText = "";
+    private bool isDeleteMode = false;
+    private string modalSize = "";
+    private BrandButtonType saveButtonVariant = BrandButtonType.Matcha;
+    
+    
+    // Initialize page with API data
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            PhoneList = await ApiService.GetListAsync<PhoneDTO>("api/phone") ?? new();
+            ResponsibilityAreaList = await ApiService.GetListAsync<ResponsibilityAreaDTO>("api/responsibilityarea") ?? new();
+            StaffList = await ApiService.GetListAsync<StaffDto>("api/staff") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved hentning af dataa: {ex.Message}");
+        }      
+
+    }
+
+    // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
+    private void HandleAdd()
+    {
+        currentResponsibilityArea = new ResponsibilityAreaDTO (); // Clear current data
+
+        currentResponsibilityArea.Date = DateTime.Today; // Default date set to current day
+
+        modalTitle = "Opret Ansvarsområde";
+        modalButtonText = "Gem Ansvarsområde";
+        saveButtonVariant = BrandButtonType.Matcha;
+        isDeleteMode = false;
+        modalSize = "modal-lg";
+        showModal = true;
+    }
+
+    // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
+    private void HandleEdit(ResponsibilityAreaDTO responsibilityArea)
+    {
+        // Load selected responsibility area data into modal
+        currentResponsibilityArea = new ResponsibilityAreaDTO
+        {
+            Id = responsibilityArea.Id,
+            Description = responsibilityArea.Description,
+            Date = responsibilityArea.Date,
+            StaffId = responsibilityArea.StaffId,
+            StaffInitials = responsibilityArea.StaffInitials,
+            PhoneId = responsibilityArea.PhoneId,
+            PhoneNumber = responsibilityArea.PhoneNumber,
+        };
+
+        modalTitle = "Rediger Ansvarsområde";
+        modalButtonText = "Gem Ansvarsområde";
+        saveButtonVariant = BrandButtonType.Matcha;
+        modalSize = "modal-lg";
+        isDeleteMode = false;
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
+    private async Task HandleDelete(ResponsibilityAreaDTO responsibilityArea)
+    {
+        currentResponsibilityArea = responsibilityArea;
+
+        modalTitle = "Bekræft Sletning";
+        modalButtonText = "Slet Ansvarsområde";
+        saveButtonVariant = BrandButtonType.Danger;
+        isDeleteMode = true;
+        modalSize = "modal-md";
+        showModal = true;       
+    }
+    // Method that changes whether the modals CTA button should delete or add/edit
+    private async Task HandleModalConfirm()
+    {
+        if (isDeleteMode)
+        {
+            await DeleteResponsibilityArea();
+        }
+        else
+        {
+            await SaveResponsibilityArea(); // Kald gem-logik
+        }
+    }
+
+    // API calls
+
+    // Method to create a new responsibility area, or update an existing responsibility area based on the ID of the currentResponsibilityArea object, and then refresh the responsibility area list from the API
+    private async Task SaveResponsibilityArea()
+    {
+        try
+        {
+            // Creates a new responsibility area, if the ID is 0
+            if (currentResponsibilityArea.Id == 0)
+            {
+                ResponsibilityAreaDTO? createdResponsibilityArea = await ApiService.PostAsync<ResponsibilityAreaDTO, ResponsibilityAreaDTO>("api/responsibilityarea", currentResponsibilityArea);
+
+                if (createdResponsibilityArea != null)
+                {
+                    ResponsibilityAreaList.Add(createdResponsibilityArea);
+                }
+                Snackbar.Add($"Ansvarsområde {createdResponsibilityArea?.Description} oprettet succesfuldt.", Severity.Success);
+            }
+            // Updates an existing responsibility area, if the ID is not 0
+            else
+            {
+                await ApiService.PutAsync($"api/responsibilityarea", currentResponsibilityArea);
+
+                var updatedResponsibilityArea = await ApiService.GetAsync<ResponsibilityAreaDTO>($"api/responsibilityarea/{currentResponsibilityArea.Id}");
+
+                if (updatedResponsibilityArea != null)
+                {
+                    int index = ResponsibilityAreaList.FindIndex(r => r.Id == currentResponsibilityArea.Id);
+                    if (index != -1)
+                    {
+                        ResponsibilityAreaList[index] = updatedResponsibilityArea;
+                    }
+                }
+
+                Snackbar.Add($"Ansvarsområde {currentResponsibilityArea.Description} opdateret succesfuldt.", Severity.Success);
+            }
+
+            showModal = false; // Close modal after saving
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved gemning af ansvarsområde: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task DeleteResponsibilityArea()
+    {
+        try
+        {
+            await ApiService.DeleteAsync($"api/responsibilityarea/{currentResponsibilityArea.Id}");
+
+            ResponsibilityAreaList.RemoveAll(r => r.Id == currentResponsibilityArea.Id);
+
+            Snackbar.Add($"{currentResponsibilityArea.Description} er slettet.", Severity.Success);
+            showModal = false;
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved sletning af ansvarsområde: {ex.Message}", Severity.Error);
+        }
+    }
+
+}

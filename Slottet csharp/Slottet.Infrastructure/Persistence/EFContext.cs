@@ -37,14 +37,18 @@ public class EFContext : DbContext, IUnitOfWork
         // Global query filter: Exclude archived residents from all queries
         modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
 
-        base.OnModelCreating(modelBuilder);
-
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()
             .HasOne<Risk>()
             .WithOne()
             .HasForeignKey<PostIt>(r => r.Id)
             .OnDelete(DeleteBehavior.Cascade); // Risk is deleted with PostIt
+
+        // Maps the ResponsibilityArea entity to the "ResponsibilityAreas" table in the database
+        modelBuilder.Entity<ResponsibilityArea>()
+        .ToTable("Responsibility_areas");
+
+        base.OnModelCreating(modelBuilder);
     }
 
 }

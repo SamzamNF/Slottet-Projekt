@@ -71,13 +71,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddOpenApi();
 
 
-// --- DEBUG START ---
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-Console.WriteLine("=================================================");
-Console.WriteLine($"DEBUG: Connection String fundet: {(!string.IsNullOrEmpty(connectionString) ? "JA" : "NEJ")}");
-Console.WriteLine($"DEBUG: Full String: {connectionString}");
-Console.WriteLine("=================================================");
-// --- DEBUG SLUT ---
 
 var app = builder.Build();
 
