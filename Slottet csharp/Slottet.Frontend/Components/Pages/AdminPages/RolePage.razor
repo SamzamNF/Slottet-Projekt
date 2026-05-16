@@ -1,4 +1,4 @@
-﻿@page "/admin/department"
+@page "/admin/role"
 @rendermode InteractiveServer
 @using MudBlazor
 @using Slottet.Shared.DTO;
@@ -10,18 +10,21 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Administrer afdelinger</PageTitle>
+<PageTitle>Administrer roller</PageTitle>
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-brand-matcha m-0">Afdelings Administration</h2>
+        <h2 class="text-brand-matcha m-0">Rolle Administration</h2>
     </div>
 
+    <label class="form-label fw-bold text-brand-matcha mb-2">Husk at tilføj rollen på Azure AD</label>
+
     
-    @*  EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
-    <Table TItem="DepartmentDTO" 
-                  Items="DepartmentList" 
-                  AddButtonText="Opret Afdeling"
+    @*  Generic table with DepartmentDto mock data 
+        EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
+    <Table TItem="RoleDTO" 
+                  Items="RoleList" 
+                  AddButtonText="Opret Rolle"
                   OnAdd="HandleAdd" 
                   OnEdit="HandleEdit" 
                   OnDelete="HandleDelete"
@@ -29,19 +32,19 @@
         
         <TableHeader>
             <th style="width: 400px;">Id</th>
-            <th>Afdelingsnavn</th>
+            <th>Rollenavn</th>
         </TableHeader>
 
-        <RowTemplate Context="dept">
+        <RowTemplate Context="role">
             <td>
-                <span class="badge bg-brand-owl text-dark">@dept.Id</span>
+                <span class="badge bg-brand-owl text-dark">@role.Id</span>
             </td>
-            <td>@dept.DepartmentName</td>
+            <td>@role.RoleName</td>
         </RowTemplate>
 
     </Table>
 
-    @* Modal component for adding/editing/deleting departments *@
+    @* Modal component for adding/editing/deleting roles *@
     <Modal Title="@modalTitle" 
            Show="@showModal" 
            OnClose="CloseModal" 
@@ -55,16 +58,16 @@
         {
             <div class="text-center p-3">
                 <i class="bi bi-exclamation-octagon text-danger display-4"></i>
-                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentDepartment.DepartmentName</b>?</p>
+                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentRole.RoleName</b>?</p>
             </div>
         }
-        @* If DeleteMode is false, show the form for adding/editing departments *@
+        @* If DeleteMode is false, show the form for adding/editing roles *@
         else
         {
             <div class="row g-3">
                 <div class="col-md-12">
-                    <label class="form-label fw-bold text-brand-matcha">Afdelingsnavn</label>
-                    <input type="text" class="form-control" @bind="currentDepartment.DepartmentName" />
+                    <label class="form-label fw-bold text-brand-matcha">Rollenavn</label>
+                    <input type="text" class="form-control" @bind="currentRole.RoleName" />
                 </div>
             </div>
         }
@@ -75,14 +78,14 @@
 
 @code {
 
-    // List for Departments
-    private List<DepartmentDTO> DepartmentList = new();
+    // List for Roles
+    private List<RoleDTO> RoleList = new();
 
     
-    // Modal variables and methods for handling add/edit/delete departments
+    // Modal variables and methods for handling add/edit/delete roles
     private bool showModal = false;
     private string modalTitle = "";
-    private DepartmentDTO currentDepartment = new DepartmentDTO();
+    private RoleDTO currentRole = new RoleDTO();
     private string modalButtonText = "";
     private bool isDeleteMode = false;
     private string modalSize = "";
@@ -94,7 +97,7 @@
     {
         try
         {
-            DepartmentList = await ApiService.GetListAsync<DepartmentDTO>("api/department") ?? new();
+            RoleList = await ApiService.GetListAsync<RoleDTO>("api/role") ?? new();
         }
         catch (Exception ex)
         {
@@ -107,9 +110,9 @@
     // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
     private void HandleAdd()
     {
-        currentDepartment = new DepartmentDTO(); // Clear current department data
-        modalTitle = "Opret Afdeling";
-        modalButtonText = "Gem Afdeling";
+        currentRole = new RoleDTO(); // Clear current role data
+        modalTitle = "Opret Rolle";
+        modalButtonText = "Gem Rolle";
         saveButtonVariant = BrandButtonType.Matcha;
         isDeleteMode = false;
         modalSize = "modal-lg";
@@ -117,17 +120,17 @@
     }
 
     // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
-    private void HandleEdit(DepartmentDTO dept)
+    private void HandleEdit(RoleDTO role)
     {
-        // Load selected department data into modal
-        currentDepartment = new DepartmentDTO
+        // Load selected role data into modal
+        currentRole = new RoleDTO
         {
-            Id = dept.Id,
-            DepartmentName = dept.DepartmentName,
+            Id = role.Id,
+            RoleName = role.RoleName
         };
 
-        modalTitle = "Rediger Afdeling";
-        modalButtonText = "Gem Afdeling";
+        modalTitle = "Rediger Rolle";
+        modalButtonText = "Gem Rolle";
         saveButtonVariant = BrandButtonType.Matcha;
         modalSize = "modal-lg";
         isDeleteMode = false;
@@ -140,12 +143,12 @@
     }
 
     // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
-    private async Task HandleDelete(DepartmentDTO dept)
+    private async Task HandleDelete(RoleDTO role)
     {
-        currentDepartment = dept; // Load selected department data into modal for reference in confirmation message
+        currentRole = role; // Load selected role data into modal for reference in confirmation message
 
         modalTitle = "Bekræft Sletning";
-        modalButtonText = "Slet Afdeling";
+        modalButtonText = "Slet Rolle";
         saveButtonVariant = BrandButtonType.Danger;
         isDeleteMode = true;
         modalSize = "modal-md";
@@ -158,49 +161,49 @@
     {
         if (isDeleteMode)
         {
-            await DeleteDepartment();
+            await DeleteRole();
         }
         else
         {
-            await SaveDepartment(); // Kald gem-logik
+            await SaveRole(); // Kald gem-logik
         }
     }
 
     // API calls
 
-    // Method to create a new department, or update an existing department based on the ID of the currentDepartment object, and then refresh the department list from the API
-    private async Task SaveDepartment()
+    // Method to create a new role, or update an existing role based on the ID of the currentRole object, and then refresh the role list from the API
+    private async Task SaveRole()
     {
         try
         {
-            // Creates a new department, if the ID is 0
-            if (currentDepartment.Id == 0)
+            // Creates a new role, if the ID is 0
+            if (currentRole.Id == 0)
             {
-                DepartmentDTO? createdDepartment = await ApiService.PostAsync<DepartmentDTO, DepartmentDTO>("api/department", currentDepartment);
+                RoleDTO? createdRole = await ApiService.PostAsync<RoleDTO, RoleDTO>("api/role", currentRole);
 
-                if (createdDepartment != null)
+                if (createdRole != null)
                 {
-                    DepartmentList.Add(createdDepartment);
+                    RoleList.Add(createdRole);
                 }
-                Snackbar.Add($"Afdeling {createdDepartment?.DepartmentName} oprettet succesfuldt.", Severity.Success);
+                Snackbar.Add($"Rolle {createdRole?.RoleName} oprettet succesfuldt.", Severity.Success);
             }
-            // Updates an existing department, if the ID is not 0
+            // Updates an existing role, if the ID is not 0
             else
             {
-                await ApiService.PutAsync($"api/department", currentDepartment);
+                await ApiService.PutAsync($"api/role", currentRole);
 
-                var updatedDepartment = await ApiService.GetAsync<DepartmentDTO>($"api/department/{currentDepartment.Id}");
+                var updatedRole = await ApiService.GetAsync<RoleDTO>($"api/role/{currentRole.Id}");
 
-                if (updatedDepartment != null)
+                if (updatedRole != null)
                 {
-                    int index = DepartmentList.FindIndex(d => d.Id == currentDepartment.Id);
+                    int index = RoleList.FindIndex(r => r.Id == currentRole.Id);
                     if (index != -1)
                     {
-                        DepartmentList[index] = updatedDepartment;
+                        RoleList[index] = updatedRole;
                     }
                 }
 
-                Snackbar.Add($"Afdeling {currentDepartment.DepartmentName} opdateret succesfuldt.", Severity.Success);
+                Snackbar.Add($"Rolle {currentRole.RoleName} opdateret succesfuldt.", Severity.Success);
             }
 
             showModal = false; // Close modal after saving
@@ -208,24 +211,24 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Fejl ved gemning af afdeling: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Fejl ved gemning af rolle: {ex.Message}", Severity.Error);
         }
     }
-    private async Task DeleteDepartment()
+    private async Task DeleteRole()
     {
         try
         {
-            await ApiService.DeleteAsync($"api/department/{currentDepartment.Id}");
+            await ApiService.DeleteAsync($"api/role/{currentRole.Id}");
 
-            DepartmentList.RemoveAll(d => d.Id == currentDepartment.Id);
+            RoleList.RemoveAll(r => r.Id == currentRole.Id);
 
-            Snackbar.Add($"{currentDepartment.DepartmentName} er slettet.", Severity.Success);
+            Snackbar.Add($"{currentRole.RoleName} er slettet.", Severity.Success);
             showModal = false;
             StateHasChanged(); // Refresh UI
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Fejl ved sletning af medarbejder: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Fejl ved sletning af rolle: {ex.Message}", Severity.Error);
         }
     }
 

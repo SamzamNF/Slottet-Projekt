@@ -455,6 +455,7 @@ Components/
   AdminDashboard.razor
   AdminPages/
    DepartmentPage.razor
+   RolePage.razor
    StaffPage.razor
   Counter.razor
   Error.razor
@@ -482,6 +483,7 @@ Components/
   AdminDashboard.razor
   AdminPages/
    DepartmentPage.razor
+   RolePage.razor
    StaffPage.razor
   Counter.razor
   Error.razor

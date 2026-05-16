@@ -125,6 +125,19 @@ h1:focus {
     box-shadow: 0 0 0 0.25rem rgba(var(--brand-matcha-rgb), 0.2) !important;
 }
 
+.btn-brand-matcha:disabled,
+.btn-brand-matcha.disabled {
+    background-color: rgba(var(--brand-matcha-rgb), 0.45);
+    border-color: rgba(var(--brand-matcha-rgb), 0.45)t;
+    
+    color: rgba(255, 255, 255, 0.6);
+    text-shadow: none;
+    
+    pointer-events: none; 
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
 /* Gray button */
 .btn-brand-owl {
     color: #222;
