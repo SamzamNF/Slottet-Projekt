@@ -1,0 +1,270 @@
+@page "/admin/resident"
+@rendermode InteractiveServer
+@using MudBlazor
+@using Slottet.Shared.DTO;
+@using Microsoft.AspNetCore.Authorization
+
+@inject ApiService ApiService
+@inject ISnackbar Snackbar
+
+
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Administrer Beboere</PageTitle>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brand-matcha m-0">Beboer Administration</h2>
+    </div>
+
+    @* Filtering buttons for each department, made from button component *@
+    <label class="form-label fw-bold text-brand-matcha mb-2">Filtrer efter afdeling:</label>
+    
+    <div class="d-flex gap-2 mb-3 px-1">
+        <Button Variant="@(_selectedDepartment == "Alle" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Alle")'
+                VariableText="Alle"/>
+        
+        <Button Variant="@(_selectedDepartment == "Slottet" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Slottet")'
+                VariableText="Slottet"/>
+
+        <Button Variant="@(_selectedDepartment == "Skoven" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Skoven")'
+                VariableText="Skoven"/>
+    </div>
+    
+    @* EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
+    <Table TItem="ResidentDto" 
+                  Items="@FilteredResidents()" 
+                  AddButtonText="Opret Beboer"
+                  OnAdd="HandleAdd" 
+                  OnEdit="HandleEdit" 
+                  OnDelete="HandleDelete"
+                  PageSize="10">
+        
+        <TableHeader>
+            <th>Initialer</th>
+            <th>Afdeling</th>
+        </TableHeader>
+
+        <RowTemplate Context="resident">
+            <td class="fw-bold text-brand-matcha">@resident.Initial</td>
+            <td>@resident.DepartmentName</td>
+        </RowTemplate>
+
+    </Table>
+
+    @* Modal component for adding/editing/deleting staff members *@
+    <Modal Title="@modalTitle" 
+           Show="@showModal" 
+           OnClose="CloseModal" 
+           OnAction="HandleModalConfirm"
+           SaveButtonText="@modalButtonText"
+           SaveButtonVariant="@saveButtonVariant"
+           SizeClass="@modalSize">
+        
+        @* If IsDeleteMode is true, show delete confirmation *@
+        @if (isDeleteMode)
+        {
+            <div class="text-center p-3">
+                <i class="bi bi-exclamation-octagon text-danger display-4"></i>
+                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentResident.Initial fra afdeling @currentResident.DepartmentName</b>?</p>
+            </div>
+        }
+        @* If DeleteMode is false, show the form for adding/editing staff *@
+        else
+        {
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Fornavn</label>
+                    <input type="text" class="form-control" @bind="currentResident.Initial" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Afdeling</label>
+                    <select class="form-select" @bind="currentResident.DepartmentId">
+                        <option value="">Vælg afdeling...</option>
+                        @* Shows the Department NAMES, but stores the ID *@
+                        @foreach (DepartmentDTO dept in DepartmentOptions)
+                        {
+                            <option value="@dept.Id">@dept.DepartmentName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        }
+        
+        
+    </Modal>
+</div>
+
+@code {
+
+    // List for Residents and Role Options & Department Options
+    private List<ResidentDto> ResidentList = new List<ResidentDto>();
+    private List<DepartmentDTO> DepartmentOptions = new();
+
+    // String to hold selected department for filtering residents
+    private string _selectedDepartment = "Alle";
+    
+    
+    // Modal variables and methods for handling add/edit/delete staff members
+    private bool showModal = false;
+    private string modalTitle = "";
+    private ResidentDto currentResident = new ResidentDto();
+    private string modalButtonText = "";
+    private bool isDeleteMode = false;
+    private string modalSize = "";
+    private BrandButtonType saveButtonVariant = BrandButtonType.Matcha;
+    
+    
+    // Initialize page with API data
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            DepartmentOptions = await ApiService.GetListAsync<DepartmentDTO>("api/department") ?? new();
+            ResidentList = await ApiService.GetListAsync<ResidentDto>("api/resident") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved hentning af dataa: {ex.Message}");
+        }      
+
+    }
+
+    // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
+    private void HandleAdd()
+    {
+        currentResident = new ResidentDto(); // Clear current resident data
+        modalTitle = "Opret Beboer";
+        modalButtonText = "Gem Beboer";
+        saveButtonVariant = BrandButtonType.Matcha;
+        isDeleteMode = false;
+        modalSize = "modal-lg";
+        showModal = true;
+    }
+
+    // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
+    private void HandleEdit(ResidentDto resident)
+    {
+        // Load selected resident data into modal
+        currentResident = new ResidentDto
+        {
+            Id = resident.Id,
+            Initial = resident.Initial,
+            DepartmentId = resident.DepartmentId,
+        };
+
+        modalTitle = "Rediger Beboer";
+        modalButtonText = "Gem Beboer";
+        saveButtonVariant = BrandButtonType.Matcha;
+        modalSize = "modal-lg";
+        isDeleteMode = false;
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
+    private async Task HandleDelete(ResidentDto resident)
+    {
+        currentResident = resident;
+
+        modalTitle = "Bekræft Sletning";
+        modalButtonText = "Slet Beboer";
+        saveButtonVariant = BrandButtonType.Danger;
+        isDeleteMode = true;
+        modalSize = "modal-md";
+        showModal = true;       
+    }
+    // Method that changes whether the modals CTA button should delete or add/edit
+    private async Task HandleModalConfirm()
+    {
+        if (isDeleteMode)
+        {
+            await DeleteResident();
+        }
+        else
+        {
+            await SaveResident(); // Kald gem-logik
+        }
+    }
+
+    // API calls
+
+    // Method to create a new staff member, or update an existing staff member based on the ID of the currentStaff object, and then refresh the staff list from the API
+    private async Task SaveResident()
+    {
+        try
+        {
+            // Creates a new staff member, if the ID is 0
+            if (currentResident.Id == 0)
+            {
+                ResidentDto? createdResident = await ApiService.PostAsync<ResidentDto, ResidentDto>("api/resident", currentResident);
+
+                if (createdResident != null)
+                {
+                    ResidentList.Add(createdResident);
+                }
+                Snackbar.Add($"Beboer {createdResident?.Initial} oprettet succesfuldt.", Severity.Success);
+            }
+            // Updates an existing staff member, if the ID is not 0
+            else
+            {
+                await ApiService.PutAsync($"api/resident/{currentResident.Id}", currentResident);
+
+                var updatedResident = await ApiService.GetAsync<ResidentDto>($"api/resident/{currentResident.Id}");
+                
+                if (updatedResident != null)
+                {
+                    int index = ResidentList.FindIndex(r => r.Id == currentResident.Id);
+                    if (index != -1)
+                    {
+                        ResidentList[index] = updatedResident;
+                    }
+                }
+
+                Snackbar.Add($"Beboer {currentResident.Initial} opdateret succesfuldt.", Severity.Success);
+            }
+
+            showModal = false; // Close modal after saving
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved gemning af beboer: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task DeleteResident()
+    {
+        try
+        {
+            await ApiService.DeleteAsync($"api/resident/{currentResident.Id}/permanent");
+
+            ResidentList.RemoveAll(r => r.Id == currentResident.Id);
+
+            Snackbar.Add($"{currentResident.Initial} er slettet.", Severity.Success);
+            showModal = false;
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved sletning af beboer: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Filtered list for "ResidentDto" based on input and string to store the selected filter value
+        private List<ResidentDto> FilteredResidents()
+    {
+        return _selectedDepartment == "Alle" ? ResidentList : ResidentList.Where(r => r.DepartmentName == _selectedDepartment).ToList();
+    }
+    private void SetFilter(string department)
+    {
+        _selectedDepartment = department;
+    }
+
+}
