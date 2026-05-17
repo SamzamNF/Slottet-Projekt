@@ -4,8 +4,10 @@
 
 
 <div class="container-fluid p-0 mt-4">
-    <div class="mb-3">
-        
+    @* Only show the add button if ShowAdd is true (Default true) *@
+    @if (ShowAdd)
+    {
+        <div class="mb-3">       
         <!-- Add button, triggers the OnAdd event when clicked -->
         <Button Variant="BrandButtonType.Matcha" 
                   OnClick="OnAdd">
@@ -14,6 +16,7 @@
             </ChildContent>
         </Button>
     </div>
+    }
 
     <div class="card shadow-sm border-0 overflow-hidden">
         <div class="table-responsive">
@@ -21,7 +24,12 @@
                 <thead>
                     <tr>
                         @TableHeader
-                        <th class="text-center" style="width: 250px;">Mugligheder</th>
+
+                        @* Only show action column if ShowAction is true (Default true)*@
+                        @if (ShowAction)
+                        {
+                            <th class="text-center" style="width: 250px;">Mugligheder</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -38,24 +46,29 @@
                             {
                                 <tr>
                                     @RowTemplate(item)
-                                    <td class="text-center">
-                                        <div class="d-flex justify-content-center gap-2">
-                                            <Button Variant="BrandButtonType.Beige"                                                    
-                                                    OnClick="@(() => OnEdit.InvokeAsync(item))">
-                                                <ChildContent>
-                                                    <i class="bi bi-pencil-fill me-1"></i> Rediger
-                                                </ChildContent>
-                                            </Button>
 
-                                            <Button Variant="BrandButtonType.Danger" 
-                                                    OnClick="@(() => OnDelete.InvokeAsync(item))">
-                                                <ChildContent>
-                                                    <i class="bi bi-trash-fill me-1"></i> Slet
-                                                </ChildContent>
+                                    @* Show buttons if true (Default true), under "Muligheder"*@
+                                    @if (ShowAction)
+                                    {
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <Button Variant="BrandButtonType.Beige"                                                    
+                                                        OnClick="@(() => OnEdit.InvokeAsync(item))">
+                                                    <ChildContent>
+                                                        <i class="bi bi-pencil-fill me-1"></i> Rediger
+                                                    </ChildContent>
+                                                </Button>
 
-                                            </Button>
-                                        </div>
-                                    </td>
+                                                <Button Variant="BrandButtonType.Danger" 
+                                                        OnClick="@(() => OnDelete.InvokeAsync(item))">
+                                                    <ChildContent>
+                                                        <i class="bi bi-trash-fill me-1"></i> Slet
+                                                    </ChildContent>
+
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    }
                                 </tr>
                             }
                         }
@@ -105,6 +118,10 @@
     [Parameter] public RenderFragment<TItem>? RowTemplate { get; set; }
 
     [Parameter] public string AddButtonText { get; set; } = "Tilføj ny";
+
+    // Properties for buttons being enabled or not. By default it's on, so no need to set it when using the component, but can be set to false if the add or action buttons should be disabled
+    [Parameter] public bool ShowAdd { get; set; } = true;
+    [Parameter] public bool ShowAction { get; set; } = true;
 
     // Events
     [Parameter] public EventCallback OnAdd { get; set; }

@@ -18,9 +18,26 @@
     </div>
 
     
+    @* Filter controls *@
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label fw-bold text-brand-matcha">Filtrer efter dato</label>
+            <div class="input-group">
+                <input type="date" class="form-control" @bind="_selectedFilterDate" @bind:event="oninput" />
+                @if (_selectedFilterDate.HasValue)
+                {
+                    <Button OnClick="ClearFilter"
+                            Variant="BrandButtonType.Matcha"
+                            VariableText="Ryd filter">
+                    </Button>
+                }
+            </div>
+        </div>
+    </div>
+
     @* EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
     <Table TItem="ResponsibilityAreaDTO" 
-                  Items="ResponsibilityAreaList" 
+                  Items="@GetFilteredResponsibilityAreas()" 
                   AddButtonText="Opret Ansvarsområde"
                   OnAdd="HandleAdd" 
                   OnEdit="HandleEdit" 
@@ -117,6 +134,33 @@
     private bool isDeleteMode = false;
     private string modalSize = "";
     private BrandButtonType saveButtonVariant = BrandButtonType.Matcha;
+
+
+    // Filter properties and methods
+    private DateTime? _selectedFilterDate = null;
+
+    private List<ResponsibilityAreaDTO> GetFilteredResponsibilityAreas()
+    {
+        if (!_selectedFilterDate.HasValue)
+        {
+            return ResponsibilityAreaList;
+        }
+        
+        // Filters the list for the selected data and returns it. If no items are found, an info snackbar is shown
+        List<ResponsibilityAreaDTO>? filtered = ResponsibilityAreaList
+            .Where(r => r.Date.Date == _selectedFilterDate.Value.Date)
+            .ToList();
+
+        if (filtered.Count == 0)
+            Snackbar.Add("Ingen ansvarsområder fundet for den valgte dato.", Severity.Info);
+            
+        return filtered;
+    }
+
+    private void ClearFilter()
+    {
+        _selectedFilterDate = null;
+    }
     
     
     // Initialize page with API data
