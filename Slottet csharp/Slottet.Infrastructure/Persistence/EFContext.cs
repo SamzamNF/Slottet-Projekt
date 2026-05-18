@@ -43,8 +43,12 @@ public class EFContext : DbContext, IUnitOfWork
         modelBuilder.Entity<PostIt>()
             .HasOne(p => p.Risk)
             .WithOne()
-            .HasForeignKey<PostIt>(p => p.RiskId) // Use foreign key property
-            .OnDelete(DeleteBehavior.Restrict); // Prevent multiple cascade paths error in SQL Server
-    }
+            .HasForeignKey<Risk>(r => r.PostItId) // Risk holds foreign key to PostIt
+            .OnDelete(DeleteBehavior.Cascade);    // Deleting PostIt automatically deletes Risk
 
+        // Alternative: OwnsOne relationship if Risk is considered a value object owned by PostIt
+        // May be relevant for Domain-Driven Design if Risk is not a standalone entity but rather a component of PostIt
+        //modelBuilder.Entity<PostIt>()
+        //    .OwnsOne(p => p.Risk);
+    }
 }

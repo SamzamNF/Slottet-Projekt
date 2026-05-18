@@ -19,7 +19,8 @@ public class PostIt
     public int StaffId { get; set; }
     public int MedicineId { get; set; }
     public int ResidentId { get; set; }
-    public int RiskId { get; set; }
+    // RiskId is removed as the relation is handled through Risk navigation property
+    // public int RiskId { get; set; } 
 
     // Navigation properties
     public Risk? Risk { get; set; }
