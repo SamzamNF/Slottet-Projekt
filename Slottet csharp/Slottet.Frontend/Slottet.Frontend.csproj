@@ -13,7 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\UI\" />
+    <ProjectReference Include="..\Slottet.Shared\Slottet.Shared.csproj" />
+	  <Folder Include="Components\UI\" />
   </ItemGroup>
-
+	
 </Project>
