@@ -1,0 +1,235 @@
+@page "/admin/role"
+@rendermode InteractiveServer
+@using MudBlazor
+@using Slottet.Shared.DTO;
+@using Microsoft.AspNetCore.Authorization
+
+@inject ApiService ApiService
+@inject ISnackbar Snackbar
+
+
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Administrer roller</PageTitle>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brand-matcha m-0">Rolle Administration</h2>
+    </div>
+
+    <label class="form-label fw-bold text-brand-matcha mb-2">Husk at tilføj rollen på Azure AD</label>
+
+    
+    @*  EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
+    <Table TItem="RoleDTO" 
+                  Items="RoleList" 
+                  AddButtonText="Opret Rolle"
+                  OnAdd="HandleAdd" 
+                  OnEdit="HandleEdit" 
+                  OnDelete="HandleDelete"
+                  PageSize="10">
+        
+        <TableHeader>
+            <th style="width: 400px;">Id</th>
+            <th>Rollenavn</th>
+        </TableHeader>
+
+        <RowTemplate Context="role">
+            <td>
+                <span class="badge bg-brand-owl text-dark">@role.Id</span>
+            </td>
+            <td>@role.RoleName</td>
+        </RowTemplate>
+
+    </Table>
+
+    @* Modal component for adding/editing/deleting roles *@
+    <Modal Title="@modalTitle" 
+           Show="@showModal" 
+           OnClose="CloseModal" 
+           OnAction="HandleModalConfirm"
+           SaveButtonText="@modalButtonText"
+           SaveButtonVariant="@saveButtonVariant"
+           SizeClass="@modalSize">
+        
+        @* If IsDeleteMode is true, show delete confirmation *@
+        @if (isDeleteMode)
+        {
+            <div class="text-center p-3">
+                <i class="bi bi-exclamation-octagon text-danger display-4"></i>
+                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentRole.RoleName</b>?</p>
+            </div>
+        }
+        @* If DeleteMode is false, show the form for adding/editing roles *@
+        else
+        {
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-brand-matcha">Rollenavn</label>
+                    <input type="text" class="form-control" @bind="currentRole.RoleName" />
+                </div>
+            </div>
+        }
+        
+        
+    </Modal>
+</div>
+
+@code {
+
+    // List for Roles
+    private List<RoleDTO> RoleList = new();
+
+    
+    // Modal variables and methods for handling add/edit/delete roles
+    private bool showModal = false;
+    private string modalTitle = "";
+    private RoleDTO currentRole = new RoleDTO();
+    private string modalButtonText = "";
+    private bool isDeleteMode = false;
+    private string modalSize = "";
+    private BrandButtonType saveButtonVariant = BrandButtonType.Matcha;
+    
+    
+    // Initialize page with API data
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            RoleList = await ApiService.GetListAsync<RoleDTO>("api/role") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Fejl ved hentning af dataa: {ex.Message}");
+            Snackbar.Add($"Fejl ved hentning af data: {ex.Message}", Severity.Error);
+        }      
+
+    }
+
+    // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
+    private void HandleAdd()
+    {
+        currentRole = new RoleDTO(); // Clear current role data
+        modalTitle = "Opret Rolle";
+        modalButtonText = "Gem Rolle";
+        saveButtonVariant = BrandButtonType.Matcha;
+        isDeleteMode = false;
+        modalSize = "modal-lg";
+        showModal = true;
+    }
+
+    // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
+    private void HandleEdit(RoleDTO role)
+    {
+        // Load selected role data into modal
+        currentRole = new RoleDTO
+        {
+            Id = role.Id,
+            RoleName = role.RoleName
+        };
+
+        modalTitle = "Rediger Rolle";
+        modalButtonText = "Gem Rolle";
+        saveButtonVariant = BrandButtonType.Matcha;
+        modalSize = "modal-lg";
+        isDeleteMode = false;
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
+    private async Task HandleDelete(RoleDTO role)
+    {
+        currentRole = role; // Load selected role data into modal for reference in confirmation message
+
+        modalTitle = "Bekræft Sletning";
+        modalButtonText = "Slet Rolle";
+        saveButtonVariant = BrandButtonType.Danger;
+        isDeleteMode = true;
+        modalSize = "modal-md";
+        showModal = true;
+
+        
+    }
+    // Method that changes whether the modals CTA button should delete or add/edit
+    private async Task HandleModalConfirm()
+    {
+        if (isDeleteMode)
+        {
+            await DeleteRole();
+        }
+        else
+        {
+            await SaveRole(); // Kald gem-logik
+        }
+    }
+
+    // API calls
+
+    // Method to create a new role, or update an existing role based on the ID of the currentRole object, and then refresh the role list from the API
+    private async Task SaveRole()
+    {
+        try
+        {
+            // Creates a new role, if the ID is 0
+            if (currentRole.Id == 0)
+            {
+                RoleDTO? createdRole = await ApiService.PostAsync<RoleDTO, RoleDTO>("api/role", currentRole);
+
+                if (createdRole != null)
+                {
+                    RoleList.Add(createdRole);
+                }
+                Snackbar.Add($"Rolle {createdRole?.RoleName} oprettet succesfuldt.", Severity.Success);
+            }
+            // Updates an existing role, if the ID is not 0
+            else
+            {
+                await ApiService.PutAsync($"api/role", currentRole);
+
+                var updatedRole = await ApiService.GetAsync<RoleDTO>($"api/role/{currentRole.Id}");
+
+                if (updatedRole != null)
+                {
+                    int index = RoleList.FindIndex(r => r.Id == currentRole.Id);
+                    if (index != -1)
+                    {
+                        RoleList[index] = updatedRole;
+                    }
+                }
+
+                Snackbar.Add($"Rolle {currentRole.RoleName} opdateret succesfuldt.", Severity.Success);
+            }
+
+            showModal = false; // Close modal after saving
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved gemning af rolle: {ex.Message}", Severity.Error);
+        }
+    }
+    private async Task DeleteRole()
+    {
+        try
+        {
+            await ApiService.DeleteAsync($"api/role/{currentRole.Id}");
+
+            RoleList.RemoveAll(r => r.Id == currentRole.Id);
+
+            Snackbar.Add($"{currentRole.RoleName} er slettet.", Severity.Success);
+            showModal = false;
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved sletning af rolle: {ex.Message}", Severity.Error);
+        }
+    }
+
+
+}

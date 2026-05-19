@@ -367,5 +367,7 @@ appsettings.json
 /XO-CareWPF/appsettings.json
 /XO-CareWPF/XO-CareWPF/appsettings.json
 /[SlottetFilSystem]/:/appsettings.json
-/Slottet csharp/Slottet.Infrastructure/Repositories/EfPostItRepository.cs
-/Slottet csharp/Slottet.Application/Program.cs
+/Slottet csharp/Slottet.API/appsettings.Development.json
+/Slottet csharp/Slottet.Frontend/appsettings.Development.json
+/Slottet csharp/Slottet.API/appsettings.Development.json
+/Slottet csharp/Slottet.Frontend/appsettings.Development.json

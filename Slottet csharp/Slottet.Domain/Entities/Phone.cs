@@ -7,14 +7,14 @@ namespace Slottet.Domain.Entities;
 public class Phone
 {
     public int Id { get; set; } // Primary key
-    public int PhoneNumber { get; set; } 
+    public string PhoneNumber { get; private set; } = string.Empty;
 
     private Phone() { }
 
-    public static Phone Create(int phoneNumber)
+    public static Phone Create(string phoneNumber)
     {
         // Sat requirement to between 8 and 14, can be changed to specifically 8 for denmark if needed
-        if (phoneNumber.ToString().Length < 8 || phoneNumber.ToString().Length > 14 )
+        if (string.IsNullOrWhiteSpace(phoneNumber) || phoneNumber.Length < 8 || phoneNumber.Length > 14)
         {
             throw new ArgumentException("Dit telefonnummer skal være mellem 8 og 14 tegn.");
         }
@@ -25,10 +25,10 @@ public class Phone
         };
     }
 
-    public void Update(int phoneNumber)
+    public void Update(string phoneNumber)
     {
         // Sat requirement to between 8 and 14, can be changed to specifically 8 for denmark if needed
-        if (phoneNumber.ToString().Length < 8 || phoneNumber.ToString().Length > 14 )
+        if (string.IsNullOrWhiteSpace(phoneNumber) || phoneNumber.Length < 8 || phoneNumber.Length > 14)
         {
             throw new ArgumentException("Dit telefonnummer skal være mellem 8 og 14 tegn.");
         }

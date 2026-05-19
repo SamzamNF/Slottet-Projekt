@@ -18,4 +18,8 @@ public interface IResidentRepository
 
     // Permanently remove a collection of residents from database
     Task RemoveRangeAsync(IEnumerable<Resident> residents, CancellationToken cancellationToken);
+
+    Task<List<Resident>> GetAllAsync();
+    void Update(Resident resident);
+    void Delete(Resident resident);
 }

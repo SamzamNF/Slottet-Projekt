@@ -38,6 +38,7 @@ public class PostItService
 
     public async Task<PostItDTO> Update(PostItDTO postItDTO)
     {
+        // Skal jeg have ændret, så den opdaterer i stedet for create
         var postIt = PostIt.Create(
             postItDTO.Date,
             postItDTO.Payment,
