@@ -10,11 +10,16 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Web" Version="4.6.0" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="4.6.0" />
+    <PackageReference Include="MudBlazor" Version="9.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\AdminPages\" />
+    <Folder Include="Components\UI\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Slottet.Shared\Slottet.Shared.csproj" />
-	  <Folder Include="Components\UI\" />
   </ItemGroup>
-	
+
 </Project>

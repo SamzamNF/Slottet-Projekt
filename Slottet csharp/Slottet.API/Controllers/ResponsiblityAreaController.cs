@@ -8,11 +8,11 @@ namespace Slottet.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ResponsiblityAreaController : ControllerBase
+    public class ResponsibilityAreaController : ControllerBase
     {
         private readonly ResponsibilityAreaService _responsibilityAreaService;
 
-        public ResponsiblityAreaController(ResponsibilityAreaService responsibilityAreaService)
+        public ResponsibilityAreaController(ResponsibilityAreaService responsibilityAreaService)
         {
             _responsibilityAreaService = responsibilityAreaService;
         }

@@ -2,10 +2,11 @@ using System;
 
 namespace Slottet.Frontend.Components.UI;
 
-public enum ButtonType
+public enum BrandButtonType
 {
     Matcha,
     Owl,
     Beige,
-    Success
+    Success,
+    Danger
 }

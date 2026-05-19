@@ -1,4 +1,4 @@
-﻿<button class="btn @VariantClass 
+﻿<button type="button" class="btn @VariantClass 
         @(IsLoading ? "loading" : "")"
         @onclick="HandleClick"
         disabled="@(Disabled || IsLoading)">
@@ -33,7 +33,7 @@ else
     [Parameter] public bool IsLoading { get; set; } = false;
 
     // The variant of the button (primary, danger etc)
-    [Parameter] public ButtonType Variant { get; set; } = ButtonType.Matcha;
+    [Parameter] public BrandButtonType Variant { get; set; } = BrandButtonType.Matcha;
 
     // The content to show inside the button, for example an icon or a spinner
     [Parameter] public RenderFragment? ChildContent { get; set; }
@@ -49,10 +49,11 @@ else
 
     private string VariantClass => Variant switch
     {
-        ButtonType.Matcha => "btn-brand-matcha",
-        ButtonType.Owl => "btn-brand-owl",
-        ButtonType.Beige => "btn-brand-beige",
-        ButtonType.Success => "btn-outline-success",
+        BrandButtonType.Matcha => "btn-brand-matcha",
+        BrandButtonType.Owl => "btn-brand-owl",
+        BrandButtonType.Beige => "btn-brand-beige",
+        BrandButtonType.Success => "btn-outline-success",
+        BrandButtonType.Danger => "btn-outline-danger",
         _ => "btn-brand-matcha"
     };
 
