@@ -2,11 +2,37 @@
 @using Microsoft.AspNetCore.Authorization
 
 <AuthorizeView>
+    <!-- Authorized content -->
     <Authorized>
-        <span>Velkommen tilbage, @(context.User.FindFirst("name")?.Value ?? context.User.Identity?.Name)!</span>
-        <a href="MicrosoftIdentity/Account/SignOut">Log ud</a>
+        <div class="d-flex align-items-center gap-3">
+            <!-- User profile information -->
+            <span class="text-brand-matcha d-flex align-items-center gap-1">
+                <span class="bi bi-person-circle" aria-hidden="true"></span>
+                <span>Hej, @(context.User.FindFirst("name")?.Value ?? context.User.Identity?.Name)!</span>
+            </span>
+
+            <!-- Show admin dashboard link, if the user is an admin -->
+            <AuthorizeView Roles="Admin" Context="adminContext">
+                <Authorized>
+                    <NavLink class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" href="admin-dashboard">
+                        <span class="bi bi-shield-lock" aria-hidden="true"></span> AdminDashboard
+                    </NavLink>
+                </Authorized>
+            </AuthorizeView>
+
+            
+            <!-- Log out button -->
+            <a href="MicrosoftIdentity/Account/SignOut" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1">
+                <span class="bi bi-box-arrow-right" aria-hidden="true"></span> Log ud
+            </a>
+        </div>
     </Authorized>
+    
+    <!-- Not authorized content -->
     <NotAuthorized>
-        <a href="MicrosoftIdentity/Account/SignIn">Log ind</a>
+        <!-- Log in button -->
+        <a href="MicrosoftIdentity/Account/SignIn" class="btn btn-brand-matcha btn-sm d-flex align-items-center gap-1">
+            <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Log ind
+        </a>
     </NotAuthorized>
 </AuthorizeView>

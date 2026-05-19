@@ -21,8 +21,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddDbContext<EFContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
 // Implementations from Infrastructure based on their interface in Application layer
-builder.Services.AddScoped<IUnitOfWork, EFContext>();
+builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<EFContext>());
 
 builder.Services.AddScoped<IStaffRepository, EfStaffRepository>();
 builder.Services.AddScoped<IPostItRepository, EfPostItRepository>();
@@ -30,6 +31,9 @@ builder.Services.AddScoped<IResidentRepository, EfResidentRepository>();
 builder.Services.AddScoped<IRoleRepository, EfRoleRepository>();
 builder.Services.AddScoped<IDepartmentRepository, EfDepartmentRepository>();
 builder.Services.AddScoped<IResponsibilityAreaRepository, EfResponsibilityAreaRepository>();
+builder.Services.AddScoped<IPhoneRepository, EfPhoneRepository>();
+builder.Services.AddScoped<IRiskRepository, EfRiskRepository>();
+builder.Services.AddScoped<IMedicineRepository, EfMedicineRepository>();
 
 // Application services (Business logic/Services)
 builder.Services.AddScoped<StaffService>();
@@ -38,9 +42,12 @@ builder.Services.AddScoped<ResidentService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<DepartmentService>();
 builder.Services.AddScoped<ResponsibilityAreaService>();
+builder.Services.AddScoped<PhoneService>();
+builder.Services.AddScoped<RiskService>();
+builder.Services.AddScoped<MedicineService>();
 
 // Register cleanup background worker
-builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
+//builder.Services.AddHostedService<Slottet.Application.BackgroundServices.ResidentRetentionService>();
 
 // Cors with frontend URL
 builder.Services.AddCors(options =>
@@ -64,6 +71,8 @@ builder.Services.AddAuthorization();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+
 
 var app = builder.Build();
 

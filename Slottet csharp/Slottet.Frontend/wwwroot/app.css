@@ -1,15 +1,11 @@
+/* Under is default blazor styling  */ 
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 a, .btn-link {
     color: #006bb7;
-}
-
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
@@ -58,3 +54,203 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+
+/* Custom UI styling for components */ 
+
+.loading {
+    opacity: 0.7;
+}
+
+/* CSS variables for customizing the color scheme */
+:root {
+    --brand-matcha: #44985d; 
+    --brand-beige: #fdf4e7;
+    --brand-owl: #cfc5b8; 
+
+    --brand-matcha-rgb: 68, 152, 93;
+    --brand-beige-rgb: 253, 244, 231;
+    --brand-owl-rgb: 207, 197, 184;
+
+    --brand-beige-text-emphasis: #333333;
+}
+
+/* Colour theme background */
+.bg-brand-matcha {
+    background-color: rgba(var(--brand-matcha-rgb), 0.7);
+}
+
+.bg-brand-beige {
+    background-color: var(--brand-beige);
+    border: 1px solid rgba(68, 152, 93, 0.15);
+}
+
+.bg-brand-owl {
+    background-color: var(--brand-owl);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.text-brand-beige {
+    color: var(--brand-beige) !important;
+}
+
+/* Borders */
+.border-brand-matcha {
+    border: 1.5px solid rgba(var(--brand-matcha-rgb), 0.4) !important;
+}
+
+
+/* Primary button */
+.btn-brand-matcha {
+    color: #ffffff !important;
+    text-shadow: 0px 1px 2px rgba(0,0,0,0.5); /* Gør den hvide tekst læsbar */
+    background-color: rgba(var(--brand-matcha-rgb), 0.6);
+    border: 1px solid rgba(var(--brand-matcha-rgb), 0.7);
+}
+
+.btn-brand-matcha:hover {
+    color: #222;
+    background-color: rgba(var(--brand-matcha-rgb), 0.8);
+    border-color: rgba(var(--brand-matcha-rgb), 0.8);
+}
+
+.btn-brand-matcha:active {
+    background-color: rgba(var(--brand-matcha-rgb), 0.9);
+    border-color: rgba(var(--brand-matcha-rgb), 0.9);
+}
+
+.btn-brand-matcha:focus, 
+.btn-brand-matcha:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-matcha-rgb), 0.2) !important;
+}
+
+.btn-brand-matcha:disabled,
+.btn-brand-matcha.disabled {
+    background-color: rgba(var(--brand-matcha-rgb), 0.45);
+    border-color: rgba(var(--brand-matcha-rgb), 0.45)t;
+    
+    color: rgba(255, 255, 255, 0.6);
+    text-shadow: none;
+    
+    pointer-events: none; 
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Gray button */
+.btn-brand-owl {
+    color: #222;
+    background-color: var(--brand-owl);
+    border-color: var(--brand-owl);
+}
+
+.btn-brand-owl:hover {
+    color: #222;
+    background-color: #beaf9f;
+    border-color: #beaf9f;
+}
+
+.btn-brand-owl:active {
+    background-color: #ad9c8a;
+    border-color: #ad9c8a;
+}
+
+.btn-brand-owl:focus, 
+.btn-brand-owl:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-owl-rgb), 0.5) !important; 
+}
+
+
+/* Secondary button */
+.btn-brand-beige {
+    color: #222;
+    background-color: var(--brand-beige);
+    border-color: var(--brand-beige);
+}
+
+.btn-brand-beige:hover {
+    color: #222;
+    background-color: #f3e5d0;
+    border-color: #f3e5d0;
+}
+
+.btn-brand-beige:active {
+    background-color: #e6d4ba;
+    border-color: #e6d4ba;
+}
+
+.btn-brand-beige:focus, 
+.btn-brand-beige:focus-visible {
+    outline: none !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--brand-owl-rgb), 0.4) !important; 
+}
+
+/* Global text and background colors */
+body {
+    color: #222;
+    background-color: #F7F5F0;
+}
+
+/* Custom text color with theme colours */
+.text-brand-matcha {
+    color: rgb(var(--brand-matcha-rgb));
+}
+
+.card-animated {
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+    cursor: pointer;
+}
+
+.card-animated:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.15) !important; 
+}
+
+.card-animated:active {
+    transform: translateY(-2px);
+}
+
+/* Custom UI styling for components */ 
+
+/* Header styling */
+.custom-crud-table thead th {
+    background-color: rgba(var(--brand-matcha-rgb), 0.7);
+    color: white !important;
+    border: none !important;
+    padding: 1rem;
+}
+
+/* Makes the table background white */
+.custom-crud-table {
+    background-color: white;
+}
+
+/* Hover effect colour */
+.table.custom-crud-table tbody tr:hover td {
+    background-color: rgba(var(--brand-matcha-rgb), 0.2) !important;
+    transition: background-color 0.15s ease-in-out;
+    /*cursor: pointer;*/
+}
+
+/* MudBlazor */
+.mud-snackbar {
+    font-size: 1.5rem !important; 
+    min-width: 600px !important; 
+    padding: 20px !important;  
+}
+
+.mud-snackbar .mud-alert-icon-left {
+    font-size: 4rem !important;
+}
+
+
+
+
+
+
+
+
+
+

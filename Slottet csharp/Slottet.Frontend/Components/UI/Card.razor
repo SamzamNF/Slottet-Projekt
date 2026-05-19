@@ -1,0 +1,70 @@
+﻿@inject NavigationManager Nav
+
+
+<div class="col-sm-4 col-md-4 col-lg-4">
+    <div class="card text-center @TextClass @Color mb-3 shadow rounded-4 h-100 w-100 border border-brand-matcha card-animated"
+        style="max-width: 18rem;">
+
+    @if (!string.IsNullOrEmpty(Header))
+    {
+        <div class="card-header">@Header</div>
+    }
+
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title">@Title</h5>
+
+        <p class="card-text">@Text</p>
+
+        <div class="mt-auto">
+            <Button
+                VariableText="@ButtonText"
+                OnClick="@HandleClick"
+                Variant="@ButtonVariant" />
+        </div>  
+    </div>
+
+    </div>
+
+</div>
+
+
+
+@code {
+    [Parameter] public string? Header { get; set; }
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public string? ButtonText { get; set; }
+    [Parameter] public string TextClass { get; set; } = "text-white";
+    
+    
+    
+    // The variant of the button (primary, danger etc), check Button.razor for more details
+    [Parameter] public BrandButtonType ButtonVariant { get; set; } = BrandButtonType.Matcha;
+    
+    // Link to navigate to when the card is clicked
+    [Parameter] public string? Link { get; set; }
+    
+    // Event for when the card is clicked, for example to open an overlay modal
+    [Parameter] public EventCallback OnClick { get; set; }
+
+    // The cards color, (primary, danger or secondary for example)
+    [Parameter] public string Color { get; set; } = "primary";
+
+    private async Task HandleClick()
+    {
+        // To navigate to a link if Link is provided, otherwise trigger the OnClick event for example for an overlay modal
+        if (!string.IsNullOrWhiteSpace(Link))
+        {
+            Nav.NavigateTo(Link);
+            return;
+        }
+  
+        // For overlay modals or other cards that should trigger an event instead of navigation
+        if (OnClick.HasDelegate)
+        {
+            await OnClick.InvokeAsync(null);
+        }
+    }
+    
+
+}

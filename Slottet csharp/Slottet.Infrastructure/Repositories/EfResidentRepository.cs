@@ -21,7 +21,16 @@ public class EfResidentRepository : IResidentRepository
     public async Task<Resident?> GetByIdAsync(int id)
     {
         // Fetch single resident by ID
-        return await _context.Residents.FirstOrDefaultAsync(r => r.Id == id);
+        return await _context.Residents
+            .Include(r => r.Department)
+            .FirstOrDefaultAsync(r => r.Id == id);
+    }
+
+    public async Task<List<Resident>> GetAllAsync()
+    {
+        return await _context.Residents
+            .Include(r => r.Department)
+            .ToListAsync();
     }
 
     // Fetch residents that are archived and have ArchivedAt date older than specified threshold date.
@@ -39,4 +48,14 @@ public class EfResidentRepository : IResidentRepository
         _context.Residents.RemoveRange(residents);
         await _context.SaveChangesAsync(cancellationToken);
     }
+
+    public void Update(Resident resident)
+     {
+          _context.Residents.Update(resident);
+     }
+
+     public void Delete(Resident resident)
+     {
+          _context.Residents.Remove(resident);
+     }
 }

@@ -15,9 +15,8 @@ public class PostItService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<PostItDTO> UpdateInfo(PostItDTO postItDTO)
+    public async Task<PostItDTO> Create(PostItDTO postItDTO)
     {
-        // Convert DTO to domain object
         var postIt = PostIt.Create(
             postItDTO.Date,
             postItDTO.Payment,
@@ -28,25 +27,37 @@ public class PostItService
             postItDTO.RelativesContact
         );
 
-        // Call repository
-        var updatedPostIt = await _postItRepo.UpdatePostIt(postIt);
+        await _postItRepo.Create(postIt);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
-            throw new InvalidOperationException("De indtastede oplysninger kunne ikke gemmes. Prøv igen.");
+            throw new InvalidOperationException("Kunne ikke oprette PostIt.");
 
-        // Return new DTO based on updated domain object
-        return new PostItDTO
-        {
-            Id = updatedPostIt.Id,
-            Date = updatedPostIt.Date,
-            Payment = updatedPostIt.Payment,
-            ShoppingDay = updatedPostIt.ShoppingDay,
-            Mood = updatedPostIt.Mood,
-            Status = updatedPostIt.Status,
-            Events = updatedPostIt.Events,
-            RelativesContact = updatedPostIt.RelativesContact
-        };
+        return MapToDTO(postIt);
+    }
+
+    public async Task<PostItDTO> Update(PostItDTO postItDTO)
+    {
+        // Skal jeg have ændret, så den opdaterer i stedet for create
+        var postIt = PostIt.Create(
+            postItDTO.Date,
+            postItDTO.Payment,
+            postItDTO.ShoppingDay,
+            postItDTO.Mood,
+            postItDTO.Status,
+            postItDTO.Events,
+            postItDTO.RelativesContact
+        );
+
+        postIt.Id = postItDTO.Id;
+
+        var updatedPostIt = await _postItRepo.Update(postIt);
+
+        int result = await _unitOfWork.SaveChangesAsync();
+        if (result <= 0)
+            throw new InvalidOperationException("Post-It kunne ikke opdateres. Prøv igen.");
+
+        return MapToDTO(updatedPostIt);
     }
 
     public async Task<List<PostItDTO>> GetHistory(DateTime date)
@@ -65,6 +76,15 @@ public class PostItService
 
         // Return list of DTOs based on list of domain objects
         return postIts.Select(postIt => MapToDTO(postIt)).ToList();
+    }
+
+    public async Task Delete(PostItDTO postItDTO)
+    {
+        await _postItRepo.DeleteById(postItDTO.Id);
+
+        int result = await _unitOfWork.SaveChangesAsync();
+        if (result <= 0)
+            throw new InvalidOperationException("Post-It kunne ikke slettes. Prøv igen.");
     }
 
     // Helper method to map PostIt domain object to PostItDTO

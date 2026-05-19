@@ -1,0 +1,145 @@
+﻿@typeparam TItem
+<!-- Table component which uses the Button component, and uses typeparam TItem for dynamic item rendering, which lets 
+     you pass data of any type to the table, no matter how many attributes each item has -->
+
+
+<div class="container-fluid p-0 mt-4">
+    @* Only show the add button if ShowAdd is true (Default true) *@
+    @if (ShowAdd)
+    {
+        <div class="mb-3">       
+        <!-- Add button, triggers the OnAdd event when clicked -->
+        <Button Variant="BrandButtonType.Matcha" 
+                  OnClick="OnAdd">
+            <ChildContent>
+                <i class="bi bi-plus-lg me-2"></i> @AddButtonText
+            </ChildContent>
+        </Button>
+    </div>
+    }
+
+    <div class="card shadow-sm border-0 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-striped custom-crud-table mb-0">
+                <thead>
+                    <tr>
+                        @TableHeader
+
+                        @* Only show action column if ShowAction is true (Default true)*@
+                        @if (ShowAction)
+                        {
+                            <th class="text-center" style="width: 250px;">Mugligheder</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Items != null && Items.Any())
+                    {
+                        
+                        @if (RowTemplate != null)
+                        {
+                            @* Takes the items for the current page, and turns them into a list for paging *@
+                            var pagedItems = Items.Skip(currentPage * PageSize).Take(PageSize);
+                            
+                            <!-- Loops through each item passed to the table, and renders two buttons for edit and delete for each item, which passes the item as a parameter -->
+                            @foreach (var item in pagedItems)
+                            {
+                                <tr>
+                                    @RowTemplate(item)
+
+                                    @* Show buttons if true (Default true), under "Muligheder"*@
+                                    @if (ShowAction)
+                                    {
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-2">
+                                                <Button Variant="BrandButtonType.Beige"                                                    
+                                                        OnClick="@(() => OnEdit.InvokeAsync(item))">
+                                                    <ChildContent>
+                                                        <i class="bi bi-pencil-fill me-1"></i> Rediger
+                                                    </ChildContent>
+                                                </Button>
+
+                                                <Button Variant="BrandButtonType.Danger" 
+                                                        OnClick="@(() => OnDelete.InvokeAsync(item))">
+                                                    <ChildContent>
+                                                        <i class="bi bi-trash-fill me-1"></i> Slet
+                                                    </ChildContent>
+
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="100%" class="text-center py-4">
+                                    <p class="mb-0">Ingen data at vise</p>
+                                </td>
+                            </tr>
+                        }             
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination controls -->
+    @if (Items != null & Items?.Count() > PageSize)
+    {
+        <div class="d-flex justify-content-between align-items-center mt-3 bg-white p-2 rounded shadow-sm">
+            
+            <Button Variant="BrandButtonType.Matcha"
+                    OnClick="PreviousPage"
+                    Disabled="@(currentPage == 0)">
+                <ChildContent>
+                    <i class="bi bi-chevron-left me-1"></i> Forrige
+                </ChildContent>
+            </Button>
+
+            <Button Variant="BrandButtonType.Matcha"
+                    OnClick="NextPage"
+                    Disabled="@(currentPage >= totalPages - 1)">
+                <ChildContent>
+                    Næste <i class="bi bi-chevron-right ms-1"></i>
+                </ChildContent>
+            </Button>
+
+        </div>
+    }
+
+</div>
+
+@code {
+    [Parameter] public IEnumerable<TItem>? Items { get; set; }
+    [Parameter] public RenderFragment? TableHeader { get; set; }
+    [Parameter] public RenderFragment<TItem>? RowTemplate { get; set; }
+
+    [Parameter] public string AddButtonText { get; set; } = "Tilføj ny";
+
+    // Properties for buttons being enabled or not. By default it's on, so no need to set it when using the component, but can be set to false if the add or action buttons should be disabled
+    [Parameter] public bool ShowAdd { get; set; } = true;
+    [Parameter] public bool ShowAction { get; set; } = true;
+
+    // Events
+    [Parameter] public EventCallback OnAdd { get; set; }
+    [Parameter] public EventCallback<TItem> OnEdit { get; set; }
+    [Parameter] public EventCallback<TItem> OnDelete { get; set; }
+
+
+    // Pagination properties
+
+    private int currentPage = 0;
+    [Parameter] public int PageSize { get; set; } = 5;
+    private int totalPages => Items != null ? (int)Math.Ceiling((double)Items.Count() / PageSize) : 0;
+    private void NextPage() => currentPage++;
+    private void PreviousPage() => currentPage--;
+
+    // Page reset if an item changes
+    protected override void OnParametersSet()
+    {
+        currentPage = totalPages - 1;
+    }
+}

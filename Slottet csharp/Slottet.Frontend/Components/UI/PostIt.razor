@@ -1,0 +1,126 @@
+﻿@using Slottet.Shared.DTO
+
+@* ===================== UI: Card ===================== *@
+
+<div class="card h-100 resident-card overflow-hidden border-0 shadow"
+     style="cursor: pointer"
+     @onclick="() => OnClick.InvokeAsync(PostItItem)">
+
+    @* ---- Riskcolor-bar ---- *@
+    <div class="@GetRiskBgColor()" style="height: 20px; width: 100%;"></div>
+
+    <div class="card-body">
+
+        @* ---- Initials + Mood ---- *@
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <h4 class="card-title fw-bold mb-0">@PostItItem.Resident?.Initial</h4>
+            <h4 class="text-muted fw-bold mb-0">@PostItItem.Mood</h4>
+        </div>
+
+        @* ---- Staff ---- *@
+        <div class="mb-2">
+            <strong>Personale:</strong>
+            @string.Join(", ", PostItItem.Staffs.Select(s => s.Initials))
+        </div>
+
+        @* ---- Medicine + PN ---- *@
+        <div class="row mb-3">
+            <div class="col">
+                <strong>Medicin:</strong>
+                <ul class="list-unstyled mb-0">
+                    @foreach (var med in PostItItem.Medicines)
+                    {
+                        <li class="small mb-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span><span class="fw-semibold">@med.TimeStamp.ToString("HH:mm")</span> @med.Description</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="col">
+                <strong>PN-tid:</strong>
+                <ul class="list-unstyled mb-0 mt-1">
+                    @foreach (var pn in PostItItem.PnTimes)
+                    {
+                        <li class="small mb-1 d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            <span><span class="fw-semibold">@pn.Time.ToString("HH:mm")</span> @pn.Description</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        @* ---- ShoppingDay + Payment ---- *@
+        <div class="row mb-3">
+            <div class="col">
+                <strong>Handledag:</strong>
+                <p class="small mb-0 text-muted">@PostItItem.ShoppingDay</p>
+            </div>
+            <div class="col">
+                <strong>Betaling:</strong>
+                <p class="small mb-0 text-muted">@PostItItem.Payment</p>
+            </div>
+        </div>
+
+        @* ---- RelativesContact ---- *@
+        <div class="row mb-0">
+            <div>
+                <strong>Pårørendekontakt:</strong>
+                <p class="small mb-0 text-muted">@PostItItem.RelativesContact</p>
+            </div>
+        </div>
+
+        <hr />
+
+        @* ---- Notes ---- *@
+        <p class="card-text small text-muted line-clamp-2 mb-0" title="@PostItItem.Events">
+            @PostItItem.Events
+        </p>
+
+    </div>
+
+    @* ---- Footer: LastEditedBy ---- *@
+    <div class="card-footer border-top-0 text-muted small d-flex justify-content-between align-items-center pb-3">
+        <span class="fst-italic">
+            Seneste ændring: @PostItItem.Date.ToString("HH:mm") af @PostItItem.LastEditedBy?.Initials
+        </span>
+        <a href="#" @onclick:preventDefault class="text-decoration-none">Vis log</a>
+    </div>
+
+</div>
+
+<style>
+    .resident-card {
+        background-color: #fff;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+        .resident-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+        }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+
+@code {
+    [Parameter, EditorRequired]
+    public PostItDTO PostItItem { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<PostItDTO> OnClick { get; set; }
+
+    private string GetRiskBgColor() => PostItItem.Risk?.RiskAssessment switch
+    {
+        "Farlig" => "bg-danger",
+        "Vær opmærksom" => "bg-warning",
+        "Rolig" => "bg-success",
+        _ => "bg-secondary"
+    };
+}

@@ -94,7 +94,10 @@ public class ApiService
             throw new Exception(string.IsNullOrWhiteSpace(error) ? $"Fejl: {response.StatusCode}" : error);
         }
         
-        //response.EnsureSuccessStatusCode();
+        if (response.StatusCode == HttpStatusCode.NoContent || response.Content.Headers.ContentLength == 0) 
+        {
+            return default;
+        }   
 
         if (response.StatusCode == HttpStatusCode.NoContent) 
             return default;

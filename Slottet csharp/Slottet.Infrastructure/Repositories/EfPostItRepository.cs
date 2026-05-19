@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Data;
+using Microsoft.EntityFrameworkCore;
+using Slottet.Application.Interfaces;
 using Slottet.Domain.Entities;
 using Slottet.Infrastructure.Persistence;
-using Slottet.Application.Interfaces;
 
 namespace Slottet.Infrastructure.Repositories;
 
@@ -13,6 +14,11 @@ public class EfPostItRepository  : IPostItRepository
     {
         _context = context;
     }
+    public async Task Create(PostIt postIt)
+    {
+        await _context.PostIts.AddAsync(postIt);
+    }
+
 
     public async Task<List<PostIt>> GetAll()
     {
@@ -27,7 +33,7 @@ public class EfPostItRepository  : IPostItRepository
             .ToListAsync();
     }
 
-    public async Task<PostIt> UpdatePostIt(PostIt postIt)
+    public async Task<PostIt> Update(PostIt postIt)
     {
         _context.PostIts.Update(postIt);
         return postIt;
@@ -36,6 +42,13 @@ public class EfPostItRepository  : IPostItRepository
     public async Task<List<PostIt>> GetAllAsync()
     {
         return await _context.PostIts.ToListAsync();
+    public async Task DeleteById(int id)
+    {
+        var postIt = await _context.PostIts.FindAsync(id);
+        if (postIt != null)
+        {
+            _context.PostIts.Remove(postIt);
+        }
     }
 }
 

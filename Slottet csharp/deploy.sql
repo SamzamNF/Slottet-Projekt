@@ -16,7 +16,9 @@ CREATE TABLE Phones (
 
 CREATE TABLE Residents (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Initial NVARCHAR(15) NOT NULL
+    Initial NVARCHAR(15) NOT NULL,
+    DepartmentId INT NOT NULL,
+    CONSTRAINT FK_Residents_Departments FOREIGN KEY (DepartmentId) REFERENCES Departments(Id) ON DELETE CASCADE
 );
 
 -- Time, Description and TimeStamp use [] to prevent errors (they are SQL syntax)
