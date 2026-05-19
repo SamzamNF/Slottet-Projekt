@@ -4,6 +4,8 @@
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize(Roles = "Admin")]
 
+<PageTitle>Admin dashboard</PageTitle>
+
 <div class="container">
     <div class="row g-3 mt-4">
         <Card
@@ -11,10 +13,10 @@
             Header="Administrer beboere"
             Text=@("Opret, rediger og slet beboere i systemet og hold styr på deres stamdata. \n\nFå et hurtigt overblik over den enkelte beboer og hold stamdataene helt opdaterede")
             ButtonText="Se mere"
-            Link="counter"
+            Link="admin/resident"
             Color="bg-brand-beige"
             TextClass="text-dark"
-            ButtonVariant="ButtonType.Matcha" />
+            ButtonVariant="BrandButtonType.Matcha" />
 
         <Card
             Title="Personale"
@@ -24,37 +26,37 @@
             Link="admin/staff"
             Color="bg-brand-beige"
             TextClass="text-dark"
-            ButtonVariant="ButtonType.Matcha" />
+            ButtonVariant="BrandButtonType.Matcha" />
 
         <Card
             Title="Afdelinger"
             Header="Administrer afdelinger"
             Text=@("Opret, rediger og slet afdelinger i systemet. \n\nFå et hurtigt overblik over de enkelte afdelinger.")
             ButtonText="Se mere"
-            Link="counter"
+            Link="admin/department"
             Color="bg-brand-beige"
             TextClass="text-dark"
-            ButtonVariant="ButtonType.Matcha" />
+            ButtonVariant="BrandButtonType.Matcha" />
 
         <Card
             Title="Ansvarsområder"
             Header="Administrer ansvarsområder"
             Text=@("Opret, rediger og slet ansvarsområder i systemet og hold styr på de daglige ansvarlige. \n\nFå et hurtigt overblik over de enkelte ansvarsområder og deres ansvarlige medarbejdere.")
             ButtonText="Se mere"
-            Link="counter"
+            Link="admin/responsibility-area"
             Color="bg-brand-beige"
             TextClass="text-dark"
-            ButtonVariant="ButtonType.Matcha" />
+            ButtonVariant="BrandButtonType.Matcha" />
 
         <Card
             Title="Roller"
             Header="Administrer roller"
             Text=@("Opret, rediger og slet roller i systemet og hold styr på de forskellige roller. \n\nFå et hurtigt overblik over de enkelte roller.")
             ButtonText="Se mere"
-            Link="counter"
+            Link="admin/role"
             Color="bg-brand-beige"
             TextClass="text-dark"
-            ButtonVariant="ButtonType.Matcha" />
+            ButtonVariant="BrandButtonType.Matcha" />
         
         <Card
             Title="Post It"
@@ -64,7 +66,17 @@
             Link="counter"
             Color="bg-brand-beige"
             TextClass="text-dark"
-            ButtonVariant="ButtonType.Matcha" />
+            ButtonVariant="BrandButtonType.Matcha" />
+
+        <Card
+            Title="Telefoner"
+            Header="Administrer telefoner"
+            Text=@("Opret, rediger og slet telefoner i systemet. \n\nFå et hurtigt overblik over alle telefoner i systemet.")
+            ButtonText="Se mere"
+            Link="admin/phone"
+            Color="bg-brand-beige"
+            TextClass="text-dark"
+            ButtonVariant="BrandButtonType.Matcha" />
     </div> 
 </div>
 

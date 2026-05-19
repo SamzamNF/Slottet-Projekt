@@ -21,8 +21,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddDbContext<EFContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
 // Implementations from Infrastructure based on their interface in Application layer
-builder.Services.AddScoped<IUnitOfWork, EFContext>();
+builder.Services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<EFContext>());
 
 builder.Services.AddScoped<IStaffRepository, EfStaffRepository>();
 builder.Services.AddScoped<IPostItRepository, EfPostItRepository>();
@@ -70,6 +71,8 @@ builder.Services.AddAuthorization();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+
 
 var app = builder.Build();
 

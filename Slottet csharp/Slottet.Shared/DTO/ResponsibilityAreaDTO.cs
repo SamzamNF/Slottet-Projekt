@@ -12,6 +12,6 @@ public class ResponsibilityAreaDTO
     public int StaffId { get; set; }
     public string? StaffInitials { get; set; }
     public int PhoneId { get; set; }
-    public int? PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
 }

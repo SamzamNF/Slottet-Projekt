@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Identity.Web" Version="4.6.0" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="4.6.0" />
+    <PackageReference Include="MudBlazor" Version="9.4.0" />
   </ItemGroup>
 
   <ItemGroup>

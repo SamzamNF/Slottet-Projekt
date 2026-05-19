@@ -1,4 +1,4 @@
-﻿@page "/admin/staff"
+@page "/admin/resident"
 @rendermode InteractiveServer
 @using MudBlazor
 @using Slottet.Shared.DTO;
@@ -10,11 +10,11 @@
 
 @attribute [Authorize(Roles = "Admin")]
 
-<PageTitle>Administrer personale</PageTitle>
+<PageTitle>Administrer Beboere</PageTitle>
 
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-brand-matcha m-0">Medarbejder Administration</h2>
+        <h2 class="text-brand-matcha m-0">Beboer Administration</h2>
     </div>
 
     @* Filtering buttons for each department, made from button component *@
@@ -35,9 +35,9 @@
     </div>
     
     @* EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
-    <Table TItem="StaffDto" 
-                  Items="@FilteredStaff()" 
-                  AddButtonText="Opret Medarbejder"
+    <Table TItem="ResidentDto" 
+                  Items="@FilteredResidents()" 
+                  AddButtonText="Opret Beboer"
                   OnAdd="HandleAdd" 
                   OnEdit="HandleEdit" 
                   OnDelete="HandleDelete"
@@ -45,20 +45,12 @@
         
         <TableHeader>
             <th>Initialer</th>
-            <th>Navn</th>
-            <th>Email</th>
             <th>Afdeling</th>
-            <th>Rolle</th>
         </TableHeader>
 
-        <RowTemplate Context="staff">
-            <td class="fw-bold text-brand-matcha">@staff.Initials</td>
-            <td>@staff.FirstName @staff.LastName</td>
-            <td>@staff.Email</td>
-            <td>
-                <span class="badge bg-brand-owl text-dark">@staff.Department</span>
-            </td>
-            <td>@staff.RoleName</td>
+        <RowTemplate Context="resident">
+            <td class="fw-bold text-brand-matcha">@resident.Initial</td>
+            <td>@resident.DepartmentName</td>
         </RowTemplate>
 
     </Table>
@@ -77,7 +69,7 @@
         {
             <div class="text-center p-3">
                 <i class="bi bi-exclamation-octagon text-danger display-4"></i>
-                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentStaff.FirstName @currentStaff.LastName</b>?</p>
+                <p class="mt-3">Er du sikker på, at du vil slette <b>@currentResident.Initial fra afdeling @currentResident.DepartmentName</b>?</p>
             </div>
         }
         @* If DeleteMode is false, show the form for adding/editing staff *@
@@ -86,39 +78,16 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-brand-matcha">Fornavn</label>
-                    <input type="text" class="form-control" @bind="currentStaff.FirstName" />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-brand-matcha">Efternavn</label>
-                    <input type="text" class="form-control" @bind="currentStaff.LastName" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold text-brand-matcha">Initialer</label>
-                    <input type="text" class="form-control" @bind="currentStaff.Initials" />
-                </div>
-                <div class="col-md-8">
-                    <label class="form-label fw-bold text-brand-matcha">Email</label>
-                    <input type="email" class="form-control" @bind="currentStaff.Email" />
+                    <input type="text" class="form-control" @bind="currentResident.Initial" />
                 </div>
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-brand-matcha">Afdeling</label>
-                    <select class="form-select" @bind="currentStaff.DepartmentId">
+                    <select class="form-select" @bind="currentResident.DepartmentId">
                         <option value="">Vælg afdeling...</option>
                         @* Shows the Department NAMES, but stores the ID *@
                         @foreach (DepartmentDTO dept in DepartmentOptions)
                         {
                             <option value="@dept.Id">@dept.DepartmentName</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold text-brand-matcha">Rolle</label>
-                    <select class="form-select" @bind="currentStaff.RoleId">
-                        <option value="">Vælg rolle...</option>
-                        @* Shows the Role NAMES, but stores the ID *@
-                        @foreach (RoleDTO role in RoleOptions)
-                        {
-                            <option value="@role.Id">@role.RoleName</option>
                         }
                     </select>
                 </div>
@@ -131,19 +100,18 @@
 
 @code {
 
-    // List for Staff and Role Options & Department Options
-    private List<StaffDto> StaffList = new();
-    private List<RoleDTO> RoleOptions = new();
+    // List for Residents and Role Options & Department Options
+    private List<ResidentDto> ResidentList = new List<ResidentDto>();
     private List<DepartmentDTO> DepartmentOptions = new();
 
-    // String to hold selected department for filtering staff members
+    // String to hold selected department for filtering residents
     private string _selectedDepartment = "Alle";
     
     
     // Modal variables and methods for handling add/edit/delete staff members
     private bool showModal = false;
     private string modalTitle = "";
-    private StaffDto currentStaff = new StaffDto();
+    private ResidentDto currentResident = new ResidentDto();
     private string modalButtonText = "";
     private bool isDeleteMode = false;
     private string modalSize = "";
@@ -155,9 +123,8 @@
     {
         try
         {
-            RoleOptions = await ApiService.GetListAsync<RoleDTO>("api/role") ?? new();
             DepartmentOptions = await ApiService.GetListAsync<DepartmentDTO>("api/department") ?? new();
-            StaffList = await ApiService.GetListAsync<StaffDto>("api/staff") ?? new();
+            ResidentList = await ApiService.GetListAsync<ResidentDto>("api/resident") ?? new();
         }
         catch (Exception ex)
         {
@@ -169,9 +136,9 @@
     // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
     private void HandleAdd()
     {
-        currentStaff = new StaffDto(); // Clear current staff data
-        modalTitle = "Opret Medarbejder";
-        modalButtonText = "Gem Medarbejder";
+        currentResident = new ResidentDto(); // Clear current resident data
+        modalTitle = "Opret Beboer";
+        modalButtonText = "Gem Beboer";
         saveButtonVariant = BrandButtonType.Matcha;
         isDeleteMode = false;
         modalSize = "modal-lg";
@@ -179,22 +146,18 @@
     }
 
     // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
-    private void HandleEdit(StaffDto staff)
+    private void HandleEdit(ResidentDto resident)
     {
-        // Load selected staff data into modal
-        currentStaff = new StaffDto
+        // Load selected resident data into modal
+        currentResident = new ResidentDto
         {
-            Id = staff.Id,
-            Initials = staff.Initials,
-            FirstName = staff.FirstName,
-            LastName = staff.LastName,
-            Email = staff.Email,
-            DepartmentId = staff.DepartmentId,
-            RoleId = staff.RoleId,
+            Id = resident.Id,
+            Initial = resident.Initial,
+            DepartmentId = resident.DepartmentId,
         };
 
-        modalTitle = "Rediger Medarbejder";
-        modalButtonText = "Gem Medarbejder";
+        modalTitle = "Rediger Beboer";
+        modalButtonText = "Gem Beboer";
         saveButtonVariant = BrandButtonType.Matcha;
         modalSize = "modal-lg";
         isDeleteMode = false;
@@ -207,12 +170,12 @@
     }
 
     // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
-    private async Task HandleDelete(StaffDto staff)
+    private async Task HandleDelete(ResidentDto resident)
     {
-        currentStaff = staff;
+        currentResident = resident;
 
         modalTitle = "Bekræft Sletning";
-        modalButtonText = "Slet Medarbejder";
+        modalButtonText = "Slet Beboer";
         saveButtonVariant = BrandButtonType.Danger;
         isDeleteMode = true;
         modalSize = "modal-md";
@@ -223,49 +186,49 @@
     {
         if (isDeleteMode)
         {
-            await DeleteStaff();
+            await DeleteResident();
         }
         else
         {
-            await SaveStaff(); // Kald gem-logik
+            await SaveResident(); // Kald gem-logik
         }
     }
 
     // API calls
 
     // Method to create a new staff member, or update an existing staff member based on the ID of the currentStaff object, and then refresh the staff list from the API
-    private async Task SaveStaff()
+    private async Task SaveResident()
     {
         try
         {
             // Creates a new staff member, if the ID is 0
-            if (currentStaff.Id == 0)
+            if (currentResident.Id == 0)
             {
-                StaffDto? createdStaff = await ApiService.PostAsync<StaffDto, StaffDto>("api/staff", currentStaff);
+                ResidentDto? createdResident = await ApiService.PostAsync<ResidentDto, ResidentDto>("api/resident", currentResident);
 
-                if (createdStaff != null)
+                if (createdResident != null)
                 {
-                    StaffList.Add(createdStaff);
+                    ResidentList.Add(createdResident);
                 }
-                Snackbar.Add($"Medarbejder {createdStaff?.FirstName} {createdStaff?.LastName} oprettet succesfuldt.", Severity.Success);
+                Snackbar.Add($"Beboer {createdResident?.Initial} oprettet succesfuldt.", Severity.Success);
             }
             // Updates an existing staff member, if the ID is not 0
             else
             {
-                await ApiService.PutAsync($"api/staff", currentStaff);
+                await ApiService.PutAsync($"api/resident/{currentResident.Id}", currentResident);
 
-                var updatedStaff = await ApiService.GetAsync<StaffDto>($"api/staff/{currentStaff.Id}");
+                var updatedResident = await ApiService.GetAsync<ResidentDto>($"api/resident/{currentResident.Id}");
                 
-                if (updatedStaff != null)
+                if (updatedResident != null)
                 {
-                    int index = StaffList.FindIndex(s => s.Id == currentStaff.Id);
+                    int index = ResidentList.FindIndex(r => r.Id == currentResident.Id);
                     if (index != -1)
                     {
-                        StaffList[index] = updatedStaff;
+                        ResidentList[index] = updatedResident;
                     }
                 }
 
-                Snackbar.Add($"Medarbejder {currentStaff.FirstName} {currentStaff.LastName} opdateret succesfuldt.", Severity.Success);
+                Snackbar.Add($"Beboer {currentResident.Initial} opdateret succesfuldt.", Severity.Success);
             }
 
             showModal = false; // Close modal after saving
@@ -273,31 +236,31 @@
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Fejl ved gemning af medarbejder: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Fejl ved gemning af beboer: {ex.Message}", Severity.Error);
         }
     }
-    private async Task DeleteStaff()
+    private async Task DeleteResident()
     {
         try
         {
-            await ApiService.DeleteAsync($"api/staff/{currentStaff.Id}");
+            await ApiService.DeleteAsync($"api/resident/{currentResident.Id}/permanent");
 
-            StaffList.RemoveAll(s => s.Id == currentStaff.Id);
+            ResidentList.RemoveAll(r => r.Id == currentResident.Id);
 
-            Snackbar.Add($"{currentStaff.FirstName} {currentStaff.LastName} er slettet.", Severity.Success);
+            Snackbar.Add($"{currentResident.Initial} er slettet.", Severity.Success);
             showModal = false;
             StateHasChanged(); // Refresh UI
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"Fejl ved sletning af medarbejder: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Fejl ved sletning af beboer: {ex.Message}", Severity.Error);
         }
     }
 
-    // Filtered list for "StaffDto" based on input and string to store the selected filter value
-        private List<StaffDto> FilteredStaff()
+    // Filtered list for "ResidentDto" based on input and string to store the selected filter value
+        private List<ResidentDto> FilteredResidents()
     {
-        return _selectedDepartment == "Alle" ? StaffList : StaffList.Where(s => s.Department == _selectedDepartment).ToList();
+        return _selectedDepartment == "Alle" ? ResidentList : ResidentList.Where(r => r.DepartmentName == _selectedDepartment).ToList();
     }
     private void SetFilter(string department)
     {
