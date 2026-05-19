@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Slottet.Shared.DTO;
+﻿namespace Slottet.Shared.DTO;
 
 public class PostItDTO
 {
@@ -14,4 +10,12 @@ public class PostItDTO
     public string Status { get; set; } = string.Empty;
     public string Events { get; set; } = string.Empty;
     public string RelativesContact { get; set; } = string.Empty;
+
+    // Til dummy data, hov, fy fy, dansk kommentar
+    public ResidentDto? Resident { get; set; }
+    public RiskDTO? Risk { get; set; }
+    public StaffDto? LastEditedBy { get; set; }
+    public List<MedicineDto> Medicines { get; set; } = new();
+    public List<PnTimeDTO> PnTimes { get; set; } = new();
+    public List<StaffDto> Staffs { get; set; } = new();
 }

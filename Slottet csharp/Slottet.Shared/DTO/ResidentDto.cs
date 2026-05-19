@@ -8,7 +8,7 @@ public class ResidentDto
     public int Id { get; set; }
     public string Initial { get; set; } = string.Empty;
     public int DepartmentId { get; set; }
-    public string DepartmentName { get; set; }  = string.Empty;
+    public string? DepartmentName { get; set; } = string.Empty;
     // bool IsArchived included for display purposes in the frontend
     public bool IsArchived { get; set; }
 }
