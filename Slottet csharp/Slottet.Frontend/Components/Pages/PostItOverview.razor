@@ -1,0 +1,220 @@
+﻿@page "/"
+@using Slottet.Shared.DTO
+
+<h3><strong>Overblik over alle beboere</strong></h3>
+
+<div class="d-flex flex-column min-vh-100">
+    <div class="container-fluid flex-grow-1 px-4 pb-5">
+
+        @* ===================== UI: Date-Bar (History) ===================== *@
+
+        <div class="d-flex justify-content-between align-items-center bg-light mb-4 rounded p-3">
+            <button class="btn btn-primary px-3 py-2 shadow-sm" aria-label="Forrige dag">
+                <i class="bi bi-chevron-left fs-4"></i>
+            </button>
+            <h3 class="fw-bold mb-0">@currentDate.ToString("dd. MMMM yyyy", Danish)</h3>
+            <button class="btn btn-primary px-3 py-2 shadow-sm" aria-label="Næste dag">
+                <i class="bi bi-chevron-right fs-4"></i>
+            </button>
+        </div>
+
+        @* ===================== UI: POST-IT card ===================== *@
+
+        <div class="row g-4">
+            @foreach (var postIt in PostIts)
+            {
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                    @* PostIt-component is used here *@
+                    <PostIt PostItItem="postIt" OnClick="OpenPostItModal" />
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+@* ===================== UI: Edit modal ===================== *@
+
+@if (selectedPostIt != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 text-white bg-secondary">
+                    <h5 class="modal-title">Rediger Post-it: @selectedPostIt.Resident?.Initial</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    @* API *@
+                </div>
+                <div class="modal-footer border-top-0 bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuller</button>
+                    <button type="button" class="btn btn-success" @onclick="SaveChanges">Gem ændringer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    // Danish dates
+    private readonly System.Globalization.CultureInfo Danish = new("da-DK");
+
+    private DateTime currentDate = DateTime.Today;
+    private PostItDTO? selectedPostIt;
+    private List<PostItDTO> PostIts = new();
+
+    @* ---- Dato-navigation ---- *@
+    private void PreviousDay() => currentDate = currentDate.AddDays(-1);
+    private void NextDay()
+    {
+        if (currentDate < DateTime.Today) currentDate = currentDate.AddDays(1);
+    }
+
+    @* ---- Modal ---- *@
+    private void OpenPostItModal(PostItDTO postIt) => selectedPostIt = postIt;
+    private void CloseModal() => selectedPostIt = null;
+    private void SaveChanges() => CloseModal();
+
+
+    @* ===================== DUMMY DATA ===================== *@
+
+    protected override void OnInitialized()
+    {
+        PostIts = new List<PostItDTO>
+{
+    new()
+    {
+        Mood = "Udadreagerende",
+        ShoppingDay = "Onsdag",
+        Payment = "Eget kort eller kontant",
+        RelativesContact = "Søster besøgt",
+        Events = "Virket træt hele formiddagen",
+        Date = DateTime.Now.AddMinutes(-35),
+        Resident = new ResidentDto { Initial = "B1", Department = "Slottet" },
+        LastEditedBy = new StaffDto { Initials = "ML" },
+        Staffs = new List<StaffDto>
+        {
+            new() { Initials = "JEH" },
+            new() { Initials = "CLD" }
+        },
+        Medicines = new List<MedicineDto>
+        {
+            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
+        },
+        PnTimes = new List<PnTimeDTO>
+        {
+            new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
+        },
+        Risk = new RiskDTO { RiskAssessment = "Rolig" }
+    },
+    new()
+    {
+        Mood = "Neutral",
+        ShoppingDay = "Fredag",
+        Payment = "Betalt",
+        RelativesContact = "Far ringet",
+        Events = "Deltaget aktivt i fælles aktivitet",
+        Date = DateTime.Now.AddMinutes(-12),
+        Resident = new ResidentDto { Initial = "B2", Department = "Slottet" },
+        LastEditedBy = new StaffDto { Initials = "SK" },
+        Staffs = new List<StaffDto>
+        {
+            new() { Initials = "MAK" },
+            new() { Initials = "SOP" }
+        },
+        Medicines = new List<MedicineDto>
+        {
+            new() { TimeStamp = DateTime.Now.AddHours(-4), Description = "Panodil" }
+        },
+        PnTimes = new List<PnTimeDTO>
+        {
+            new() { Time = DateTime.Now.AddHours(-5), Description = "PN ved uro" },
+            new() { Time = DateTime.Now.AddHours(-1), Description = "Sovemedicin" }
+        },
+        Risk = new RiskDTO { RiskAssessment = "Vær opmærksom" }
+    },
+    new()
+    {
+        Mood = "Glad",
+        ShoppingDay = "Tirsdag",
+        Payment = "Kontant",
+        RelativesContact = "Mor ringet",
+        Events = "God dag, deltog i fællesspisning",
+        Date = DateTime.Now.AddMinutes(-20),
+        Resident = new ResidentDto { Initial = "B3", Department = "Skoven" },
+        LastEditedBy = new StaffDto { Initials = "JEH" },
+        Staffs = new List<StaffDto>
+        {
+            new() { Initials = "CLD" }
+        },
+        Medicines = new List<MedicineDto>
+        {
+            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
+        },
+        PnTimes = new List<PnTimeDTO>
+        {
+            new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
+        },
+        Risk = new RiskDTO { RiskAssessment = "Rolig" }
+    },
+    new()
+    {
+        Mood = "Udadreagerende",
+        ShoppingDay = "Onsdag",
+        Payment = "Eget kort eller kontant",
+        RelativesContact = "Søster besøgt",
+        Events = "Virket træt hele formiddagen",
+        Date = DateTime.Now.AddMinutes(-35),
+        Resident = new ResidentDto { Initial = "B4", Department = "Skoven" },
+        LastEditedBy = new StaffDto { Initials = "ML" },
+        Staffs = new List<StaffDto>
+        {
+            new() { Initials = "JEH" },
+            new() { Initials = "MAK" }
+        },
+        Medicines = new List<MedicineDto>
+        {
+            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Metformin" }
+        },
+        PnTimes = new List<PnTimeDTO>
+        {
+            new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
+        },
+        Risk = new RiskDTO { RiskAssessment = "Farlig" }
+    },
+    new()
+    {
+        Mood = "Neutral",
+        ShoppingDay = "Torsdag",
+        Payment = "Mobilepay",
+        RelativesContact = "Ingen kontakt",
+        Events = "Rolig dag, så TV om eftermiddagen",
+        Date = DateTime.Now.AddMinutes(-50),
+        Resident = new ResidentDto { Initial = "B5", Department = "Slottet" },
+        LastEditedBy = new StaffDto { Initials = "SOP" },
+        Staffs = new List<StaffDto>
+        {
+            new() { Initials = "SOP" },
+            new() { Initials = "CLD" }
+        },
+        Medicines = new List<MedicineDto>
+        {
+            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Panodil" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Sovemedicin" },
+            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Blodtryksmedicin" }
+        },
+        PnTimes = new List<PnTimeDTO>
+        {
+            new() { Time = DateTime.Now.AddHours(-3), Description = "Spise tandpasta" }
+        },
+        Risk = new RiskDTO { RiskAssessment = "Vær opmærksom" }
+    }
+};
+    }
+}
