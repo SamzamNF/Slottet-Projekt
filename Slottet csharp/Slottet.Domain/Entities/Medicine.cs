@@ -17,6 +17,9 @@ public class Medicine
     public int StaffId { get; private set; }
     public Staff? Staff { get; private set; }
 
+    public int PostItId { get; private set; }
+    public PostIt? PostIt { get; private set; }
+
     // Required by EF Core
     private Medicine() { }
 

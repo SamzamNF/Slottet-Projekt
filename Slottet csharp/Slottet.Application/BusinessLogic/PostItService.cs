@@ -27,6 +27,32 @@ public class PostItService
             postItDTO.RelativesContact
         );
 
+
+        // If there are any PnTimes included in the DTO, add them to the PostIt, otherwise skip
+        if (postItDTO.PnTimes != null && postItDTO.PnTimes.Count > 0)
+            foreach (var pnTimeDTO in postItDTO.PnTimes)
+            {
+                postIt.AddPnTime(PnTime.Create(pnTimeDTO.Time, pnTimeDTO.Description));
+            }
+
+        // Requires Resident and Staff to be included, medicine is not required to create a PostIt, will just skip
+        // if not included
+        if (postItDTO.Medicines != null && postItDTO.Medicines.Count > 0)
+        {
+            if (postItDTO.ResidentId == 0 || postItDTO.StaffId == 0)
+                throw new ArgumentException("Medicin kan ikke oprettes uden tilknytning til både beboer og medarbejder.");
+
+            foreach (var medicineDTO in postItDTO.Medicines)
+            {
+                postIt.AddMedicine(Medicine.Create(
+                postItDTO.ResidentId, 
+                postItDTO.StaffId, 
+                medicineDTO.Description, 
+                medicineDTO.TimeStamp
+                ));
+            }   
+        }
+
         await _postItRepo.Create(postIt);
 
         int result = await _unitOfWork.SaveChangesAsync();
@@ -38,8 +64,11 @@ public class PostItService
 
     public async Task<PostItDTO> Update(PostItDTO postItDTO)
     {
-        // Skal jeg have ændret, så den opdaterer i stedet for create
-        var postIt = PostIt.Create(
+        var postIt = await _postItRepo.GetById(postItDTO.Id);
+        if (postIt == null)
+            throw new KeyNotFoundException($"Post-It med ID {postItDTO.Id} ikke fundet.");
+        
+        postIt.Update(
             postItDTO.Date,
             postItDTO.Payment,
             postItDTO.ShoppingDay,
@@ -49,15 +78,33 @@ public class PostItService
             postItDTO.RelativesContact
         );
 
-        postIt.Id = postItDTO.Id;
 
-        var updatedPostIt = await _postItRepo.Update(postIt);
+        // If there are any PnTimes included in the DTO, update them to the PostIt, otherwise skip
+        if (postItDTO.PnTimes != null)
+        {
+            var pnTuples = postItDTO.PnTimes
+                .Select(p => (p.Id, p.Time, p.Description))
+                .ToList();
+
+            postIt.UpdatePnTimes(pnTuples);
+        }
+
+        if (postItDTO.Medicines != null)
+        {
+            var medicineTuples = postItDTO.Medicines
+                .Select(m => (m.Id, m.Description))
+                .ToList();
+
+            postIt.UpdateMedicines(medicineTuples);
+        }
+
+        _postItRepo.Update(postIt);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
-            throw new InvalidOperationException("Post-It kunne ikke opdateres. Prøv igen.");
+            throw new InvalidOperationException("Kunne ikke opdatere PostIt.");
 
-        return MapToDTO(updatedPostIt);
+        return MapToDTO(postIt);
     }
 
     public async Task<List<PostItDTO>> GetHistory(DateTime date)
@@ -80,7 +127,7 @@ public class PostItService
 
     public async Task Delete(PostItDTO postItDTO)
     {
-        await _postItRepo.DeleteById(postItDTO.Id);
+        _postItRepo.DeleteById(postItDTO.Id);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)
@@ -99,7 +146,36 @@ public class PostItService
             Mood = postIt.Mood,
             Status = postIt.Status,
             Events = postIt.Events,
-            RelativesContact = postIt.RelativesContact
+            RelativesContact = postIt.RelativesContact,
+
+            ResidentId = postIt.ResidentId,
+            ResidentInitials = postIt.Resident?.Initial ?? string.Empty,
+
+            StaffId = postIt.StaffId,
+            StaffName = postIt.Staff != null ? $"{postIt.Staff.FirstName} {postIt.Staff.LastName}" : string.Empty,
+
+            RiskId = postIt.Risk?.Id,
+            RiskAssessment = postIt.Risk?.RiskAssessment ?? string.Empty,
+
+            // Dine lister forbliver præcis de samme
+            PnTimes = postIt.PnTimes.Select(p => new PnTimeDTO 
+            { 
+                Id = p.Id, 
+                Time = p.Time, 
+                Description = p.Description 
+            }).ToList(),
+
+            Medicines = postIt.Medicines.Select(m => new MedicineDto 
+            { 
+                Id = m.Id, 
+                Description = m.Description,
+                TimeStamp = m.TimeStamp,
+                CreatedAt = m.CreatedAt,
+                IsFromToday = m.IsFromToday,
+                ResidentId = m.ResidentId,
+                StaffId = m.StaffId
+            }).ToList(),
+
         };
     }
 }

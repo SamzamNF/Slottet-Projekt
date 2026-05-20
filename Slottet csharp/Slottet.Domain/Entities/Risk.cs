@@ -9,4 +9,10 @@ public class Risk
     public int Id { get; set; }
     // Set as Neutral until actual assessment is made
     public string? RiskAssessment { get; set; } = RiskLevels.Neutral;
+
+    // Foreign key
+    public int PostItId { get; set; }
+    public PostIt? PostIt { get; set; }
+
+
 }
