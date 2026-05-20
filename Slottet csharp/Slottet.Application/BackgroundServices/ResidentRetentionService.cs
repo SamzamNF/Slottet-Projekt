@@ -15,7 +15,7 @@ public ResidentRetentionService(IServiceScopeFactory scopeFactory)
     _scopeFactory = scopeFactory;
 }
 
-    // Runs in background and checks for archived residents that are older than 6 months, and permanently deletes them from the database.
+// Runs in background and checks for archived residents that are older than 6 months, and permanently deletes them from the database.
 protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 {
     while (!stoppingToken.IsCancellationRequested)

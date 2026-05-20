@@ -1,6 +1,6 @@
 <Solution>
   <Folder Name="/SQL/">
-    <File Path="deploy.sql" />
+    <File Path="deployNOTUSED.sql" />
   </Folder>
   <Project Path="Slottet.API/Slottet.API.csproj" />
   <Project Path="Slottet.Application/Slottet.Application.csproj" />

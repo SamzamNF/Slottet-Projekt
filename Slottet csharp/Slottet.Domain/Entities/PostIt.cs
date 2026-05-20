@@ -15,10 +15,12 @@ public class PostIt
     public string Events { get; set; } = string.Empty;
     public string RelativesContact { get; set; } = string.Empty;
 
+    // Foreign keys
     public int StaffId { get; set; }
     public int MedicineId { get; set; }
     public int ResidentId { get; set; }
-    public int RiskId { get; set; }
+    // RiskId is removed as the relation is handled through Risk navigation property
+    // public int RiskId { get; set; } 
 
     // Navigation properties
     public Risk? Risk { get; set; }

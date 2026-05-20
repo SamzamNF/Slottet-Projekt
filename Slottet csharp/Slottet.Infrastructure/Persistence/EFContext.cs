@@ -43,16 +43,14 @@ public class EFContext : DbContext, IUnitOfWork
 
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()
-            .HasOne<Risk>()
+            .HasOne(p => p.Risk)
             .WithOne()
-            .HasForeignKey<PostIt>(r => r.Id)
-            .OnDelete(DeleteBehavior.Cascade); // Risk is deleted with PostIt
+            .HasForeignKey<Risk>(r => r.PostItId) // Risk holds foreign key to PostIt
+            .OnDelete(DeleteBehavior.Cascade);    // Deleting PostIt automatically deletes Risk
 
-        // Maps the ResponsibilityArea entity to the "ResponsibilityAreas" table in the database
-        modelBuilder.Entity<ResponsibilityArea>()
-        .ToTable("Responsibility_areas");
-
-        base.OnModelCreating(modelBuilder);
+        // Alternative: OwnsOne relationship if Risk is considered a value object owned by PostIt
+        // May be relevant for Domain-Driven Design if Risk is not a standalone entity but rather a component of PostIt
+        //modelBuilder.Entity<PostIt>()
+        //    .OwnsOne(p => p.Risk);
     }
-
 }
