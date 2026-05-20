@@ -148,6 +148,8 @@ public class PostItService
             Events = postIt.Events,
             RelativesContact = postIt.RelativesContact,
 
+            // Include resident, staff and risk information
+            
             ResidentId = postIt.ResidentId,
             ResidentInitials = postIt.Resident?.Initial ?? string.Empty,
 
@@ -157,7 +159,7 @@ public class PostItService
             RiskId = postIt.Risk?.Id,
             RiskAssessment = postIt.Risk?.RiskAssessment ?? string.Empty,
 
-            // Dine lister forbliver præcis de samme
+            // If there are any PnTimes associated with the PostIt, map them to the DTO, otherwise return an empty list
             PnTimes = postIt.PnTimes.Select(p => new PnTimeDTO 
             { 
                 Id = p.Id, 
@@ -165,6 +167,7 @@ public class PostItService
                 Description = p.Description 
             }).ToList(),
 
+            // If there are any Medicines associated with the PostIt, map them to the DTO, otherwise return an empty list
             Medicines = postIt.Medicines.Select(m => new MedicineDto 
             { 
                 Id = m.Id, 
