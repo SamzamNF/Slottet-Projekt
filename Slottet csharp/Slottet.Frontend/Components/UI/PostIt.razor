@@ -13,14 +13,14 @@
 
         @* ---- Initials + Mood ---- *@
         <div class="d-flex align-items-center gap-2 mb-2">
-            <h4 class="card-title fw-bold mb-0">@PostItItem.Resident?.Initial</h4>
+            <h4 class="card-title fw-bold mb-0">@PostItItem.ResidentInitials</h4>
             <h4 class="text-muted fw-bold mb-0">@PostItItem.Mood</h4>
         </div>
 
         @* ---- Staff ---- *@
         <div class="mb-2">
             <strong>Personale:</strong>
-            @string.Join(", ", PostItItem.Staffs.Select(s => s.Initials))
+            <span>@PostItItem.StaffName</span>
         </div>
 
         @* ---- Medicine + PN ---- *@
@@ -116,7 +116,7 @@
     [Parameter]
     public EventCallback<PostItDTO> OnClick { get; set; }
 
-    private string GetRiskBgColor() => PostItItem.Risk?.RiskAssessment switch
+    private string GetRiskBgColor() => PostItItem.RiskAssessment switch
     {
         "Farlig" => "bg-danger",
         "Vær opmærksom" => "bg-warning",

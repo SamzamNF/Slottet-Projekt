@@ -12,9 +12,11 @@ public class PostItDTO
     public string RelativesContact { get; set; } = string.Empty;
 
     public int StaffId { get; set; }
+    public int StaffDepartmentId { get; set; }
     public int ResidentId { get; set; }
     public string? StaffName { get; set; }
     public string? ResidentInitials { get; set; }
+    public int ResidentDepartmentId { get; set; }
     public int? RiskId { get; set; }
     public string RiskAssessment { get; set; } = string.Empty;
 

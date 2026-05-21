@@ -133,7 +133,7 @@ public class PostItController : ControllerBase
 
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Personale")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         try

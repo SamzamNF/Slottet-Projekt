@@ -169,9 +169,11 @@ public class PostItService
             
             ResidentId = postIt.ResidentId,
             ResidentInitials = postIt.Resident?.Initial ?? string.Empty,
+            ResidentDepartmentId = postIt.Resident?.DepartmentId ?? 0,
 
             StaffId = postIt.StaffId,
             StaffName = postIt.Staff != null ? $"{postIt.Staff.FirstName} {postIt.Staff.LastName}" : string.Empty,
+            StaffDepartmentId = postIt.Staff?.DepartmentId ?? 0,
 
             RiskId = postIt.Risk?.Id,
             RiskAssessment = postIt.Risk?.RiskAssessment ?? string.Empty,
