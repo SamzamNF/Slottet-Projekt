@@ -66,13 +66,9 @@ public class EfPostItRepository  : IPostItRepository
         _context.PostIts.Update(postIt);
     }
 
-    public void DeleteById(int id)
+    public void DeleteById(PostIt postIt)
     {
-        var postIt = _context.PostIts.Find(id);
-        if (postIt != null)
-        {
-            _context.PostIts.Remove(postIt);
-        }
+        _context.PostIts.Remove(postIt);
     }
 }
 

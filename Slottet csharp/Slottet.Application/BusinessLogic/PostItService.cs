@@ -111,6 +111,8 @@ public class PostItService
     {
         // Call repository
         var dateHistory = await _postItRepo.GetByDate(date);
+        if (dateHistory == null || dateHistory.Count == 0)
+            throw new InvalidOperationException($"Ingen Post-It'er fundet for datoen {date.ToShortDateString()}.");
 
         // Return list of DTOs based on list of domain objects
         return dateHistory.Select(postIt => MapToDTO(postIt)).ToList();
@@ -120,14 +122,29 @@ public class PostItService
     {
         // Call repository
         List<PostIt> postIts = await _postItRepo.GetAll();
+        if (postIts == null || postIts.Count == 0)
+            throw new InvalidOperationException("Ingen Post-It'er fundet.");
 
         // Return list of DTOs based on list of domain objects
         return postIts.Select(postIt => MapToDTO(postIt)).ToList();
     }
 
-    public async Task Delete(PostItDTO postItDTO)
+    public async Task<PostItDTO> GetById(int id)
     {
-        _postItRepo.DeleteById(postItDTO.Id);
+        var postIt = await _postItRepo.GetById(id);
+        if (postIt == null)
+            throw new InvalidOperationException($"Post-It med ID {id} ikke fundet.");
+
+        return MapToDTO(postIt);
+    }
+
+    public async Task Delete(int id)
+    {
+        PostIt? postIt = await _postItRepo.GetById(id);
+        if (postIt == null)
+            throw new KeyNotFoundException($"Post-It med ID {id} ikke fundet og kunne ikke slettes.");
+        
+        _postItRepo.DeleteById(postIt);
 
         int result = await _unitOfWork.SaveChangesAsync();
         if (result <= 0)

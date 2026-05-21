@@ -9,5 +9,5 @@ public interface IPostItRepository
     Task<List<PostIt>> GetAll();
     Task<PostIt> GetById(int id);
     void Update(PostIt postIt);
-    void DeleteById(int id);
+    void DeleteById(PostIt postIt);
 }
