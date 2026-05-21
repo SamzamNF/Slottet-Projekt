@@ -1,0 +1,33 @@
+name: CI - Build and Test
+
+# Workflow triggers on pushes to any branch and pull requests targeting the main branch.
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    # Setup .NET environment
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+    
+    # Restore NuGet packages
+    - name: Restore dependencies
+      run: dotnet restore "Slottet csharp/Slottet.slnx"
+    
+    # Build project  
+    - name: Build project
+      run: dotnet build "Slottet csharp/Slottet.slnx" --no-restore
+   
+    # Run unit tests
+    - name: Run unit tests
+      run: dotnet test "Slottet csharp/Slottet.slnx" --no-build --verbosity normal

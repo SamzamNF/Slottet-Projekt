@@ -22,7 +22,7 @@ jobs:
         
     # Build for release
     - name: Publish API
-      run: dotnet publish -c Release -o ./publish
+      run: dotnet publish "Slottet csharp/Slottet.API/Slottet.API.csproj" -c Release -o ./publish
       
     # Placeholder for future deployment
     - name: Deploy Step
