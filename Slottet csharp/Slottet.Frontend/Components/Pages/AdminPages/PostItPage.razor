@@ -17,7 +17,7 @@
         <h2 class="text-brand-matcha m-0">Post-it Administration</h2>
     </div>
 
-    @* Filtering buttons for each department, made from button component *@
+    @* Filtering buttons for each department and date, made from button component *@
     <label class="form-label fw-bold text-brand-matcha mb-2">Filtrer efter afdeling:</label>
     
     <div class="d-flex gap-2 mb-3 px-1">
@@ -33,6 +33,23 @@
                 OnClick='() => SetFilter("Skoven")'
                 VariableText="Skoven"/>
     </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label fw-bold text-brand-matcha">Filtrer efter dato</label>
+            <div class="input-group">
+                <input type="date" class="form-control" @bind="_selectedDate" @bind:event="onchange" />
+                @if (_selectedDate.HasValue)
+                {
+                    <Button OnClick="ClearDateFilter"
+                            Variant="BrandButtonType.Matcha"
+                            VariableText="Ryd filter">
+                    </Button>
+                }
+            </div>
+        </div>
+    </div>
+
     
     @* EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
     <Table TItem="PostItDTO" 
@@ -285,7 +302,9 @@
 
     
     // String to hold selected department for filtering staff members
+    // And selected date for filtering postits, with method to clear the date filter
     private string _selectedDepartment = "Alle";
+    private DateTime? _selectedDate;
     
     
     // Modal variables and methods for handling add/edit/delete staff members
@@ -505,21 +524,48 @@
     // Filtered list for "PostItDTO" based on input and string to store the selected filter value
     private List<PostItDTO> FilteredPostIts()
     {
-        if (_selectedDepartment == "Alle")
-            return PostItList;
+        // Start with the full list of post-its
+        List<PostItDTO> currentList = PostItList;
+        
+        // If the selected department is NOT "alle", filter it based on department
+        if (_selectedDepartment != "Alle")
+        {
+            var matchedDepartment = DepartmentOptions
+                .FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
 
-        // Find the department object that matches the selected department name
-        var matchedDepartment = DepartmentOptions
-            .FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
+            if (matchedDepartment == null)
+            {
+                currentList = new List<PostItDTO>();
+            }
+            // Filter the post-its to only include those where the resident's department matches the selected department
+            else
+            {
+                currentList = PostItList
+                    .Where(p => p.ResidentDepartmentId == matchedDepartment.Id)
+                    .ToList();
+            }
+        }
 
-        if (matchedDepartment == null)
-            return new List<PostItDTO>();
+        // If a date is selected, filter the list to only include post-its from that date
+        if (_selectedDate.HasValue){
+            currentList = currentList
+                .Where(p => p.Date.Date == _selectedDate.Value.Date)
+                .ToList();
+            
+            if (currentList.Count == 0)
+            {
+                Snackbar.Add($"Ingen post-its fundet for dato: {_selectedDate.Value.ToString("yyyy-MM-dd")}", Severity.Info);
+            }
+        }
 
-        // Filter to show only post its where the Residents department ID matches the selected department ID
-        return PostItList
-            .Where(p => p.ResidentDepartmentId == matchedDepartment.Id)
-            .ToList();
+        return currentList;
     }
+
+    private void ClearDateFilter()
+    {
+        _selectedDate = null;
+    }
+
     private void SetFilter(string department)
     {
         _selectedDepartment = department;
