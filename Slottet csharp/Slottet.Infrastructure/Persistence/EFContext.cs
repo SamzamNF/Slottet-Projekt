@@ -75,5 +75,4 @@ public class EFContext : DbContext, IUnitOfWork
 
         base.OnModelCreating(modelBuilder);
     }
-
 }
