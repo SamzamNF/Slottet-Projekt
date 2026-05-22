@@ -114,43 +114,27 @@
                 @* Section for selecting Staff and Resident based on selecte department*@
                 <div class="col-md-4">
                     <label class="form-label fw-bold text-brand-matcha">Beboer</label>
-                    <select class="form select" @bind="currentPostIt.ResidentId">
-                        <option value=0>Vælg beboer...</option>
-                        @{
-                            // Find the department object that matches the selected department name
-                            var selectedDepartmentRes = DepartmentOptions.FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
-
-                            // Filter to show only residents where the department ID matches the selected department ID, or show all residents if "Alle" is selected
-                            var filteredResidents = selectedDepartmentRes == null 
-                            ? ResidentList : ResidentList.Where(r => r.DepartmentId == selectedDepartmentRes.Id).ToList();
-
-                            // Shows the Resident initial, but stores the ID
-                            foreach (var res in filteredResidents)
+                    <select class="form-select" @bind="currentPostIt.ResidentId">
+                        <option @value="0">Vælg beboer...</option>
+                            
+                            // Shows the Resident initial, but stores the ID, also filters based on selected department
+                            @foreach (var res in modalResidents)
                             {
-                                <option value="@res.Id">@res.Initial</option>
+                                <option @key="@res.Id" value="@res.Id">@res.Initial</option>
                             }
-                        }
                     </select>
                 </div>
 
                 <div class="col-md-4">
                     <label class="form-label fw-bold text-brand-matcha">Personale</label>
-                    <select class="form select" @bind="currentPostIt.StaffId">
-                        <option value=0>Vælg Personale...</option>
-                        @{
-                            // Find the department object that matches the selected department name
-                            var selectedDeptStaff = DepartmentOptions.FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
-
-                            // Filter to show only Staff where the department ID matches the selected department ID, or show all staff if "Alle" is selected
-                            var filteredStaff = selectedDeptStaff == null 
-                            ? StaffList : StaffList.Where(s => s.DepartmentId == selectedDeptStaff.Id).ToList();
-
-                            // Shows the Staff initial, but stores the ID
-                            foreach (var staffMember in filteredStaff)
+                    <select class="form-select" @bind="currentPostIt.StaffId">
+                        <option @value="0">Vælg Personale...</option>
+                            
+                            // Shows the Staff initial, but stores the ID also filters based on selected department
+                            @foreach (var staffMember in modalStaff)
                             {
-                                <option value="@staffMember.Id">@staffMember.Initials</option>
+                                <option @key="@staffMember.Id" value="@staffMember.Id">@staffMember.Initials</option>
                             }
-                        }
                     </select>
                 </div>
 
@@ -202,7 +186,7 @@
                 @* Section for risk, medicine and pntimes  *@
                 <div class="col-md-12">
                     <label class="form-label fw-bold text-brand-matcha">Risikovurdering</label>
-                    <select class="form select" @bind="currentPostIt.RiskAssessment">
+                    <select class="form-select" @bind="currentPostIt.RiskAssessment">
                         <option value="Neutral">Neutral</option>
                         <option value="Rolig">Rolig</option>
                         <option value="Vær opmærksom">Vær opmærksom</option>
@@ -268,7 +252,7 @@
                             @foreach (var med in currentPostIt.Medicines)
                             {
                                 <div class="d-flex gap-2 mb-2 align-items-center">
-                                    <input type="text" class="form-control form-control-sm" placeholder="Medicinnavn og dosis..." @bind="med.Description" />
+                                    <input type="text" class="form-control form-control-sm" placeholder="Beskrivelse af medicin..." @bind="med.Description" />
                                     <Button Variant="BrandButtonType.Danger"
                                             OnClick="() => RemoveMedicineRow(med)">
                                         <ChildContent>
@@ -294,6 +278,12 @@
     private List<DepartmentDTO> DepartmentOptions = new();
     private List<PostItDTO> PostItList = new();
 
+    
+    // Method to filter staff and residents based on selected department, used for the dropdowns in the modal
+    private List<ResidentDto> modalResidents = new();
+    private List<StaffDto> modalStaff = new();
+
+    
     // String to hold selected department for filtering staff members
     private string _selectedDepartment = "Alle";
     
@@ -332,6 +322,13 @@
         {
             Date = DateTime.Now
         };
+
+
+        // Shows all staff and residents based on selected department filter, if "Alle" is selected it shows all staff and residents regardless of department
+        var currentDept = DepartmentOptions.FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
+
+        UpdateModalLists(currentDept?.Id);
+
          // Clear current Postit data
         modalTitle = "Opret Post-it";
         modalButtonText = "Gem Post-it";
@@ -377,18 +374,21 @@
             Description = m.Description,
             TimeStamp = m.TimeStamp,
             CreatedAt = m.CreatedAt,
-            IsFromToday = m.IsFromToday,
-            ResidentId = m.ResidentId,
-            StaffId = m.StaffId
         }).ToList()
         
     };
+
+        // Shows the staff / residents based on which department the resident of the current postit belongs to.
+        var currentResident = ResidentList.FirstOrDefault(r => r.Id == currentPostIt.ResidentId);
+
+        UpdateModalLists(currentResident?.DepartmentId);
+
 
         modalTitle = "Rediger Post-it";
         modalButtonText = "Gem Post-it";
         saveButtonVariant = BrandButtonType.Matcha;
         modalSize = "modal-lg";
-        isDeleteMode = false;
+        isDeleteMode = false;       
         showModal = true;
     }
 
@@ -436,6 +436,7 @@
 
                 if (createdPostIt != null)
                 {
+                    AttachNamesToPostIt(createdPostIt); // Attach staff name and resident initials to the created postit for display purposes
                     PostItList.Add(createdPostIt);
                 }
                 Snackbar.Add($"Post-it {createdPostIt?.Id} oprettet succesfuldt.", Severity.Success);
@@ -449,6 +450,7 @@
 
                 if (updatedPostIt != null)
                 {
+                    AttachNamesToPostIt(updatedPostIt); // Attach staff name and resident initials to the updated postit for display purposes   
                     int index = PostItList.FindIndex(p => p.Id == currentPostIt.Id);
                     if (index != -1)
                     {
@@ -467,6 +469,21 @@
             Snackbar.Add($"Fejl ved gemning af post-it: {ex.Message}", Severity.Error);
         }
     }
+
+    // Helper Method to attach names to newly created postits or updated postits
+    private void AttachNamesToPostIt(PostItDTO postIt)
+    {
+        if (postIt == null)
+            return;
+
+        var resident = ResidentList.FirstOrDefault(r => r.Id == postIt.ResidentId);
+        var staff = StaffList.FirstOrDefault(s => s.Id == postIt.StaffId);
+
+        postIt.ResidentInitials = resident?.Initial ?? string.Empty;
+        postIt.StaffName = staff != null ? $"{staff.FirstName} {staff.LastName}" : string.Empty;
+        postIt.ResidentDepartmentId = resident?.DepartmentId ?? 0;
+    }
+
     private async Task DeletePostIt()
     {
         try
@@ -475,7 +492,7 @@
 
             PostItList.RemoveAll(p => p.Id == currentPostIt.Id);
 
-            Snackbar.Add($"{currentPostIt.Id} er slettet.", Severity.Success);
+            Snackbar.Add($"Post-it: {currentPostIt.Id} fra dato {currentPostIt.Date} er slettet.", Severity.Success);
             showModal = false;
             StateHasChanged(); // Refresh UI
         }
@@ -508,6 +525,22 @@
         _selectedDepartment = department;
     }
 
+    private void UpdateModalLists(int? departmentId)
+    {
+        if (departmentId == null || departmentId == 0)
+        {
+            // If "Alle" is selected, show all staff and residents
+            modalResidents = ResidentList;
+            modalStaff = StaffList;
+        }
+        else
+        {
+            // If a specific department is selected, filter staff and residents to only show those in the selected department
+            modalResidents = ResidentList.Where(r => r.DepartmentId == departmentId).ToList();
+            modalStaff = StaffList.Where(s => s.DepartmentId == departmentId).ToList();
+        }
+    }
+
     // Methods for handling dynamic addition/removal of PnTimes and Medicines in the modal form
     private void AddPnTimeRow()
     {
@@ -531,8 +564,6 @@
             Description = string.Empty,
             TimeStamp = DateTime.Now,
             CreatedAt = DateTime.Now,
-            ResidentId = currentPostIt.ResidentId, // Knyttes automatisk til den valgte beboer
-            StaffId = currentPostIt.StaffId
         });
     }
 

@@ -9,8 +9,8 @@ public class PnTime
     public string Description { get; private set; } = string.Empty;
 
     // EF Mapping property
-    public PostIt? PostIt { get; private set; }
-    public int PostItId { get; private set; }
+    public PostIt? PostIt { get; set; }
+    public int PostItId { get; set; }
 
     private PnTime() { }
 

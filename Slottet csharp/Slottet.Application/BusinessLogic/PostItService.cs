@@ -24,16 +24,20 @@ public class PostItService
             postItDTO.Mood,
             postItDTO.Status,
             postItDTO.Events,
-            postItDTO.RelativesContact
+            postItDTO.RelativesContact,
+            postItDTO.StaffId,
+            postItDTO.ResidentId,
+            postItDTO.RiskAssessment
         );
-
-
+        
         // If there are any PnTimes included in the DTO, add them to the PostIt, otherwise skip
         if (postItDTO.PnTimes != null && postItDTO.PnTimes.Count > 0)
+        {
             foreach (var pnTimeDTO in postItDTO.PnTimes)
             {
                 postIt.AddPnTime(PnTime.Create(pnTimeDTO.Time, pnTimeDTO.Description));
             }
+        }
 
         // Requires Resident and Staff to be included, medicine is not required to create a PostIt, will just skip
         // if not included
@@ -45,8 +49,6 @@ public class PostItService
             foreach (var medicineDTO in postItDTO.Medicines)
             {
                 postIt.AddMedicine(Medicine.Create(
-                postItDTO.ResidentId, 
-                postItDTO.StaffId, 
                 medicineDTO.Description, 
                 medicineDTO.TimeStamp
                 ));
@@ -75,7 +77,9 @@ public class PostItService
             postItDTO.Mood,
             postItDTO.Status,
             postItDTO.Events,
-            postItDTO.RelativesContact
+            postItDTO.RelativesContact,
+            postItDTO.StaffId,
+            postItDTO.RiskAssessment
         );
 
 
@@ -193,9 +197,6 @@ public class PostItService
                 Description = m.Description,
                 TimeStamp = m.TimeStamp,
                 CreatedAt = m.CreatedAt,
-                IsFromToday = m.IsFromToday,
-                ResidentId = m.ResidentId,
-                StaffId = m.StaffId
             }).ToList(),
 
         };

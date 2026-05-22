@@ -43,14 +43,35 @@ public class EFContext : DbContext, IUnitOfWork
 
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()
-            .HasOne<Risk>()
-            .WithOne()
-            .HasForeignKey<PostIt>(r => r.Id)
-            .OnDelete(DeleteBehavior.Cascade); // Risk is deleted with PostIt
+            .HasOne(p => p.Risk)
+            .WithOne(r => r.PostIt) 
+            .HasForeignKey<Risk>(r => r.PostItId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Risk>()
+            .Property(r => r.PostItId)
+            .IsRequired();  
 
         // Maps the ResponsibilityArea entity to the "ResponsibilityAreas" table in the database
-        modelBuilder.Entity<ResponsibilityArea>()
-        .ToTable("Responsibility_areas");
+        modelBuilder.Entity<ResponsibilityArea>().ToTable("Responsibility_areas");
+
+        // Maps the PostIt entity to the "Post_its" table in the database
+        modelBuilder.Entity<PostIt>().ToTable("Post_its");
+
+        // Maps the PnTime entity to the "Pn_times" table in the database
+        modelBuilder.Entity<PnTime>().ToTable("Pn_times");
+
+        modelBuilder.Entity<PnTime>()
+            .HasOne(pt => pt.PostIt)
+            .WithMany(p => p.PnTimes)
+            .HasForeignKey(pt => pt.PostItId)
+            .OnDelete(DeleteBehavior.Cascade);  
+
+        modelBuilder.Entity<Medicine>()
+            .HasOne(m => m.PostIt)
+            .WithMany(p => p.Medicines)
+            .HasForeignKey(m => m.PostItId)
+            .OnDelete(DeleteBehavior.Cascade);  
 
         base.OnModelCreating(modelBuilder);
     }

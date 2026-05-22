@@ -41,7 +41,7 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header border-0 text-white bg-secondary">
-                    <h5 class="modal-title">Rediger Post-it: @selectedPostIt.Resident?.Initial</h5>
+                    <h5 class="modal-title">Rediger Post-it: @selectedPostIt.ResidentInitials</h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
                 </div>
                 <div class="modal-body">
@@ -79,142 +79,149 @@
 
     @* ===================== DUMMY DATA ===================== *@
 
-    protected override void OnInitialized()
+protected override void OnInitialized()
     {
         PostIts = new List<PostItDTO>
-{
-    new()
-    {
-        Mood = "Udadreagerende",
-        ShoppingDay = "Onsdag",
-        Payment = "Eget kort eller kontant",
-        RelativesContact = "Søster besøgt",
-        Events = "Virket træt hele formiddagen",
-        Date = DateTime.Now.AddMinutes(-35),
-        Resident = new ResidentDto { Initial = "B1", DepartmentName = "Slottet" },
-        LastEditedBy = new StaffDto { Initials = "ML" },
-        Staffs = new List<StaffDto>
         {
-            new() { Initials = "JEH" },
-            new() { Initials = "CLD" }
-        },
-        Medicines = new List<MedicineDto>
-        {
-            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
-        },
-        PnTimes = new List<PnTimeDTO>
-        {
-            new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
-        },
-        Risk = new RiskDTO { RiskAssessment = "Rolig" }
-    },
-    new()
-    {
-        Mood = "Neutral",
-        ShoppingDay = "Fredag",
-        Payment = "Betalt",
-        RelativesContact = "Far ringet",
-        Events = "Deltaget aktivt i fælles aktivitet",
-        Date = DateTime.Now.AddMinutes(-12),
-        Resident = new ResidentDto { Initial = "B2", DepartmentName = "Slottet" },
-        LastEditedBy = new StaffDto { Initials = "SK" },
-        Staffs = new List<StaffDto>
-        {
-            new() { Initials = "MAK" },
-            new() { Initials = "SOP" }
-        },
-        Medicines = new List<MedicineDto>
-        {
-            new() { TimeStamp = DateTime.Now.AddHours(-4), Description = "Panodil" }
-        },
-        PnTimes = new List<PnTimeDTO>
-        {
-            new() { Time = DateTime.Now.AddHours(-5), Description = "PN ved uro" },
-            new() { Time = DateTime.Now.AddHours(-1), Description = "Sovemedicin" }
-        },
-        Risk = new RiskDTO { RiskAssessment = "Vær opmærksom" }
-    },
-    new()
-    {
-        Mood = "Glad",
-        ShoppingDay = "Tirsdag",
-        Payment = "Kontant",
-        RelativesContact = "Mor ringet",
-        Events = "God dag, deltog i fællesspisning",
-        Date = DateTime.Now.AddMinutes(-20),
-        Resident = new ResidentDto { Initial = "B3", DepartmentName = "Skoven" },
-        LastEditedBy = new StaffDto { Initials = "JEH" },
-        Staffs = new List<StaffDto>
-        {
-            new() { Initials = "CLD" }
-        },
-        Medicines = new List<MedicineDto>
-        {
-            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
-        },
-        PnTimes = new List<PnTimeDTO>
-        {
-            new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
-        },
-        Risk = new RiskDTO { RiskAssessment = "Rolig" }
-    },
-    new()
-    {
-        Mood = "Udadreagerende",
-        ShoppingDay = "Onsdag",
-        Payment = "Eget kort eller kontant",
-        RelativesContact = "Søster besøgt",
-        Events = "Virket træt hele formiddagen",
-        Date = DateTime.Now.AddMinutes(-35),
-        Resident = new ResidentDto { Initial = "B4", DepartmentName = "Skoven" },
-        LastEditedBy = new StaffDto { Initials = "ML" },
-        Staffs = new List<StaffDto>
-        {
-            new() { Initials = "JEH" },
-            new() { Initials = "MAK" }
-        },
-        Medicines = new List<MedicineDto>
-        {
-            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Metformin" }
-        },
-        PnTimes = new List<PnTimeDTO>
-        {
-            new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
-        },
-        Risk = new RiskDTO { RiskAssessment = "Farlig" }
-    },
-    new()
-    {
-        Mood = "Neutral",
-        ShoppingDay = "Torsdag",
-        Payment = "Mobilepay",
-        RelativesContact = "Ingen kontakt",
-        Events = "Rolig dag, så TV om eftermiddagen",
-        Date = DateTime.Now.AddMinutes(-50),
-        Resident = new ResidentDto { Initial = "B5", DepartmentName = "Slottet" },
-        LastEditedBy = new StaffDto { Initials = "SOP" },
-        Staffs = new List<StaffDto>
-        {
-            new() { Initials = "SOP" },
-            new() { Initials = "CLD" }
-        },
-        Medicines = new List<MedicineDto>
-        {
-            new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Panodil" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Sovemedicin" },
-            new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Blodtryksmedicin" }
-        },
-        PnTimes = new List<PnTimeDTO>
-        {
-            new() { Time = DateTime.Now.AddHours(-3), Description = "Spise tandpasta" }
-        },
-        Risk = new RiskDTO { RiskAssessment = "Vær opmærksom" }
-    }
-};
+            new()
+            {
+                Id = 1,
+                Mood = "Udadreagerende",
+                ShoppingDay = "Onsdag",
+                Payment = "Eget kort eller kontant",
+                RelativesContact = "Søster besøgt",
+                Events = "Virket træt hele formiddagen",
+                Date = DateTime.Now.AddMinutes(-35),
+                
+                // 💡 RETTET til flade værdier i stedet for sub-objekter:
+                ResidentInitials = "B1",
+                ResidentDepartmentId = 1, // Slottet = 1
+                StaffName = "JEH, CLD",
+                RiskAssessment = "Rolig",
+                
+                LastEditedBy = new StaffDto { Initials = "ML" },
+                Medicines = new List<MedicineDto>
+                {
+                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
+                },
+                PnTimes = new List<PnTimeDTO>
+                {
+                    new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
+                }
+            },
+            new()
+            {
+                Id = 2,
+                Mood = "Neutral",
+                ShoppingDay = "Fredag",
+                Payment = "Betalt",
+                RelativesContact = "Far ringet",
+                Events = "Deltaget aktivt i fælles aktivitet",
+                Date = DateTime.Now.AddMinutes(-12),
+                
+                // 💡 RETTET til flade værdier:
+                ResidentInitials = "B2",
+                ResidentDepartmentId = 1, // Slottet = 1
+                StaffName = "MAK, SOP",
+                RiskAssessment = "Vær opmærksom",
+                
+                LastEditedBy = new StaffDto { Initials = "SK" },
+                Medicines = new List<MedicineDto>
+                {
+                    new() { TimeStamp = DateTime.Now.AddHours(-4), Description = "Panodil" }
+                },
+                PnTimes = new List<PnTimeDTO>
+                {
+                    new() { Time = DateTime.Now.AddHours(-5), Description = "PN ved uro" },
+                    new() { Time = DateTime.Now.AddHours(-1), Description = "Sovemedicin" }
+                }
+            },
+            new()
+            {
+                Id = 3,
+                Mood = "Glad",
+                ShoppingDay = "Tirsdag",
+                Payment = "Kontant",
+                RelativesContact = "Mor ringet",
+                Events = "God dag, deltog i fællesspisning",
+                Date = DateTime.Now.AddMinutes(-20),
+                
+                // 💡 RETTET til flade værdier:
+                ResidentInitials = "B3",
+                ResidentDepartmentId = 2, // Skoven = 2
+                StaffName = "CLD",
+                RiskAssessment = "Rolig",
+                
+                LastEditedBy = new StaffDto { Initials = "JEH" },
+                Medicines = new List<MedicineDto>
+                {
+                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
+                },
+                PnTimes = new List<PnTimeDTO>
+                {
+                    new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
+                }
+            },
+            new()
+            {
+                Id = 4,
+                Mood = "Udadreagerende",
+                ShoppingDay = "Onsdag",
+                Payment = "Eget kort eller kontant",
+                RelativesContact = "Søster besøgt",
+                Events = "Virket træt hele formiddagen",
+                Date = DateTime.Now.AddMinutes(-35),
+                
+                // 💡 RETTET til flade værdier:
+                ResidentInitials = "B4",
+                ResidentDepartmentId = 2, // Skoven = 2
+                StaffName = "JEH, MAK",
+                RiskAssessment = "Farlig",
+                
+                LastEditedBy = new StaffDto { Initials = "ML" },
+                Medicines = new List<MedicineDto>
+                {
+                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Metformin" }
+                },
+                PnTimes = new List<PnTimeDTO>
+                {
+                    new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
+                }
+            },
+            new()
+            {
+                Id = 5,
+                Mood = "Neutral",
+                ShoppingDay = "Torsdag",
+                Payment = "Mobilepay",
+                RelativesContact = "Ingen kontakt",
+                Events = "Rolig dag, så TV om eftermiddagen",
+                Date = DateTime.Now.AddMinutes(-50),
+                
+                // 💡 RETTET til flade værdier:
+                ResidentInitials = "B5",
+                ResidentDepartmentId = 1, // Slottet = 1
+                StaffName = "SOP, CLD",
+                RiskAssessment = "Vær opmærksom",
+                
+                LastEditedBy = new StaffDto { Initials = "SOP" },
+                Medicines = new List<MedicineDto>
+                {
+                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Panodil" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Sovemedicin" },
+                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Blodtryksmedicin" }
+                },
+                PnTimes = new List<PnTimeDTO>
+                {
+                    // "Spise tandpasta" er alligevel den bedste beskrivelse til PN nogensinde 😂
+                    new() { Time = DateTime.Now.AddHours(-3), Description = "Spise tandpasta" }
+                }
+            }
+        };
     }
 }

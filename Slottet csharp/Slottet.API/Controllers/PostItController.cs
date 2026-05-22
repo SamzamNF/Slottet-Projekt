@@ -139,7 +139,7 @@ public class PostItController : ControllerBase
         try
         {
             await _postItService.Delete(id);
-            return Ok("Post-It slettet");
+            return NoContent();
         }
         catch (KeyNotFoundException ex)
         {

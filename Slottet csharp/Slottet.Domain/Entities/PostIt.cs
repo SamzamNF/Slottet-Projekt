@@ -39,7 +39,10 @@ public class PostIt
         string mood,
         string status,
         string events,
-        string relativesContact
+        string relativesContact,
+        int staffId,
+        int residentId,
+        string? riskAssessment
     )
     {
         if (date == default)
@@ -52,6 +55,10 @@ public class PostIt
             throw new ArgumentException("Humør er påkrævet");
         if (string.IsNullOrWhiteSpace(status))
             throw new ArgumentException("Status er påkrævet");
+        if (staffId <= 0)
+            throw new ArgumentException("Gyldigt StaffId er påkrævet");
+        if (residentId <= 0)
+            throw new ArgumentException("Gyldigt ResidentId er påkrævet");
 
         return new PostIt
         {
@@ -62,6 +69,9 @@ public class PostIt
             Status = status,
             Events = events,
             RelativesContact = relativesContact,
+            StaffId = staffId,
+            ResidentId = residentId,
+            Risk = Risk.Create(riskAssessment)
         };
     }
 
@@ -70,7 +80,7 @@ public class PostIt
         if (medicine == null)
             throw new ArgumentNullException(nameof(medicine));
 
-        var medicineToAdd = Medicine.Create(medicine.ResidentId, medicine.StaffId, medicine.Description, medicine.TimeStamp);
+        var medicineToAdd = Medicine.Create(medicine.Description, medicine.TimeStamp);
         _medicines.Add(medicineToAdd);
     }
 
@@ -90,7 +100,9 @@ public class PostIt
         string mood,
         string status,
         string events,
-        string relativesContact
+        string relativesContact,
+        int staffId,
+        string? riskAssessment
     )
     {
         if (date == default)
@@ -103,6 +115,8 @@ public class PostIt
             throw new ArgumentException("Humør er påkrævet");
         if (string.IsNullOrWhiteSpace(status))
             throw new ArgumentException("Status er påkrævet");
+        if (staffId <= 0)
+            throw new ArgumentException("Gyldigt StaffId er påkrævet");
 
         Date = date;
         Payment = payment;
@@ -111,6 +125,8 @@ public class PostIt
         Status = status;
         Events = events;
         RelativesContact = relativesContact;
+        StaffId = staffId;
+        Risk!.Update(riskAssessment);
     }
 
     // Method to update all PnTimes of a PostIt, calls the Entity method to update each PnTime with validation
@@ -143,7 +159,7 @@ public class PostIt
             if (originalMed == null)
                 throw new InvalidOperationException($"Medicine med ID {incomingMed.Id} tilhører ikke denne PostIt.");
 
-            originalMed.Update(incomingMed.Description, isAdmin);
+            originalMed.Update(incomingMed.Description);
         }
     }
 }

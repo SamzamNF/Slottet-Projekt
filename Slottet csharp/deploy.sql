@@ -21,25 +21,6 @@ CREATE TABLE Residents (
     CONSTRAINT FK_Residents_Departments FOREIGN KEY (DepartmentId) REFERENCES Departments(Id) ON DELETE CASCADE
 );
 
--- Time, Description and TimeStamp use [] to prevent errors (they are SQL syntax)
-CREATE TABLE Pn_times (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    [Description] NVARCHAR(200) NOT NULL,
-    [Time] DATETIME2 NOT NULL
-);
-
-CREATE TABLE Medicines (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    [Description] NVARCHAR(200) NOT NULL,
-    [TimeStamp] DATETIME2 NOT NULL
-);
-
--- Risks table (has 1:1 relationship to Post_its)
-CREATE TABLE Risks (
-    Id INT IDENTITY(1,1) PRIMARY KEY,
-    RiskAssessment NVARCHAR(40)
-);
-
 -- Foreign keys follow the FK_SourceTable_TargetTable naming convention
 CREATE TABLE Staffs (
     Id INT IDENTITY(1,1) PRIMARY KEY,
@@ -66,12 +47,8 @@ CREATE TABLE Responsibility_areas (
 
 CREATE TABLE Post_its (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    MedicineId INT,
-    -- Unique constraint enforces the 1:1 relationship:
-    RiskId INT UNIQUE, 
     ResidentId INT NOT NULL,
-    StaffId INT, 
-    Pn_timeId INT,         
+    StaffId INT NOT NULL,       
     [Date] DATETIME2 NOT NULL,
     Payment NVARCHAR(100),
     ShoppingDay NVARCHAR(100),
@@ -79,9 +56,19 @@ CREATE TABLE Post_its (
     [Status] NVARCHAR(500),
     [Events] NVARCHAR(300),
     RelativesContact NVARCHAR(100),
-    CONSTRAINT FK_Post_its_Medicines FOREIGN KEY (MedicineId) REFERENCES Medicines(Id),
-    CONSTRAINT FK_Post_its_Risks FOREIGN KEY (RiskId) REFERENCES Risks(Id),
-    CONSTRAINT FK_Post_its_Residents FOREIGN KEY (ResidentId) REFERENCES Residents(Id),
     CONSTRAINT FK_Post_its_Staffs FOREIGN KEY (StaffId) REFERENCES Staffs(Id),
-    CONSTRAINT FK_Post_its_Pn_times FOREIGN KEY (Pn_timeId) REFERENCES Pn_times(Id)
+    CONSTRAINT FK_Post_its_Residents FOREIGN KEY (ResidentId) REFERENCES Residents(Id)
 );
+
+-- Time, Description and TimeStamp use [] to prevent errors (they are SQL syntax)
+CREATE TABLE Pn_times (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    PostItId INT NOT NULL, 
+    [Description] NVARCHAR(200) NOT NULL,
+    [Time] DATETIME2 NOT NULL,
+    CONSTRAINT FK_Pn_times_Post_its FOREIGN KEY (PostItId) REFERENCES Post_its(Id) ON DELETE CASCADE
+);
+
+CREATE TABLE Medicines (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    PostItId INT NOT NULL,

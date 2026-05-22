@@ -27,19 +27,15 @@ public class MedicineService
         return medicines.Select(m => new MedicineDto
         {
             Id = m.Id,
-            ResidentId = m.ResidentId,
-            StaffId = m.StaffId,
             Description = m.Description,
             TimeStamp = m.TimeStamp,
             CreatedAt = m.CreatedAt,
-            IsFromToday = m.IsFromToday,
-            CanBeEditedOrDeleted = m.CanBeEditedOrDeleted()
         });
     }
 
     public async Task<MedicineDto> CreateAsync(MedicineDto dto)
     {
-        var medicine = Medicine.Create(dto.ResidentId, dto.StaffId, dto.Description, dto.TimeStamp);
+        var medicine = Medicine.Create(dto.Description, dto.TimeStamp);
 
         await _medicineRepo.AddAsync(medicine);
 
@@ -49,13 +45,11 @@ public class MedicineService
         // Map assigned values back to DTO
         dto.Id = medicine.Id;
         dto.CreatedAt = medicine.CreatedAt;
-        dto.IsFromToday = medicine.IsFromToday;
-        dto.CanBeEditedOrDeleted = medicine.CanBeEditedOrDeleted();
 
         return dto;
     }
 
-    public async Task UpdateAsync(int id, string newDescription, bool isAdmin)
+    public async Task UpdateAsync(int id, string newDescription)
     {
         var medicine = await _medicineRepo.GetByIdAsync(id);
 
@@ -63,21 +57,20 @@ public class MedicineService
             throw new KeyNotFoundException("Medicin dokumentation blev ikke fundet");
 
         // Pass  role check to domain entity
-        medicine.Update(newDescription, isAdmin);
+        medicine.Update(newDescription);
 
         await _medicineRepo.Update(medicine);
         await _unitOfWork.SaveChangesAsync();
     }
 
-    public async Task DeleteAsync(int id, bool isAdmin)
+    public async Task DeleteAsync(int id)
     {
         var medicine = await _medicineRepo.GetByIdAsync(id);
         if (medicine == null)
             throw new KeyNotFoundException("Medicin dokumentation blev ikke fundet");
 
         // Validate domain rule mixed with role check
-        if (!isAdmin && !medicine.CanBeEditedOrDeleted())
-            throw new InvalidOperationException("Tidsgrænsen for at redigere/slette er overskredet");
+
 
         await _medicineRepo.Delete(medicine);
         await _unitOfWork.SaveChangesAsync();
