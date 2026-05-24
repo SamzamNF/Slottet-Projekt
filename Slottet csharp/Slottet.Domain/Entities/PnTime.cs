@@ -8,6 +8,10 @@ public class PnTime
     public DateTime Time { get; private set; }
     public string Description { get; private set; } = string.Empty;
 
+    // EF Mapping property
+    public PostIt? PostIt { get; set; }
+    public int PostItId { get; set; }
+
     private PnTime() { }
 
     public static PnTime Create(DateTime time, string description)

@@ -7,6 +7,7 @@ public interface IPostItRepository
     Task Create(PostIt postIt);
     Task<List<PostIt>> GetByDate(DateTime date);
     Task<List<PostIt>> GetAll();
-    Task<PostIt> Update(PostIt postIt);
-    Task DeleteById(int id);
+    Task<PostIt> GetById(int id);
+    void Update(PostIt postIt);
+    void DeleteById(PostIt postIt);
 }

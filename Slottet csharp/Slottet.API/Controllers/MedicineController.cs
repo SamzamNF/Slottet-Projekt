@@ -52,7 +52,7 @@ public class MedicineController : ControllerBase
             // Extract the role from user JWT token
             bool isAdmin = User.IsInRole("Admin");
 
-            await _medicineService.UpdateAsync(id, newDescription, isAdmin);
+            await _medicineService.UpdateAsync(id, newDescription);
             return NoContent();
         }
         catch (InvalidOperationException ex)
@@ -73,7 +73,7 @@ public class MedicineController : ControllerBase
         {
             bool isAdmin = User.IsInRole("Admin");
 
-            await _medicineService.DeleteAsync(id, isAdmin);
+            await _medicineService.DeleteAsync(id);
             return NoContent();
         }
         catch (InvalidOperationException ex)

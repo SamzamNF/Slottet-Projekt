@@ -26,7 +26,6 @@ public class EfMedicineRepository : IMedicineRepository
     {
         // Fetch history for a specific resident, newest first
         return await _context.Medicines
-            .Where(m => m.ResidentId == residentId)
             .OrderByDescending(m => m.TimeStamp)
             .ToListAsync();
     }

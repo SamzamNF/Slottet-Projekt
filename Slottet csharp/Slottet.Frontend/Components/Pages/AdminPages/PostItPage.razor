@@ -1,0 +1,621 @@
+@page "/admin/postit"
+@rendermode InteractiveServer
+@using MudBlazor
+@using Slottet.Shared.DTO;
+@using Microsoft.AspNetCore.Authorization
+
+@inject ApiService ApiService
+@inject ISnackbar Snackbar
+
+
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Administrer Post-it</PageTitle>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-brand-matcha m-0">Post-it Administration</h2>
+    </div>
+
+    @* Filtering buttons for each department and date, made from button component *@
+    <label class="form-label fw-bold text-brand-matcha mb-2">Filtrer efter afdeling:</label>
+    
+    <div class="d-flex gap-2 mb-3 px-1">
+        <Button Variant="@(_selectedDepartment == "Alle" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Alle")'
+                VariableText="Alle"/>
+        
+        <Button Variant="@(_selectedDepartment == "Slottet" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Slottet")'
+                VariableText="Slottet"/>
+
+        <Button Variant="@(_selectedDepartment == "Skoven" ? BrandButtonType.Matcha : BrandButtonType.Success)"
+                OnClick='() => SetFilter("Skoven")'
+                VariableText="Skoven"/>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <label class="form-label fw-bold text-brand-matcha">Filtrer efter dato</label>
+            <div class="input-group">
+                <input type="date" class="form-control" @bind="_selectedDate" @bind:event="onchange" />
+                @if (_selectedDate.HasValue)
+                {
+                    <Button OnClick="ClearDateFilter"
+                            Variant="BrandButtonType.Matcha"
+                            VariableText="Ryd filter">
+                    </Button>
+                }
+            </div>
+        </div>
+    </div>
+
+    
+    @* EventCallBacks (OnAdd, OnEdit, OnDelete, handles passing the item as a parameter, in the component)*@
+    <Table TItem="PostItDTO" 
+                  Items="@FilteredPostIts()" 
+                  AddButtonText="Opret Post-it"
+                  OnAdd="HandleAdd" 
+                  OnEdit="HandleEdit" 
+                  OnDelete="HandleDelete"
+                  PageSize="10">
+        
+        <TableHeader>
+            <th>Id</th>
+            <th>Dato</th>
+            <th>Beboer</th>
+            <th>Personale</th>
+            <th>Humør</th>
+            <th>Risiko</th>
+        </TableHeader>
+
+        <RowTemplate Context="post">
+            <td class="fw-bold text-brand-matcha">@post.Id</td>
+            <td>@post.Date.ToString("yyyy-MM-dd HH:mm")</td>
+            <td class="fw-bold text-brand-matcha">@post.ResidentInitials</td>
+            <td>@post.StaffName</td>
+            <td>
+                @if (!string.IsNullOrWhiteSpace(post.Mood))
+                {
+                    <span class="badge bg-light text-dark border">@post.Mood</span>
+                }
+                else
+                {
+                    <span class="text-muted">-</span>
+                }
+            </td>
+            <td>
+                @* Visuel styling baseret på jeres RiskLevels konstanter *@
+                @if (post.RiskAssessment == "Farlig")
+                {
+                    <span class="badge bg-danger text-white">@post.RiskAssessment</span>
+                }
+                else if (post.RiskAssessment == "Vær opmærksom")
+                {
+                    <span class="badge bg-warning text-dark">@post.RiskAssessment</span>
+                }
+                else if (post.RiskAssessment == "Rolig")
+                {
+                    <span class="badge bg-success text-white">@post.RiskAssessment</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary text-white">Neutral</span>
+                }
+            </td>
+        </RowTemplate>
+
+    </Table>
+
+    @* Modal component for adding/editing/deleting staff members *@
+    <Modal Title="@modalTitle" 
+           Show="@showModal" 
+           OnClose="CloseModal" 
+           OnAction="HandleModalConfirm"
+           SaveButtonText="@modalButtonText"
+           SaveButtonVariant="@saveButtonVariant"
+           SizeClass="@modalSize">
+        
+        @* If IsDeleteMode is true, show delete confirmation *@
+        @if (isDeleteMode)
+        {
+            <div class="text-center p-3">
+                <i class="bi bi-exclamation-octagon text-danger display-4"></i>
+                <p class="mt-3">Er du sikker på, at du vil slette PostIt for beboer <b>@currentPostIt.ResidentInitials fra @currentPostIt.Date.ToString("yyyy-MM-dd")</b>?</p>
+            </div>
+        }
+        @* If DeleteMode is false, show the form for adding/editing staff *@
+        else
+        {
+            <div class="row g-3">
+                @* Section for selecting Staff and Resident based on selecte department*@
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-brand-matcha">Beboer</label>
+                    <select class="form-select" @bind="currentPostIt.ResidentId">
+                        <option @value="0">Vælg beboer...</option>
+                            
+                            // Shows the Resident initial, but stores the ID, also filters based on selected department
+                            @foreach (var res in modalResidents)
+                            {
+                                <option @key="@res.Id" value="@res.Id">@res.Initial</option>
+                            }
+                    </select>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-brand-matcha">Personale</label>
+                    <select class="form-select" @bind="currentPostIt.StaffId">
+                        <option @value="0">Vælg Personale...</option>
+                            
+                            // Shows the Staff initial, but stores the ID also filters based on selected department
+                            @foreach (var staffMember in modalStaff)
+                            {
+                                <option @key="@staffMember.Id" value="@staffMember.Id">@staffMember.Initials</option>
+                            }
+                    </select>
+                </div>
+
+                @* The date is pickable, as this is the admin section if mistakes happen for normal staff  *@
+                <div class="col-md-4">
+                    <label class="form-label fw-bold text-brand-matcha">Dato & Tid</label>
+                    <input type="datetime-local" class="form-control" @bind="currentPostIt.Date" />
+                </div>
+                    
+
+                @* Section divider *@
+                <hr class="my-4 text-muted" />
+
+
+                @* Section for daily observations *@
+                <div class="col-md-4">
+                     <label class="form-label fw-bold text-brand-matcha">Humør</label>
+                     <input type="text" class="form-control" @bind="currentPostIt.Mood" placeholder="f.eks. Glad, Trist, Irriteret" />
+                </div>
+
+                <div class="col-md-4">
+                     <label class="form-label fw-bold text-brand-matcha">Indkøbsdag</label>
+                     <input type="text" class="form-control" @bind="currentPostIt.ShoppingDay" />
+                </div>
+
+                <div class="col-md-4">
+                     <label class="form-label fw-bold text-brand-matcha">Betaling</label>
+                     <input type="text" class="form-control" @bind="currentPostIt.Payment" />
+                </div>
+
+                <div class="col-12">
+                     <label class="form-label fw-bold text-brand-matcha">Status (Dagens observation)</label>
+                      <textarea class="form-control" rows="3" @bind="currentPostIt.Status" placeholder="Beskriv beboerens generelle tilstand..."></textarea>
+                 </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Hændelser</label>
+                    <textarea class="form-control" rows="2" @bind="currentPostIt.Events"></textarea>
+                </div>
+
+                 <div class="col-md-6">
+                    <label class="form-label fw-bold text-brand-matcha">Pårørende kontakt</label>
+                    <textarea class="form-control" rows="2" @bind="currentPostIt.RelativesContact"></textarea>
+                  </div> 
+
+                @* Section divider *@ 
+                <hr class="my-4 text-muted" />
+
+                @* Section for risk, medicine and pntimes  *@
+                <div class="col-md-12">
+                    <label class="form-label fw-bold text-brand-matcha">Risikovurdering</label>
+                    <select class="form-select" @bind="currentPostIt.RiskAssessment">
+                        <option value="Neutral">Neutral</option>
+                        <option value="Rolig">Rolig</option>
+                        <option value="Vær opmærksom">Vær opmærksom</option>
+                        <option value="Farlig">Farlig</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold text-brand-matcha mb-0">PN-Tider (@currentPostIt.PnTimes.Count)</label>
+                        
+                        <Button Variant="BrandButtonType.Success"
+                                OnClick="AddPnTimeRow">
+                                    <ChildContent>
+                                        <i class="bi bi-plus-circle me-1"></i> Tilføj PN-tid
+                                    </ChildContent>
+                        </Button>
+
+                        </div>
+    
+                    <div class="border rounded p-2 bg-light" style="max-height: 200px; overflow-y: auto;">
+                        @if (!currentPostIt.PnTimes.Any())
+                        {
+                            <div class="text-muted small text-center p-2">Ingen PN-tider tilføjet endnu.</div>
+                        }
+                        else
+                        {
+                            @foreach (var pn in currentPostIt.PnTimes)
+                            {
+                                <div class="d-flex gap-2 mb-2 align-items-center">
+                                    <input type="time" class="form-control form-control-sm" style="width: 110px;" @bind="pn.Time" />
+                                    <input type="text" class="form-control form-control-sm" placeholder="Beskrivelse..." @bind="pn.Description" />
+                                        <Button Variant="BrandButtonType.Danger"
+                                                OnClick="() => RemovePnTimeRow(pn)">
+                                            <ChildContent>
+                                                <i class="bi bi-trash"></i>
+                                            </ChildContent>
+                                        </Button>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold text-brand-matcha mb-0">Medicin (@currentPostIt.Medicines.Count)</label>
+                        <Button Variant="BrandButtonType.Success"
+                                OnClick="AddMedicineRow">
+                            <ChildContent>
+                                <i class="bi bi-plus-circle me-1"></i> Tilføj medicin
+                            </ChildContent>
+                        </Button>
+                    </div>
+                    
+                    <div class="border rounded p-2 bg-light" style="max-height: 200px; overflow-y: auto;">
+                        @if (!currentPostIt.Medicines.Any())
+                        {
+                            <div class="text-muted small text-center p-2">Ingen medicin tilføjet endnu.</div>
+                        }
+                        else
+                        {
+                            @foreach (var med in currentPostIt.Medicines)
+                            {
+                                <div class="d-flex gap-2 mb-2 align-items-center">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Beskrivelse af medicin..." @bind="med.Description" />
+                                    <Button Variant="BrandButtonType.Danger"
+                                            OnClick="() => RemoveMedicineRow(med)">
+                                        <ChildContent>
+                                            <i class="bi bi-trash"></i>
+                                        </ChildContent>
+                                    </Button>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+         }
+              
+    </Modal>
+</div>
+
+@code {
+
+    // List for Staff and Residents & Department Options
+    private List<StaffDto> StaffList = new();
+    private List<ResidentDto> ResidentList = new();
+    private List<DepartmentDTO> DepartmentOptions = new();
+    private List<PostItDTO> PostItList = new();
+
+    
+    // Method to filter staff and residents based on selected department, used for the dropdowns in the modal
+    private List<ResidentDto> modalResidents = new();
+    private List<StaffDto> modalStaff = new();
+
+    
+    // String to hold selected department for filtering staff members
+    // And selected date for filtering postits, with method to clear the date filter
+    private string _selectedDepartment = "Alle";
+    private DateTime? _selectedDate;
+    
+    
+    // Modal variables and methods for handling add/edit/delete staff members
+    private bool showModal = false;
+    private string modalTitle = "";
+    private PostItDTO currentPostIt = new();
+    private string modalButtonText = "";
+    private bool isDeleteMode = false;
+    private string modalSize = "";
+    private BrandButtonType saveButtonVariant = BrandButtonType.Matcha;
+    
+    
+    // Initialize page with API data
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            ResidentList = await ApiService.GetListAsync<ResidentDto>("api/resident") ?? new();
+            DepartmentOptions = await ApiService.GetListAsync<DepartmentDTO>("api/department") ?? new();
+            StaffList = await ApiService.GetListAsync<StaffDto>("api/staff") ?? new();
+            PostItList = await ApiService.GetListAsync<PostItDTO>("api/postit/all-history") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved indlæsning af data: {ex.Message}", Severity.Error);
+        }      
+
+    }
+
+    // Modal for adding, which sets the dynamic content of the modal to empty, and changes the CTA button to save instead of delete
+    private void HandleAdd()
+    {
+        currentPostIt = new PostItDTO
+        {
+            Date = DateTime.Now
+        };
+
+
+        // Shows all staff and residents based on selected department filter, if "Alle" is selected it shows all staff and residents regardless of department
+        var currentDept = DepartmentOptions.FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
+
+        UpdateModalLists(currentDept?.Id);
+
+         // Clear current Postit data
+        modalTitle = "Opret Post-it";
+        modalButtonText = "Gem Post-it";
+        saveButtonVariant = BrandButtonType.Matcha;
+        isDeleteMode = false;
+        modalSize = "modal-lg";
+        showModal = true;
+    }
+
+    // Modal for editing, which sets the dynamic content of the modal to the selected objects data, and changes the CTA button to save instead of delete
+    private void HandleEdit(PostItDTO postIt)
+    {
+        // Load selected postit data into modal
+        currentPostIt = new PostItDTO
+    {
+        Id = postIt.Id,
+        Date = postIt.Date,
+        Payment = postIt.Payment,
+        ShoppingDay = postIt.ShoppingDay,
+        Mood = postIt.Mood,
+        Status = postIt.Status,
+        Events = postIt.Events,
+        RelativesContact = postIt.RelativesContact,
+
+        StaffId = postIt.StaffId,
+        ResidentId = postIt.ResidentId,
+        RiskId = postIt.RiskId,
+
+        StaffName = postIt.StaffName,
+        ResidentInitials = postIt.ResidentInitials,
+        RiskAssessment = postIt.RiskAssessment,
+
+        PnTimes = postIt.PnTimes.Select(p => new PnTimeDTO
+        {
+            Id = p.Id,
+            Time = p.Time,
+            Description = p.Description
+        }).ToList(),
+
+        Medicines = postIt.Medicines.Select(m => new MedicineDto
+        {
+            Id = m.Id,
+            Description = m.Description,
+            TimeStamp = m.TimeStamp,
+            CreatedAt = m.CreatedAt,
+        }).ToList()
+        
+    };
+
+        // Shows the staff / residents based on which department the resident of the current postit belongs to.
+        var currentResident = ResidentList.FirstOrDefault(r => r.Id == currentPostIt.ResidentId);
+
+        UpdateModalLists(currentResident?.DepartmentId);
+
+
+        modalTitle = "Rediger Post-it";
+        modalButtonText = "Gem Post-it";
+        saveButtonVariant = BrandButtonType.Matcha;
+        modalSize = "modal-lg";
+        isDeleteMode = false;       
+        showModal = true;
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+
+    // Modal for deleting, which sets the dynamic content of the modal to a delete confirmation, and changes the CTA button to delete instead of save
+    private async Task HandleDelete(PostItDTO postIt)
+    {
+        currentPostIt = postIt; // Load selected postit data into modal for reference in confirmation message
+
+        modalTitle = "Bekræft Sletning";
+        modalButtonText = "Slet Post-it";
+        saveButtonVariant = BrandButtonType.Danger;
+        isDeleteMode = true;
+        modalSize = "modal-md";
+        showModal = true;       
+    }
+    // Method that changes whether the modals CTA button should delete or add/edit
+    private async Task HandleModalConfirm()
+    {
+        if (isDeleteMode)
+        {
+            await DeletePostIt();
+        }
+        else
+        {
+            await SavePostIt(); // Kald gem-logik
+        }
+    }
+
+    // API calls
+
+    // Method to create a new postit, or update an existing postit based on the ID of the currentPostIt object, and then refresh the postit list from the API
+    private async Task SavePostIt()
+    {
+        try
+        {
+            // Creates a new postit, if the ID is 0
+            if (currentPostIt.Id == 0)
+            {
+                PostItDTO? createdPostIt = await ApiService.PostAsync<PostItDTO, PostItDTO>("api/postit", currentPostIt);
+
+                if (createdPostIt != null)
+                {
+                    AttachNamesToPostIt(createdPostIt); // Attach staff name and resident initials to the created postit for display purposes
+                    PostItList.Add(createdPostIt);
+                }
+                Snackbar.Add($"Post-it {createdPostIt?.Id} oprettet succesfuldt.", Severity.Success);
+            }
+            // Updates an existing postit, if the ID is not 0
+            else
+            {
+                await ApiService.PutAsync($"api/postit", currentPostIt);
+
+                var updatedPostIt = await ApiService.GetAsync<PostItDTO>($"api/postit/{currentPostIt.Id}");
+
+                if (updatedPostIt != null)
+                {
+                    AttachNamesToPostIt(updatedPostIt); // Attach staff name and resident initials to the updated postit for display purposes   
+                    int index = PostItList.FindIndex(p => p.Id == currentPostIt.Id);
+                    if (index != -1)
+                    {
+                        PostItList[index] = updatedPostIt;
+                    }
+                }
+
+                Snackbar.Add($"Post-it {currentPostIt.Id} opdateret succesfuldt.", Severity.Success);
+            }
+
+            showModal = false; // Close modal after saving
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved gemning af post-it: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Helper Method to attach names to newly created postits or updated postits
+    private void AttachNamesToPostIt(PostItDTO postIt)
+    {
+        if (postIt == null)
+            return;
+
+        var resident = ResidentList.FirstOrDefault(r => r.Id == postIt.ResidentId);
+        var staff = StaffList.FirstOrDefault(s => s.Id == postIt.StaffId);
+
+        postIt.ResidentInitials = resident?.Initial ?? string.Empty;
+        postIt.StaffName = staff != null ? $"{staff.FirstName} {staff.LastName}" : string.Empty;
+        postIt.ResidentDepartmentId = resident?.DepartmentId ?? 0;
+    }
+
+    private async Task DeletePostIt()
+    {
+        try
+        {
+            await ApiService.DeleteAsync($"api/postit/{currentPostIt.Id}");
+
+            PostItList.RemoveAll(p => p.Id == currentPostIt.Id);
+
+            Snackbar.Add($"Post-it: {currentPostIt.Id} fra dato {currentPostIt.Date} er slettet.", Severity.Success);
+            showModal = false;
+            StateHasChanged(); // Refresh UI
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Fejl ved sletning af post-it: {ex.Message}", Severity.Error);
+        }
+    }
+
+    // Filtered list for "PostItDTO" based on input and string to store the selected filter value
+    private List<PostItDTO> FilteredPostIts()
+    {
+        // Start with the full list of post-its
+        List<PostItDTO> currentList = PostItList;
+        
+        // If the selected department is NOT "alle", filter it based on department
+        if (_selectedDepartment != "Alle")
+        {
+            var matchedDepartment = DepartmentOptions
+                .FirstOrDefault(d => d.DepartmentName == _selectedDepartment);
+
+            if (matchedDepartment == null)
+            {
+                currentList = new List<PostItDTO>();
+            }
+            // Filter the post-its to only include those where the resident's department matches the selected department
+            else
+            {
+                currentList = PostItList
+                    .Where(p => p.ResidentDepartmentId == matchedDepartment.Id)
+                    .ToList();
+            }
+        }
+
+        // If a date is selected, filter the list to only include post-its from that date
+        if (_selectedDate.HasValue){
+            currentList = currentList
+                .Where(p => p.Date.Date == _selectedDate.Value.Date)
+                .ToList();
+            
+            if (currentList.Count == 0)
+            {
+                Snackbar.Add($"Ingen post-its fundet for dato: {_selectedDate.Value.ToString("yyyy-MM-dd")}", Severity.Info);
+            }
+        }
+
+        return currentList;
+    }
+
+    private void ClearDateFilter()
+    {
+        _selectedDate = null;
+    }
+
+    private void SetFilter(string department)
+    {
+        _selectedDepartment = department;
+    }
+
+    private void UpdateModalLists(int? departmentId)
+    {
+        if (departmentId == null || departmentId == 0)
+        {
+            // If "Alle" is selected, show all staff and residents
+            modalResidents = ResidentList;
+            modalStaff = StaffList;
+        }
+        else
+        {
+            // If a specific department is selected, filter staff and residents to only show those in the selected department
+            modalResidents = ResidentList.Where(r => r.DepartmentId == departmentId).ToList();
+            modalStaff = StaffList.Where(s => s.DepartmentId == departmentId).ToList();
+        }
+    }
+
+    // Methods for handling dynamic addition/removal of PnTimes and Medicines in the modal form
+    private void AddPnTimeRow()
+    {
+        
+        currentPostIt.PnTimes.Add(new PnTimeDTO 
+        { 
+            Time = DateTime.Now, 
+            Description = string.Empty 
+        });
+    }
+
+    private void RemovePnTimeRow(PnTimeDTO pnTime)
+    {
+        currentPostIt.PnTimes.Remove(pnTime);
+    }
+
+    private void AddMedicineRow()
+    {
+        currentPostIt.Medicines.Add(new MedicineDto 
+        { 
+            Description = string.Empty,
+            TimeStamp = DateTime.Now,
+            CreatedAt = DateTime.Now,
+        });
+    }
+
+    private void RemoveMedicineRow(MedicineDto medicine)
+    {
+        currentPostIt.Medicines.Remove(medicine);
+    }   
+
+}

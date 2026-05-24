@@ -11,11 +11,17 @@ public class PostItDTO
     public string Events { get; set; } = string.Empty;
     public string RelativesContact { get; set; } = string.Empty;
 
+    public int StaffId { get; set; }
+    public int StaffDepartmentId { get; set; }
+    public int ResidentId { get; set; }
+    public string? StaffName { get; set; }
+    public string? ResidentInitials { get; set; }
+    public int ResidentDepartmentId { get; set; }
+    public int? RiskId { get; set; }
+    public string RiskAssessment { get; set; } = string.Empty;
+
     // Til dummy data, hov, fy fy, dansk kommentar
-    public ResidentDto? Resident { get; set; }
-    public RiskDTO? Risk { get; set; }
     public StaffDto? LastEditedBy { get; set; }
     public List<MedicineDto> Medicines { get; set; } = new();
     public List<PnTimeDTO> PnTimes { get; set; } = new();
-    public List<StaffDto> Staffs { get; set; } = new();
 }
