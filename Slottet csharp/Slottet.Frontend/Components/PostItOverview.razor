@@ -1,0 +1,52 @@
+@page "/postits"
+@using Slottet.Shared.DTO
+@inject ApiService Api
+
+<h1>Beboer oversigt</h1>
+
+@if (error is not null)
+{
+    <div class="alert alert-danger">@error</div>
+}
+else if (postIts is null)
+{
+    <p>Indlæser...</p>
+}
+else if (!postIts.Any())
+{
+    <p>Der er ingen noter.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var p in postIts)
+        {
+            <div class="list-group-item">
+                <h5>@p.Date.ToString("yyyy-MM-dd")</h5>
+                <p><strong>Betaling:</strong> @p.Payment</p>
+                <p><strong>Indkøbsdag:</strong> @p.ShoppingDay</p>
+                <p><strong>Humør:</strong> @p.Mood</p>
+                <p><strong>Status:</strong> @p.Status</p>
+                <p><strong>Hændelser:</strong> @p.Events</p>
+                <p><strong>Pårørende:</strong> @p.RelativesContact</p>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<PostItDTO>? postIts;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            postIts = await Api.GetListAsync<PostItDTO>("api/postit");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}

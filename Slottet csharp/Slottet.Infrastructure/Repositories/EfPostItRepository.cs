@@ -39,6 +39,9 @@ public class EfPostItRepository  : IPostItRepository
         return postIt;
     }
 
+    public async Task<List<PostIt>> GetAllAsync()
+    {
+        return await _context.PostIts.ToListAsync();
     public async Task DeleteById(int id)
     {
         var postIt = await _context.PostIts.FindAsync(id);
