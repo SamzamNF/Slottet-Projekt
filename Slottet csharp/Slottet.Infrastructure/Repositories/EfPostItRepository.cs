@@ -18,7 +18,10 @@ public class EfPostItRepository  : IPostItRepository
     {
         await _context.PostIts.AddAsync(postIt);
     }
-
+    public async Task<PostIt?> GetById(int id)
+    {
+        return await _context.PostIts.FindAsync(id);
+    }
 
     public async Task<List<PostIt>> GetAll()
     {

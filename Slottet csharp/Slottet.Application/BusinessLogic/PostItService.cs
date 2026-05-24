@@ -38,22 +38,20 @@ public class PostItService
 
     public async Task<PostItDTO> Update(PostItDTO postItDTO)
     {
-        // Skal jeg have ændret, så den opdaterer i stedet for create
-        var postIt = PostIt.Create(
-            postItDTO.Date,
-            postItDTO.Payment,
-            postItDTO.ShoppingDay,
-            postItDTO.Mood,
-            postItDTO.Status,
-            postItDTO.Events,
-            postItDTO.RelativesContact
-        );
+        var postIt = await _postItRepo.GetById(postItDTO.Id)
+            ?? throw new InvalidOperationException("Post-It blev ikke fundet.");
 
-        postIt.Id = postItDTO.Id;
+        postIt.Date = postItDTO.Date;
+        postIt.Payment = postItDTO.Payment;
+        postIt.ShoppingDay = postItDTO.ShoppingDay;
+        postIt.Mood = postItDTO.Mood;
+        postIt.Status = postItDTO.Status;
+        postIt.Events = postItDTO.Events;
+        postIt.RelativesContact = postItDTO.RelativesContact;
 
         var updatedPostIt = await _postItRepo.Update(postIt);
-
         int result = await _unitOfWork.SaveChangesAsync();
+
         if (result <= 0)
             throw new InvalidOperationException("Post-It kunne ikke opdateres. Prøv igen.");
 
