@@ -1,0 +1,31 @@
+name: CD - Deployment Template
+# This workflow is a template for deploying the concurrency
+# It currently builds the project for release and includes 
+# a placeholder for future deployment steps.  
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    # Setup .NET environment
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        
+    # Build for release
+    - name: Publish API
+      run: dotnet publish "Slottet csharp/Slottet.API/Slottet.API.csproj" -c Release -o ./publish
+      
+    # Placeholder for future deployment
+    - name: Deploy Step
+      run: |
+        echo "API successfully built for release."
+        echo "Future deployment logic goes here."
