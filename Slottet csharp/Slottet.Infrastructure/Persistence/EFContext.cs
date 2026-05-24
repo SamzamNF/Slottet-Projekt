@@ -96,6 +96,12 @@ public class EFContext : DbContext, IUnitOfWork
         // Define a trigger for auditing changes to the Role entity
         modelBuilder.Entity<Role>()
             .ToTable(tb => tb.HasTrigger("trg_Role_Audit"));
+        modelBuilder.Entity<Department>()
+            .ToTable(tb => tb.HasTrigger("trg_Department_Audit"));
+        modelBuilder.Entity<Phone>()
+            .ToTable(tb => tb.HasTrigger("trg_Phone_Audit"));
+        modelBuilder.Entity<Resident>()
+            .ToTable(tb => tb.HasTrigger("trg_Resident_Audit"));
 
         base.OnModelCreating(modelBuilder);
     }
