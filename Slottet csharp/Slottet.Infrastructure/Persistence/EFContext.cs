@@ -32,14 +32,29 @@ public class EFContext : DbContext, IUnitOfWork
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Performance optimization: Index for filtered queries
-        // modelBuilder.Entity<Resident>().HasIndex(r => r.IsArchived);
+        modelBuilder.Entity<Resident>().HasIndex(r => r.IsArchived);
 
         // Global query filter: Exclude archived residents from all queries
-        // modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
+        modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
+        // Global query filter: Exclude PostIts if the associated Resident is archived
+        modelBuilder.Entity<PostIt>().HasQueryFilter(p => !p.Resident!.IsArchived);
+        // Global query filters for related entities to ensure they are also excluded when resident is archived
+        modelBuilder.Entity<Medicine>().HasQueryFilter(m => !m.PostIt!.Resident!.IsArchived);
+        modelBuilder.Entity<PnTime>().HasQueryFilter(pt => !pt.PostIt!.Resident!.IsArchived);
+        modelBuilder.Entity<Risk>().HasQueryFilter(r => !r.PostIt!.Resident!.IsArchived);
 
         // Delete when DB is updated with these:
-        modelBuilder.Entity<Resident>().Ignore(r => r.IsArchived);
-        modelBuilder.Entity<Resident>().Ignore(r => r.ArchivedAt);
+        //modelBuilder.Entity<Resident>().Ignore(r => r.IsArchived);
+        //modelBuilder.Entity<Resident>().Ignore(r => r.ArchivedAt);
+
+        // Define delete behavior for Staff-PostIt relationship to prevent cascading deletes
+        modelBuilder.Entity<PostIt>()
+            .HasOne(p => p.Staff)
+            .WithMany()
+            .HasForeignKey(p => p.StaffId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        base.OnModelCreating(modelBuilder);
 
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()
