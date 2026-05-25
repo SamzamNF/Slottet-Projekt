@@ -32,14 +32,29 @@ public class EFContext : DbContext, IUnitOfWork
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Performance optimization: Index for filtered queries
-        // modelBuilder.Entity<Resident>().HasIndex(r => r.IsArchived);
+        modelBuilder.Entity<Resident>().HasIndex(r => r.IsArchived);
 
         // Global query filter: Exclude archived residents from all queries
-        // modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
+        modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
+        
+        // Global query filter: Exclude PostIts if the associated Resident is archived
+        modelBuilder.Entity<PostIt>().HasQueryFilter(p => p.Resident == null || !p.Resident.IsArchived);
+        
+        // Global query filters for related entities to ensure they are also excluded when resident is archived
+        modelBuilder.Entity<Medicine>().HasQueryFilter(m => m.PostIt == null || m.PostIt.Resident == null || !m.PostIt.Resident.IsArchived);
+        modelBuilder.Entity<PnTime>().HasQueryFilter(pt => pt.PostIt == null || pt.PostIt.Resident == null || !pt.PostIt.Resident.IsArchived);
+        modelBuilder.Entity<Risk>().HasQueryFilter(r => r.PostIt == null || r.PostIt.Resident == null || !r.PostIt.Resident.IsArchived);
 
         // Delete when DB is updated with these:
-        modelBuilder.Entity<Resident>().Ignore(r => r.IsArchived);
-        modelBuilder.Entity<Resident>().Ignore(r => r.ArchivedAt);
+        //modelBuilder.Entity<Resident>().Ignore(r => r.IsArchived);
+        //modelBuilder.Entity<Resident>().Ignore(r => r.ArchivedAt);
+
+        // Define delete behavior for Staff-PostIt relationship to prevent cascading delete
+        modelBuilder.Entity<PostIt>()
+            .HasOne(p => p.Staff)
+            .WithMany()
+            .HasForeignKey(p => p.StaffId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()
@@ -72,6 +87,16 @@ public class EFContext : DbContext, IUnitOfWork
             .WithMany(p => p.Medicines)
             .HasForeignKey(m => m.PostItId)
             .OnDelete(DeleteBehavior.Cascade);  
+
+        // Define a trigger for auditing changes to the Role entity
+        modelBuilder.Entity<Role>()
+            .ToTable(tb => tb.HasTrigger("trg_Role_Audit"));
+        modelBuilder.Entity<Department>()
+            .ToTable(tb => tb.HasTrigger("trg_Department_Audit"));
+        modelBuilder.Entity<Phone>()
+            .ToTable(tb => tb.HasTrigger("trg_Phone_Audit"));
+        modelBuilder.Entity<Resident>()
+            .ToTable(tb => tb.HasTrigger("trg_Resident_Audit"));
 
         base.OnModelCreating(modelBuilder);
     }
