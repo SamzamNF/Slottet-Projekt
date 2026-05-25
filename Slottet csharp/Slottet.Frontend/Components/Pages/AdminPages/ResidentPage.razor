@@ -1,4 +1,4 @@
-@page "/admin/resident"
+﻿@page "/admin/resident"
 @rendermode InteractiveServer
 @using MudBlazor
 @using Slottet.Shared.DTO;
@@ -20,7 +20,7 @@
     @* Filtering buttons for each department, made from button component *@
     <label class="form-label fw-bold text-brand-matcha mb-2">Filtrer efter afdeling:</label>
     
-    <div class="d-flex gap-2 mb-3 px-1">
+    <div class="d-flex mb-3 gap-2 px-1">
         <Button Variant="@(_selectedDepartment == "Alle" ? BrandButtonType.Matcha : BrandButtonType.Success)"
                 OnClick='() => SetFilter("Alle")'
                 VariableText="Alle"/>
@@ -67,7 +67,7 @@
         @* If IsDeleteMode is true, show delete confirmation *@
         @if (isDeleteMode)
         {
-            <div class="text-center p-3">
+            <div class="p-3 text-center">
                 <i class="bi bi-exclamation-octagon text-danger display-4"></i>
                 <p class="mt-3">Er du sikker på, at du vil slette <b>@currentResident.Initial fra afdeling @currentResident.DepartmentName</b>?</p>
             </div>
@@ -243,7 +243,7 @@
     {
         try
         {
-            await ApiService.DeleteAsync($"api/resident/{currentResident.Id}/permanent");
+            await ApiService.DeleteAsync($"api/resident/{currentResident.Id}");
 
             ResidentList.RemoveAll(r => r.Id == currentResident.Id);
 

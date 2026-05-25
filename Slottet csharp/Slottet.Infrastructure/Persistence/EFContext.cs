@@ -88,9 +88,6 @@ public class EFContext : DbContext, IUnitOfWork
             .HasForeignKey(m => m.PostItId)
             .OnDelete(DeleteBehavior.Cascade);  
 
-
-
-
         // Define a trigger for auditing changes to the Role entity
         modelBuilder.Entity<Role>()
             .ToTable(tb => tb.HasTrigger("trg_Role_Audit"));
