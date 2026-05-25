@@ -36,12 +36,14 @@ public class EFContext : DbContext, IUnitOfWork
 
         // Global query filter: Exclude archived residents from all queries
         modelBuilder.Entity<Resident>().HasQueryFilter(r => !r.IsArchived);
+        
         // Global query filter: Exclude PostIts if the associated Resident is archived
-        modelBuilder.Entity<PostIt>().HasQueryFilter(p => !p.Resident!.IsArchived);
+        modelBuilder.Entity<PostIt>().HasQueryFilter(p => p.Resident == null || !p.Resident.IsArchived);
+        
         // Global query filters for related entities to ensure they are also excluded when resident is archived
-        modelBuilder.Entity<Medicine>().HasQueryFilter(m => !m.PostIt!.Resident!.IsArchived);
-        modelBuilder.Entity<PnTime>().HasQueryFilter(pt => !pt.PostIt!.Resident!.IsArchived);
-        modelBuilder.Entity<Risk>().HasQueryFilter(r => !r.PostIt!.Resident!.IsArchived);
+        modelBuilder.Entity<Medicine>().HasQueryFilter(m => m.PostIt == null || m.PostIt.Resident == null || !m.PostIt.Resident.IsArchived);
+        modelBuilder.Entity<PnTime>().HasQueryFilter(pt => pt.PostIt == null || pt.PostIt.Resident == null || !pt.PostIt.Resident.IsArchived);
+        modelBuilder.Entity<Risk>().HasQueryFilter(r => r.PostIt == null || r.PostIt.Resident == null || !r.PostIt.Resident.IsArchived);
 
         // Delete when DB is updated with these:
         //modelBuilder.Entity<Resident>().Ignore(r => r.IsArchived);
@@ -85,6 +87,19 @@ public class EFContext : DbContext, IUnitOfWork
             .WithMany(p => p.Medicines)
             .HasForeignKey(m => m.PostItId)
             .OnDelete(DeleteBehavior.Cascade);  
+
+
+
+
+        // Define a trigger for auditing changes to the Role entity
+        modelBuilder.Entity<Role>()
+            .ToTable(tb => tb.HasTrigger("trg_Role_Audit"));
+        modelBuilder.Entity<Department>()
+            .ToTable(tb => tb.HasTrigger("trg_Department_Audit"));
+        modelBuilder.Entity<Phone>()
+            .ToTable(tb => tb.HasTrigger("trg_Phone_Audit"));
+        modelBuilder.Entity<Resident>()
+            .ToTable(tb => tb.HasTrigger("trg_Resident_Audit"));
 
         base.OnModelCreating(modelBuilder);
     }
