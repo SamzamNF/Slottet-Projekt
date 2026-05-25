@@ -499,8 +499,17 @@
         var staff = StaffList.FirstOrDefault(s => s.Id == postIt.StaffId);
 
         postIt.ResidentInitials = resident?.Initial ?? string.Empty;
-        postIt.StaffName = staff != null ? $"{staff.FirstName} {staff.LastName}" : string.Empty;
         postIt.ResidentDepartmentId = resident?.DepartmentId ?? 0;
+
+        if (staff != null){
+            if (string.IsNullOrWhiteSpace(staff.FirstName))
+            {
+                postIt.StaffName = $"{staff.FirstName} {staff.LastName}";
+            }
+            else{
+                postIt.StaffName = staff.Initials;
+            }
+        }
     }
 
     private async Task DeletePostIt()
