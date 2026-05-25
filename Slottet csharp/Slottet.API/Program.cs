@@ -54,7 +54,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("SlottetFrontEnd", policy =>
     {
-        policy.WithOrigins("https://localhost:7189")
+        policy.WithOrigins("https://localhost:7189", "http://localhost:8082")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -85,7 +85,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("SlottetFrontEnd");
 
-app.UseHttpsRedirection();
+// Enable HTTPS redirection if needed (like running dotnet watch run without Docker, which doesn't handle HTTPS by default)
+//app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
