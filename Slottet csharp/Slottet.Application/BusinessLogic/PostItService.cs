@@ -115,21 +115,13 @@ public class PostItService
     {
         // Call repository
         var dateHistory = await _postItRepo.GetByDate(date);
-        if (dateHistory == null || dateHistory.Count == 0)
-            throw new InvalidOperationException($"Ingen Post-It'er fundet for datoen {date.ToShortDateString()}.");
-
         // Return list of DTOs based on list of domain objects
         return dateHistory.Select(postIt => MapToDTO(postIt)).ToList();
     }
-    
+
     public async Task<List<PostItDTO>> GetAllHistory()
     {
-        // Call repository
         List<PostIt> postIts = await _postItRepo.GetAll();
-        if (postIts == null || postIts.Count == 0)
-            throw new InvalidOperationException("Ingen Post-It'er fundet.");
-
-        // Return list of DTOs based on list of domain objects
         return postIts.Select(postIt => MapToDTO(postIt)).ToList();
     }
 
@@ -168,16 +160,15 @@ public class PostItService
             Status = postIt.Status,
             Events = postIt.Events,
             RelativesContact = postIt.RelativesContact,
+            LastEditedByInitials = postIt.Staff?.Initials ?? string.Empty,
 
             // Include resident, staff and risk information
-            
+
             ResidentId = postIt.ResidentId,
             ResidentInitials = postIt.Resident?.Initial ?? string.Empty,
             ResidentDepartmentId = postIt.Resident?.DepartmentId ?? 0,
 
-            StaffId = postIt.StaffId,
-            StaffName = postIt.Staff != null ? $"{postIt.Staff.FirstName} {postIt.Staff.LastName}" : string.Empty,
-            StaffDepartmentId = postIt.Staff?.DepartmentId ?? 0,
+            StaffName = postIt.Staff?.Initials ?? string.Empty,
 
             RiskId = postIt.Risk?.Id,
             RiskAssessment = postIt.Risk?.RiskAssessment ?? string.Empty,
