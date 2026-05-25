@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Slottet.Infrastructure.Persistence;
@@ -54,7 +55,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("SlottetFrontEnd", policy =>
     {
-        policy.WithOrigins("https://localhost:7189", "http://localhost:8082")
+        policy.WithOrigins("https://localhost:7189", "http://localhost:8082", "https://oestruplund.berdiinn.tech")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
@@ -76,17 +77,27 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// Comment out if localhost ----
+var forwardedOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+};
+forwardedOptions.KnownNetworks.Clear();
+forwardedOptions.KnownProxies.Clear();
+
+app.UseForwardedHeaders(forwardedOptions);
+// -----
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-
 app.UseCors("SlottetFrontEnd");
 
 // Enable HTTPS redirection if needed (like running dotnet watch run without Docker, which doesn't handle HTTPS by default)
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -4,6 +4,7 @@ using Microsoft.Identity.Web.UI;
 using Slottet.Frontend.Components;
 using MudBlazor;
 using MudBlazor.Services;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,18 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
         // Map "roles" claim to the correct claim type for role-based authorization
         options.TokenValidationParameters.RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
+
+        options.Events = new OpenIdConnectEvents
+        {
+            OnRedirectToIdentityProvider = context =>
+            {
+                if (context.ProtocolMessage.RedirectUri.StartsWith("http://"))
+                {
+                    context.ProtocolMessage.RedirectUri = context.ProtocolMessage.RedirectUri.Replace("http://", "https://");
+                }
+                return Task.CompletedTask;
+            }
+        };
     })
     .EnableTokenAcquisitionToCallDownstreamApi(new string[] { "api://bd20e841-d13e-49bc-98be-6e4c60872fd2/access_as_user" })
     .AddInMemoryTokenCaches();
@@ -50,6 +63,12 @@ builder.Services.AddMudServices(config =>
 
 // Build the app
 var app = builder.Build();
+
+app.Use((context, next) =>
+{
+    context.Request.Scheme = "https";
+    return next();
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
