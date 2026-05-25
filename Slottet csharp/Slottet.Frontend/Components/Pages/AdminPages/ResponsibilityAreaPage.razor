@@ -169,12 +169,12 @@
         try
         {
             PhoneList = await ApiService.GetListAsync<PhoneDTO>("api/phone") ?? new();
-            ResponsibilityAreaList = await ApiService.GetListAsync<ResponsibilityAreaDTO>("api/responsibilityarea") ?? new();
             StaffList = await ApiService.GetListAsync<StaffDto>("api/staff") ?? new();
+            ResponsibilityAreaList = await ApiService.GetListAsync<ResponsibilityAreaDTO>("api/responsibilityarea") ?? new();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Fejl ved hentning af dataa: {ex.Message}");
+            Snackbar.Add($"Fejl ved indlæsning af data: {ex.Message}", Severity.Error);
         }      
 
     }

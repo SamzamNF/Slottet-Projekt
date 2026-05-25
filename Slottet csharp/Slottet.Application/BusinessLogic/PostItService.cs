@@ -86,7 +86,15 @@ public class PostItService
         // If there are any PnTimes included in the DTO, update them to the PostIt, otherwise skip
         if (postItDTO.PnTimes != null)
         {
+            // Check for new PnTimes, which will have an Id of 0, and add them to the PostIt
+            var newPnTimes = postItDTO.PnTimes.Where(p => p.Id == 0);
+            foreach (var pnTimeDTO in newPnTimes)
+            {
+                postIt.AddPnTime(PnTime.Create(pnTimeDTO.Time, pnTimeDTO.Description));
+            }
+            
             var pnTuples = postItDTO.PnTimes
+                .Where(p => p.Id > 0) // Only include existing PnTimes that need to be updated, new ones are already added above
                 .Select(p => (p.Id, p.Time, p.Description))
                 .ToList();
 
@@ -95,7 +103,21 @@ public class PostItService
 
         if (postItDTO.Medicines != null)
         {
+            // Check for new Medicines, which will have an Id of 0, and add them to the PostIt
+            var newMedicines = postItDTO.Medicines.Where(m => m.Id == 0);
+            foreach (var medicineDTO in newMedicines)
+            {
+                if (postItDTO.ResidentId == 0 || postItDTO.StaffId == 0)
+                    throw new ArgumentException("Medicin kan ikke oprettes uden tilknytning til både beboer og medarbejder.");
+                    
+                postIt.AddMedicine(Medicine.Create(
+                    medicineDTO.Description, 
+                    medicineDTO.TimeStamp
+                ));
+            }
+            
             var medicineTuples = postItDTO.Medicines
+                .Where(m => m.Id > 0) // Only include existing Medicines that need to be updated, new ones are already added above
                 .Select(m => (m.Id, m.Description))
                 .ToList();
 
