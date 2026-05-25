@@ -1,0 +1,34 @@
+services:
+  # Defines the API service, which builds the Slottet.API project and exposes it on port 8081.
+  api:
+    build:
+      context: .
+      dockerfile: Slottet.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "${DB_CONN}"
+      AzureAd__Instance: "https://login.microsoftonline.com/"
+      AzureAd__Domain: "nfsamzamhotmail.onmicrosoft.com"
+      AzureAd__TenantId: "5c1a8c33-e09b-4ae2-b991-ae080c6ef83a"
+      AzureAd__ClientId: "bd20e841-d13d-44e8-8146-6904ca201ac2"
+      AzureAd__Audience: "api://bd20e841-d13e-49bc-98be-6e4c60872fd2"
+    ports:
+      - "8081:8080"
+
+  # Defines the frontend service, which builds the Slottet.Frontend project and exposes it on port 8082.
+  frontend:
+    build:
+      context: .
+      dockerfile: Slottet.Frontend/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ApiSettings__BaseUrl: "http://api:8080"
+      AzureAd__Instance: "https://login.microsoftonline.com/"
+      AzureAd__Domain: "nfsamzamhotmail.onmicrosoft.com"
+      AzureAd__TenantId: "5c1a8c33-e09b-4ae2-b991-ae080c6ef83a"
+      AzureAd__ClientId: "fc2295a2-9d5d-44e8-8146-6904ca201ac2"
+      AzureAd__ClientSecret: "${CLIENT_SECRET}"
+    ports:
+      - "8082:8080"
+    depends_on:
+      - api
