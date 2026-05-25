@@ -11,7 +11,7 @@ public class PostItDTO
     public string Events { get; set; } = string.Empty;
     public string RelativesContact { get; set; } = string.Empty;
 
-    public int StaffId { get; set; }
+    public int? StaffId { get; set; }
     public int StaffDepartmentId { get; set; }
     public int ResidentId { get; set; }
     public string? StaffName { get; set; }

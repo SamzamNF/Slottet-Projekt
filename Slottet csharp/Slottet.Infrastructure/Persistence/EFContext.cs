@@ -47,14 +47,12 @@ public class EFContext : DbContext, IUnitOfWork
         //modelBuilder.Entity<Resident>().Ignore(r => r.IsArchived);
         //modelBuilder.Entity<Resident>().Ignore(r => r.ArchivedAt);
 
-        // Define delete behavior for Staff-PostIt relationship to prevent cascading deletes
+        // Define delete behavior for Staff-PostIt relationship to prevent cascading delete
         modelBuilder.Entity<PostIt>()
             .HasOne(p => p.Staff)
             .WithMany()
             .HasForeignKey(p => p.StaffId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        base.OnModelCreating(modelBuilder);
+            .OnDelete(DeleteBehavior.ClientSetNull);
 
         // Define 1-to-1 relationship between PostIt and Risk
         modelBuilder.Entity<PostIt>()

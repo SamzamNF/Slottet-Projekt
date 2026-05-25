@@ -16,11 +16,12 @@ public class PostIt
     public string RelativesContact { get; set; } = string.Empty;
 
     // Foreign keys
-    public int StaffId { get; set; }
-    public Staff? Staff { get; set; }
+    public int? StaffId { get; set; }
     public int ResidentId { get; set; }
-    public Resident? Resident { get; set; }
 
+    // Navigation properties
+    public Staff? Staff { get; set; }
+    public Resident? Resident { get; set; }
     public Risk? Risk { get; set; }
     
     private readonly List<Medicine> _medicines = new List<Medicine>();
@@ -40,7 +41,7 @@ public class PostIt
         string status,
         string events,
         string relativesContact,
-        int staffId,
+        int? staffId,
         int residentId,
         string? riskAssessment
     )
@@ -55,7 +56,7 @@ public class PostIt
             throw new ArgumentException("Humør er påkrævet");
         if (string.IsNullOrWhiteSpace(status))
             throw new ArgumentException("Status er påkrævet");
-        if (staffId <= 0)
+        if (staffId.HasValue && staffId.Value <= 0)
             throw new ArgumentException("Gyldigt StaffId er påkrævet");
         if (residentId <= 0)
             throw new ArgumentException("Gyldigt ResidentId er påkrævet");
@@ -101,7 +102,7 @@ public class PostIt
         string status,
         string events,
         string relativesContact,
-        int staffId,
+        int? staffId,
         string? riskAssessment
     )
     {
@@ -115,7 +116,7 @@ public class PostIt
             throw new ArgumentException("Humør er påkrævet");
         if (string.IsNullOrWhiteSpace(status))
             throw new ArgumentException("Status er påkrævet");
-        if (staffId <= 0)
+        if (staffId.HasValue && staffId.Value <= 0)
             throw new ArgumentException("Gyldigt StaffId er påkrævet");
 
         Date = date;
