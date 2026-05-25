@@ -190,7 +190,8 @@ public class PostItService
             ResidentInitials = postIt.Resident?.Initial ?? string.Empty,
             ResidentDepartmentId = postIt.Resident?.DepartmentId ?? 0,
 
-            StaffName = postIt.Staff?.Initials ?? string.Empty,
+            StaffName = postIt.Staff != null ? $"{postIt.Staff.FirstName} {postIt.Staff.LastName}" : string.Empty,
+            StaffId = postIt.StaffId ?? 0,
 
             RiskId = postIt.Risk?.Id,
             RiskAssessment = postIt.Risk?.RiskAssessment ?? string.Empty,
