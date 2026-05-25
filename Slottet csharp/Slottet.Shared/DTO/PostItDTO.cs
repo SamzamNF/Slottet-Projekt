@@ -10,6 +10,7 @@ public class PostItDTO
     public string Status { get; set; } = string.Empty;
     public string Events { get; set; } = string.Empty;
     public string RelativesContact { get; set; } = string.Empty;
+    public string? LastEditedByInitials { get; set; }
 
     public int? StaffId { get; set; }
     public int StaffDepartmentId { get; set; }
@@ -20,7 +21,6 @@ public class PostItDTO
     public int? RiskId { get; set; }
     public string RiskAssessment { get; set; } = string.Empty;
 
-    // Til dummy data, hov, fy fy, dansk kommentar
     public StaffDto? LastEditedBy { get; set; }
     public List<MedicineDto> Medicines { get; set; } = new();
     public List<PnTimeDTO> PnTimes { get; set; } = new();

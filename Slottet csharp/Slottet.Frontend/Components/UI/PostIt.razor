@@ -1,12 +1,13 @@
 ﻿@using Slottet.Shared.DTO
+@inject ApiService ApiService
 
-@* ===================== UI: Card ===================== *@
+@* -------------------- UI: Card -------------------- *@
 
 <div class="card h-100 resident-card overflow-hidden border-0 shadow"
      style="cursor: pointer"
-     @onclick="() => OnClick.InvokeAsync(PostItItem)">
+     @onclick="OpenModal">
 
-    @* ---- Riskcolor-bar ---- *@
+    @* ---- Risk color bar ---- *@
     <div class="@GetRiskBgColor()" style="height: 20px; width: 100%;"></div>
 
     <div class="card-body">
@@ -21,6 +22,14 @@
         <div class="mb-2">
             <strong>Personale:</strong>
             <span>@PostItItem.StaffName</span>
+        </div>
+
+        @* ---- Status ---- *@
+        <div class="mb-2">
+            <div>
+                <strong>Status:</strong>
+                <p class="small mb-0 text-muted">@PostItItem.Status</p>
+            </div>
         </div>
 
         @* ---- Medicine + PN ---- *@
@@ -51,7 +60,7 @@
             </div>
         </div>
 
-        @* ---- ShoppingDay + Payment ---- *@
+        @* ---- Shopping day + Payment ---- *@
         <div class="row mb-3">
             <div class="col">
                 <strong>Handledag:</strong>
@@ -63,7 +72,7 @@
             </div>
         </div>
 
-        @* ---- RelativesContact ---- *@
+        @* ---- Relatives contact ---- *@
         <div class="row mb-0">
             <div>
                 <strong>Pårørendekontakt:</strong>
@@ -73,22 +82,133 @@
 
         <hr />
 
-        @* ---- Notes ---- *@
+        @* ---- Events ---- *@
+        <div class="row mb-0">
+            <div>
+                <strong>Hændelser:</strong>
+            </div>
+        </div>
         <p class="card-text small text-muted line-clamp-2 mb-0" title="@PostItItem.Events">
             @PostItItem.Events
         </p>
 
     </div>
 
-    @* ---- Footer: LastEditedBy ---- *@
+    @* ---- Footer: Last edited ---- *@
     <div class="card-footer border-top-0 text-muted small d-flex justify-content-between align-items-center pb-3">
         <span class="fst-italic">
-            Seneste ændring: @PostItItem.Date.ToString("HH:mm") af @PostItItem.LastEditedBy?.Initials
+            Seneste ændring: @PostItItem.Date.ToString("HH:mm") af @PostItItem.LastEditedByInitials
         </span>
         <a href="#" @onclick:preventDefault class="text-decoration-none">Vis log</a>
     </div>
 
 </div>
+
+@* -------------------- UI: Edit modal -------------------- *@
+
+@if (isModalOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);" @onclick="CloseModal">
+        <div class="modal-dialog modal-lg modal-dialog-centered" @onclick:stopPropagation>
+            <div class="modal-content">
+
+                @* ---- Modal header ---- *@
+                <div class="modal-header @GetRiskBgColor() border-0 text-white">
+                    <h5 class="modal-title">Rediger Post-it for @PostItItem.ResidentInitials</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+
+                @* ---- Modal body ---- *@
+                <div class="modal-body">
+                    <div class="row mb-3">
+
+                        @* ---- Risk ---- *@
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Risikovurdering</label>
+                            <select class="form-select" @bind="editRisk">
+                                <option value="Rolig">Rolig</option>
+                                <option value="Vær opmærksom">Vær opmærksom</option>
+                                <option value="Farlig">Farlig</option>
+                            </select>
+                        </div>
+
+                        @* ---- Mood ---- *@
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Humør</label>
+                            <select class="form-select" @bind="editMood">
+                                <option value="Glad">Glad</option>
+                                <option value="Neutral">Neutral</option>
+                                <option value="Ked af det">Ked af det</option>
+                                <option value="Udadreagerende">Udadreagerende</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    @* ---- Staff ---- *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Personale</label>
+                        <select class="form-select" @bind="editStaffId">
+                            @foreach (var staff in availableStaff)
+                            {
+                                <option value="@staff.Id">@staff.Initials - @staff.FirstName @staff.LastName</option>
+                            }
+                        </select>
+                    </div>
+
+                    @* ---- Status ---- *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <input class="form-control" @bind="editStatus" />
+                    </div>
+
+                    @* ---- Shopping day + Payment ---- *@
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Handledag</label>
+                            <input class="form-control" @bind="editShoppingDay" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Betaling</label>
+                            <input class="form-control" @bind="editPayment" />
+                        </div>
+                    </div>
+
+                    @* ---- Relatives contact ---- *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Pårørendekontakt</label>
+                        <input class="form-control" @bind="editRelativesContact" />
+                    </div>
+
+                    @* ---- Events ---- *@
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Hændelser</label>
+                        <textarea class="form-control" rows="3" @bind="editEvents"></textarea>
+                    </div>
+
+                    @* ---- Error message ---- *@
+                    @if (errorMessage != null)
+                    {
+                        <div class="alert alert-danger">@errorMessage</div>
+                    }
+                </div>
+
+                @* ---- Modal footer ---- *@
+                <div class="modal-footer border-top-0 bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuller</button>
+                    <button type="button" class="btn btn-success" @onclick="SaveChanges" disabled="@isSaving">
+                        @if (isSaving)
+                        {
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                        }
+                        Gem ændringer
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
 
 <style>
     .resident-card {
@@ -113,8 +233,95 @@
     [Parameter, EditorRequired]
     public PostItDTO PostItItem { get; set; } = default!;
 
-    [Parameter]
-    public EventCallback<PostItDTO> OnClick { get; set; }
+    // Modal state
+    private bool isModalOpen = false;
+    private bool isSaving = false;
+    private string? errorMessage = null;
+
+    // Edit fields
+    private string editMood = "";
+    private string editRisk = "";
+    private string editStatus = "";
+    private string editShoppingDay = "";
+    private string editPayment = "";
+    private string editRelativesContact = "";
+    private string editEvents = "";
+
+    // Open modal and populate fields
+    private void OpenModal()
+    {
+        editMood = PostItItem.Mood;
+        editRisk = PostItItem.RiskAssessment;
+        editStatus = PostItItem.Status;
+        editShoppingDay = PostItItem.ShoppingDay;
+        editPayment = PostItItem.Payment;
+        editRelativesContact = PostItItem.RelativesContact;
+        editEvents = PostItItem.Events;
+        editStaffId = PostItItem.StaffId;
+        errorMessage = null;
+        isModalOpen = true;
+    }
+
+    // Save changes to API
+    private async Task SaveChanges()
+    {
+        isSaving = true;
+        errorMessage = null;
+
+        try
+        {
+            PostItItem.Mood = editMood;
+            PostItItem.RiskAssessment = editRisk;
+            PostItItem.Status = editStatus;
+            PostItItem.ShoppingDay = editShoppingDay;
+            PostItItem.Payment = editPayment;
+            PostItItem.RelativesContact = editRelativesContact;
+            PostItItem.Events = editEvents;
+            PostItItem.Date = DateTime.Now;
+            PostItItem.StaffId = editStaffId;
+
+            await ApiService.PutAsync("api/postit", PostItItem);
+
+            var savedStaff = availableStaff.FirstOrDefault(s => s.Id == editStaffId);
+            PostItItem.LastEditedByInitials = savedStaff?.Initials ?? "";
+            PostItItem.StaffId = editStaffId;
+
+            CloseModal();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    // Staff list
+    private List<StaffDto> availableStaff = new();
+    private int editStaffId;
+
+    // Load staff on init
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await ApiService.GetListAsync<StaffDto>("api/staff");
+            availableStaff = result ?? new List<StaffDto>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    // Close modal
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        errorMessage = null;
+    }
 
     private string GetRiskBgColor() => PostItItem.RiskAssessment switch
     {

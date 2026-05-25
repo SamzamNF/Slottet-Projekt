@@ -1,227 +1,98 @@
-﻿@page "/"
+﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Slottet.Shared.DTO
 
-<h3><strong>Overblik over alle beboere</strong></h3>
+@page "/"
+@rendermode InteractiveServer
 
-<div class="d-flex flex-column min-vh-100">
-    <div class="container-fluid flex-grow-1 px-4 pb-5">
+@inject ApiService ApiService
 
-        @* ===================== UI: Date-Bar (History) ===================== *@
+<AuthorizeView Roles="Admin,Personale">
+    <Authorized>
+        <h3><strong>Overblik over alle beboere</strong></h3>
 
-        <div class="d-flex justify-content-between align-items-center bg-light mb-4 rounded p-3">
-            <button class="btn btn-primary px-3 py-2 shadow-sm" aria-label="Forrige dag">
-                <i class="bi bi-chevron-left fs-4"></i>
-            </button>
-            <h3 class="fw-bold mb-0">@currentDate.ToString("dd. MMMM yyyy", Danish)</h3>
-            <button class="btn btn-primary px-3 py-2 shadow-sm" aria-label="Næste dag">
-                <i class="bi bi-chevron-right fs-4"></i>
-            </button>
-        </div>
+        <div class="d-flex flex-column min-vh-100">
+            <div class="container-fluid flex-grow-1 px-4 pb-5">
 
-        @* ===================== UI: POST-IT card ===================== *@
+                @* -------------------- Date-Bar -------------------- *@
 
-        <div class="row g-4">
-            @foreach (var postIt in PostIts)
-            {
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3">
-                    @* PostIt-component is used here *@
-                    <PostIt PostItItem="postIt" OnClick="OpenPostItModal" />
+                <div class="d-flex justify-content-between align-items-center mb-4 bg-light rounded p-3">
+                    <button class="btn px-3 py-2 shadow-sm" style="background-color: #44985D; color: white;" @onclick="PreviousDay" aria-label="Forrige dag">
+                        <i class="bi bi-chevron-left fs-4"></i>
+                    </button>
+                    <h3 class="fw-bold mb-0">@currentDate.ToString("dd. MMMM yyyy", Danish)</h3>
+                    <button class="btn px-3 py-2 shadow-sm" style="background-color: #44985D; color: white;" @onclick="NextDay" disabled="@(currentDate >= DateTime.Today)" aria-label="Næste dag">
+                        <i class="bi bi-chevron-right fs-4"></i>
+                    </button>
                 </div>
-            }
-        </div>
 
-    </div>
-</div>
+                @* -------------------- Post-It cards -------------------- *@
 
-@* ===================== UI: Edit modal ===================== *@
+                <div class="row g-4">
+                    @foreach (var postIt in PostIts)
+                    {
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                            <PostIt PostItItem="postIt" />
+                        </div>
+                    }
+                </div>
 
-@if (selectedPostIt != null)
-{
-    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0 text-white bg-secondary">
-                    <h5 class="modal-title">Rediger Post-it: @selectedPostIt.ResidentInitials</h5>
-                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
-                </div>
-                <div class="modal-body">
-                    @* API *@
-                </div>
-                <div class="modal-footer border-top-0 bg-light">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuller</button>
-                    <button type="button" class="btn btn-success" @onclick="SaveChanges">Gem ændringer</button>
-                </div>
             </div>
         </div>
-    </div>
-}
+    </Authorized>
+
+    <NotAuthorized>
+        <div class="container mt-5 text-center">
+            <i class="bi bi-shield-lock display-1 text-danger"></i>
+            <h2 class="mt-3">Adgang nægtet</h2>
+            <p class="text-danger fw-bold">Du har ikke de nødvendige rettigheder for at se denne side.</p>
+            <p class="text-danger fw-bold mt-4">Log venligst ind for at få adgang.</p>
+        </div>
+    </NotAuthorized>
+
+</AuthorizeView>
 
 @code {
-    // Danish dates
+    // ---- Danish dates ----
     private readonly System.Globalization.CultureInfo Danish = new("da-DK");
 
     private DateTime currentDate = DateTime.Today;
-    private PostItDTO? selectedPostIt;
     private List<PostItDTO> PostIts = new();
+    private string? errorMessage;
 
-    @* ---- Dato-navigation ---- *@
-    private void PreviousDay() => currentDate = currentDate.AddDays(-1);
-    private void NextDay()
+    // ---- Load data from API ----
+    protected override async Task OnInitializedAsync()
     {
-        if (currentDate < DateTime.Today) currentDate = currentDate.AddDays(1);
+        await LoadPostIts();
     }
 
-    @* ---- Modal ---- *@
-    private void OpenPostItModal(PostItDTO postIt) => selectedPostIt = postIt;
-    private void CloseModal() => selectedPostIt = null;
-    private void SaveChanges() => CloseModal();
-
-
-    @* ===================== DUMMY DATA ===================== *@
-
-protected override void OnInitialized()
+    // ---- Load post-its for selected date ----
+    private async Task LoadPostIts()
     {
-        PostIts = new List<PostItDTO>
+        try
         {
-            new()
-            {
-                Id = 1,
-                Mood = "Udadreagerende",
-                ShoppingDay = "Onsdag",
-                Payment = "Eget kort eller kontant",
-                RelativesContact = "Søster besøgt",
-                Events = "Virket træt hele formiddagen",
-                Date = DateTime.Now.AddMinutes(-35),
-                
-                // 💡 RETTET til flade værdier i stedet for sub-objekter:
-                ResidentInitials = "B1",
-                ResidentDepartmentId = 1, // Slottet = 1
-                StaffName = "JEH, CLD",
-                RiskAssessment = "Rolig",
-                
-                LastEditedBy = new StaffDto { Initials = "ML" },
-                Medicines = new List<MedicineDto>
-                {
-                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
-                },
-                PnTimes = new List<PnTimeDTO>
-                {
-                    new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
-                }
-            },
-            new()
-            {
-                Id = 2,
-                Mood = "Neutral",
-                ShoppingDay = "Fredag",
-                Payment = "Betalt",
-                RelativesContact = "Far ringet",
-                Events = "Deltaget aktivt i fælles aktivitet",
-                Date = DateTime.Now.AddMinutes(-12),
-                
-                // 💡 RETTET til flade værdier:
-                ResidentInitials = "B2",
-                ResidentDepartmentId = 1, // Slottet = 1
-                StaffName = "MAK, SOP",
-                RiskAssessment = "Vær opmærksom",
-                
-                LastEditedBy = new StaffDto { Initials = "SK" },
-                Medicines = new List<MedicineDto>
-                {
-                    new() { TimeStamp = DateTime.Now.AddHours(-4), Description = "Panodil" }
-                },
-                PnTimes = new List<PnTimeDTO>
-                {
-                    new() { Time = DateTime.Now.AddHours(-5), Description = "PN ved uro" },
-                    new() { Time = DateTime.Now.AddHours(-1), Description = "Sovemedicin" }
-                }
-            },
-            new()
-            {
-                Id = 3,
-                Mood = "Glad",
-                ShoppingDay = "Tirsdag",
-                Payment = "Kontant",
-                RelativesContact = "Mor ringet",
-                Events = "God dag, deltog i fællesspisning",
-                Date = DateTime.Now.AddMinutes(-20),
-                
-                // 💡 RETTET til flade værdier:
-                ResidentInitials = "B3",
-                ResidentDepartmentId = 2, // Skoven = 2
-                StaffName = "CLD",
-                RiskAssessment = "Rolig",
-                
-                LastEditedBy = new StaffDto { Initials = "JEH" },
-                Medicines = new List<MedicineDto>
-                {
-                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" }
-                },
-                PnTimes = new List<PnTimeDTO>
-                {
-                    new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
-                }
-            },
-            new()
-            {
-                Id = 4,
-                Mood = "Udadreagerende",
-                ShoppingDay = "Onsdag",
-                Payment = "Eget kort eller kontant",
-                RelativesContact = "Søster besøgt",
-                Events = "Virket træt hele formiddagen",
-                Date = DateTime.Now.AddMinutes(-35),
-                
-                // 💡 RETTET til flade værdier:
-                ResidentInitials = "B4",
-                ResidentDepartmentId = 2, // Skoven = 2
-                StaffName = "JEH, MAK",
-                RiskAssessment = "Farlig",
-                
-                LastEditedBy = new StaffDto { Initials = "ML" },
-                Medicines = new List<MedicineDto>
-                {
-                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Insulin" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Metformin" }
-                },
-                PnTimes = new List<PnTimeDTO>
-                {
-                    new() { Time = DateTime.Now.AddHours(-3), Description = "Beroligende" }
-                }
-            },
-            new()
-            {
-                Id = 5,
-                Mood = "Neutral",
-                ShoppingDay = "Torsdag",
-                Payment = "Mobilepay",
-                RelativesContact = "Ingen kontakt",
-                Events = "Rolig dag, så TV om eftermiddagen",
-                Date = DateTime.Now.AddMinutes(-50),
-                
-                // 💡 RETTET til flade værdier:
-                ResidentInitials = "B5",
-                ResidentDepartmentId = 1, // Slottet = 1
-                StaffName = "SOP, CLD",
-                RiskAssessment = "Vær opmærksom",
-                
-                LastEditedBy = new StaffDto { Initials = "SOP" },
-                Medicines = new List<MedicineDto>
-                {
-                    new() { TimeStamp = DateTime.Now.AddHours(-2), Description = "Panodil" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Vitamin D" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Sovemedicin" },
-                    new() { TimeStamp = DateTime.Now.AddHours(-1), Description = "Blodtryksmedicin" }
-                },
-                PnTimes = new List<PnTimeDTO>
-                {
-                    // "Spise tandpasta" er alligevel den bedste beskrivelse til PN nogensinde 😂
-                    new() { Time = DateTime.Now.AddHours(-3), Description = "Spise tandpasta" }
-                }
-            }
-        };
+            var result = await ApiService.GetListAsync<PostItDTO>($"api/postit/history/date?date={currentDate:yyyy-MM-dd}");
+            PostIts = result ?? new List<PostItDTO>();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    // ---- Date navigation ----
+    private async Task PreviousDay()
+    {
+        currentDate = currentDate.AddDays(-1);
+        await LoadPostIts();
+    }
+
+    private async Task NextDay()
+    {
+        if (currentDate < DateTime.Today)
+        {
+            currentDate = currentDate.AddDays(1);
+            await LoadPostIts();
+        }
     }
 }
+
