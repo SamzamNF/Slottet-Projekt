@@ -1,6 +1,6 @@
 # Slottet Projekt
 
-Slottet er et fuldstack system til håndtering af beboere, medarbejdere, roller, ansvarsområder, telefoner, Pn-tider, medicin, risikovurderinger og Post-It-notater. Løsningen er bygget som en moderne .NET-baseret webapplikation med en separat frontend, API, application layer, domain layer, infrastructure layer og shared DTO-lag.
+Slottet er et fuldstack system til håndtering af beboere for Østruplund, som personalet kan bruge til at holde styr på de daglige dage for beboerne
 
 ## Indhold
 
