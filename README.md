@@ -1,6 +1,6 @@
 # Slottet Projekt
 
-Slottet er et fuldstack system til håndtering af beboere for Østruplund, som personalet kan bruge til at holde styr på de daglige dage for beboerne
+Slottet er et full stack system til håndtering af beboere for Østruplund, som personalet kan bruge til at holde styr på de dagligdagen for beboerne
 
 ## Indhold
 
