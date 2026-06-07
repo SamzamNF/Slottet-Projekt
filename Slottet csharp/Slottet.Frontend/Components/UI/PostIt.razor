@@ -1,5 +1,7 @@
 ﻿@using Slottet.Shared.DTO
+@using MudBlazor
 @inject ApiService ApiService
+@inject ISnackbar Snackbar
 
 @* -------------------- UI: Card -------------------- *@
 
@@ -286,11 +288,14 @@
             PostItItem.LastEditedByInitials = savedStaff?.Initials ?? "";
             PostItItem.StaffId = editStaffId;
 
+            Snackbar.Add($"Post-it for {PostItItem.ResidentInitials} er opdateret.", Severity.Success);
+
             CloseModal();
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
+            Snackbar.Add($"Fejl ved opdatering af post-it for {PostItItem.ResidentInitials}: {ex.Message}", Severity.Error);
         }
         finally
         {
